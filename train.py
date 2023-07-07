@@ -17,88 +17,88 @@ from utils import *
 
 def main(args):
     config_file = args.config
-    try:
-        with open(get_config_path() / config_file, 'r') as file:
-            config_data = yaml.safe_load(file)
+    #try:
+    with open(get_config_path() / config_file, 'r') as file:
+        config_data = yaml.safe_load(file)
 
-            # input pipeline
-            tr_dataset = eval(config_data['data_pipeline']['train']['dataset']) #str to object
-            tr_path = Path(config_data['data_pipeline']['train']['path'])
-            tr_mslr_size = config_data['data_pipeline']['train']['mslr_img_size']
-            tr_pan_size = config_data['data_pipeline']['train']['pan_img_size']
-            
-            tr_augmentation_list = []
-            tr_shuffle = config_data['data_pipeline']['train']['preprocessing']['shuffle']
-            tr_cropping_on_the_fly = config_data['data_pipeline']['train']['preprocessing']['cropping_on_the_fly']
-            if config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['enable']:
-                tr_augmentation_list.append(RandomHorizontalFlip(p=config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['prob']))
-            if config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['enable']:
-                tr_augmentation_list.append(RandomVerticalFlip(p=config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['prob']))
-            if config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['enable']:
-                tr_augmentation_list.append(RandomRotation(degrees=config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['degrees']))
+        # input pipeline
+        tr_dataset = eval(config_data['data_pipeline']['train']['dataset']) #str to object
+        tr_path = Path(config_data['data_pipeline']['train']['path'])
+        tr_mslr_size = config_data['data_pipeline']['train']['mslr_img_size']
+        tr_pan_size = config_data['data_pipeline']['train']['pan_img_size']
+        
+        tr_augmentation_list = []
+        tr_shuffle = config_data['data_pipeline']['train']['preprocessing']['shuffle']
+        tr_cropping_on_the_fly = config_data['data_pipeline']['train']['preprocessing']['cropping_on_the_fly']
+        if config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['enable']:
+            tr_augmentation_list.append(RandomHorizontalFlip(p=config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['prob']))
+        if config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['enable']:
+            tr_augmentation_list.append(RandomVerticalFlip(p=config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['prob']))
+        if config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['enable']:
+            tr_augmentation_list.append(RandomRotation(degrees=config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['degrees']))
 
-            val_dataset = eval(config_data['data_pipeline']['validation']['dataset'])
-            val_path = Path(config_data['data_pipeline']['validation']['path'])
-            val_mslr_size = config_data['data_pipeline']['validation']['mslr_img_size']
-            val_pan_size = config_data['data_pipeline']['validation']['pan_img_size']
-            val_shuffle = config_data['data_pipeline']['validation']['preprocessing']['shuffle']
-            val_cropping_on_the_fly = config_data['data_pipeline']['validation']['preprocessing']['cropping_on_the_fly']
-            val_steps = config_data['data_pipeline']['validation']['val_steps']
+        val_dataset = eval(config_data['data_pipeline']['validation']['dataset'])
+        val_path = Path(config_data['data_pipeline']['validation']['path'])
+        val_mslr_size = config_data['data_pipeline']['validation']['mslr_img_size']
+        val_pan_size = config_data['data_pipeline']['validation']['pan_img_size']
+        val_shuffle = config_data['data_pipeline']['validation']['preprocessing']['shuffle']
+        val_cropping_on_the_fly = config_data['data_pipeline']['validation']['preprocessing']['cropping_on_the_fly']
+        val_steps = config_data['data_pipeline']['validation']['val_steps']
 
-            # general settings
-            model_name = config_data['general_settings']['name']
-            model_type = eval(config_data['general_settings']['model_type'])
-            continue_from_checkpoint = config_data['general_settings']['continue_from_checkpoint']
-            checkpoint_name = config_data['general_settings']['checkpoint_name']
-            if checkpoint_name:
-                checkpoint_path = get_checkpoint_path() / model_name / checkpoint_name
-            report_interval = config_data['general_settings']['report_interval']
-            save_interval = config_data['general_settings']['save_interval']
-            evaluation_steps = config_data['general_settings']['evaluation_steps']
-            
-            # task
-            upscale = config_data['task']['upscale']
-            mslr_to_pan_scale = config_data['task']['mslr_to_pan_scale']
-            
-            # network configs 
-            patch_size = config_data['network']['patch_size']
-            in_chans= config_data['network']['in_chans']
-            embed_dim = config_data['network']['embed_dim']
-            depths = config_data['network']['depths']
-            num_heads = config_data['network']['num_heads']
-            window_size = config_data['network']['window_size']
-            compress_ratio = config_data['network']['compress_ratio']
-            squeeze_factor = config_data['network']['squeeze_factor']
-            conv_scale = config_data['network']['conv_scale']
-            overlap_ratio = config_data['network']['overlap_ratio']
-            mlp_ratio = config_data['network']['mlp_ratio']
-            qkv_bias = config_data['network']['qkv_bias']
-            qk_scale = config_data['network']['qk_scale']
-            drop_rate = config_data['network']['drop_rate']
-            attn_drop_rate = config_data['network']['attn_drop_rate']
-            drop_path_rate = config_data['network']['drop_path_rate']
-            norm_layer = eval(config_data['network']['norm_layer'])
-            ape = config_data['network']['ape']
-            patch_norm = config_data['network']['patch_norm']
-            img_range = config_data['network']['img_range']
-            upsampler = config_data['network']['upsampler']
-            resi_connection = config_data['network']['resi_connection']
+        # general settings
+        model_name = config_data['general_settings']['name']
+        model_type = eval(config_data['general_settings']['model_type'])
+        continue_from_checkpoint = config_data['general_settings']['continue_from_checkpoint']
+        checkpoint_name = config_data['general_settings']['checkpoint_name']
+        if checkpoint_name:
+            checkpoint_path = get_checkpoint_path() / model_name / checkpoint_name
+        report_interval = config_data['general_settings']['report_interval']
+        save_interval = config_data['general_settings']['save_interval']
+        evaluation_steps = config_data['general_settings']['evaluation_steps']
+        
+        # task
+        upscale = config_data['task']['upscale']
+        mslr_to_pan_scale = config_data['task']['mslr_to_pan_scale']
+        
+        # network configs 
+        patch_size = config_data['network']['patch_size']
+        in_chans= config_data['network']['in_chans']
+        embed_dim = config_data['network']['embed_dim']
+        depths = config_data['network']['depths']
+        num_heads = config_data['network']['num_heads']
+        window_size = config_data['network']['window_size']
+        compress_ratio = config_data['network']['compress_ratio']
+        squeeze_factor = config_data['network']['squeeze_factor']
+        conv_scale = config_data['network']['conv_scale']
+        overlap_ratio = config_data['network']['overlap_ratio']
+        mlp_ratio = config_data['network']['mlp_ratio']
+        qkv_bias = config_data['network']['qkv_bias']
+        qk_scale = config_data['network']['qk_scale']
+        drop_rate = config_data['network']['drop_rate']
+        attn_drop_rate = config_data['network']['attn_drop_rate']
+        drop_path_rate = config_data['network']['drop_path_rate']
+        norm_layer = eval(config_data['network']['norm_layer'])
+        ape = config_data['network']['ape']
+        patch_norm = config_data['network']['patch_norm']
+        img_range = config_data['network']['img_range']
+        upsampler = config_data['network']['upsampler']
+        resi_connection = config_data['network']['resi_connection']
 
-            #training_settings
-            steps = config_data['training_settings']['steps']
-            batch_size = config_data['training_settings']['batch_size']
-            optimizer_type = eval(config_data['training_settings']['optimizer']['type'])
-            learning_rate = config_data['training_settings']['optimizer']['learning_rate']
-            betas = config_data['training_settings']['optimizer']['betas']
-            loss_type = eval(config_data['training_settings']['loss']['type'])
+        #training_settings
+        steps = config_data['training_settings']['steps']
+        batch_size = config_data['training_settings']['batch_size']
+        optimizer_type = eval(config_data['training_settings']['optimizer']['type'])
+        learning_rate = config_data['training_settings']['optimizer']['learning_rate']
+        betas = config_data['training_settings']['optimizer']['betas']
+        loss_type = eval(config_data['training_settings']['loss']['type'])
 
-    except FileNotFoundError:
+    '''except FileNotFoundError:
         print(f"Config file '{get_config_path() / config_file}' not found.")
         return
     except yaml.YAMLError as exc:
         print(f"Error while parsing YAML in config file '{config_file}': {exc}")
         return
-
+'''
     # Prepare device
     # TODO add more code for server
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
