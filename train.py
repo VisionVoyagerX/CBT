@@ -93,7 +93,7 @@ def main(args):
             loss_type = eval(config_data['training_settings']['loss']['type'])
 
     except FileNotFoundError:
-        print(f"Config file '{config_file}' not found.")
+        print(f"Config file '{get_config_path() / config_file}' not found.")
         return
     except yaml.YAMLError as exc:
         print(f"Error while parsing YAML in config file '{config_file}': {exc}")
