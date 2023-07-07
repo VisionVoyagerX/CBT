@@ -1,0 +1,83 @@
+# data pipeline settings
+data_pipeline:
+  train:
+    dataset: GaoFen2
+    path: "F:/Data/GaoFen-2/train/train_gf2-001.h5"
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
+
+    preprocessing:
+      shuffle: True
+      cropping_on_the_fly: False
+      RandomHorizontalFlip:
+        enable: True
+        prob: 0.3
+      RandomVerticalFlip:
+        enable: True
+        prob: 0.3
+      RandomRotation:
+        enable: False
+        degrees: 90
+
+  validation:
+    dataset: GaoFen2
+    path: "F:/Data/GaoFen-2/val/valid_gf2.h5"
+    data_pipeline:
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
+    preprocessing:
+      shuffle: True
+      cropping_on_the_fly: False
+    val_steps: 100 #leave empty to evaluate the entire validation set
+
+machine_settings:
+  num_gpu: 2
+
+# general settings
+general_settings:
+  name: "crossformer_base"
+  model_type: CrossFormer
+  continue_from_checkpoint: False
+  checkpoint_name: #"crossformer_base_2023_07_05-17_19_41.pth.tar"
+  report_interval: 50
+  save_interval: 50
+  evaluation_steps: [2000, 4000, 5000]
+
+task:
+  upscale: 1
+  mslr_to_pan_scale: 4
+
+# network structures
+network:
+  patch_size: 1
+  in_chans: 4
+  embed_dim: 30
+  depths: [6, 6, 6, 6]
+  num_heads: [6, 6, 6, 6]
+  window_size: 8 #16
+  compress_ratio: 3
+  squeeze_factor: 30
+  conv_scale: 0.01
+  overlap_ratio: 0.5
+  mlp_ratio: 2
+  qkv_bias: True
+  qk_scale: #empty == None
+  drop_rate: 0.
+  attn_drop_rate: 0.
+  drop_path_rate: 0.1
+  norm_layer: nn.LayerNorm
+  ape: False
+  patch_norm: True
+  img_range: 1.
+  upsampler: "pixelshuffle"
+  resi_connection: "1conv"
+
+training_settings:
+  steps: 2000
+  batch_size: 8 #32 on server
+  optimizer:
+    type: Adam
+    learning_rate: !!float 2e-4
+    betas: [0.9, 0.99]
+  loss:
+    type: L1Loss
