@@ -106,6 +106,7 @@ def main(args):
     # Prepare device
     # TODO add more code for server
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(device)
 
     # Initialize DataLoader
     train_dataset = tr_dataset(
@@ -150,8 +151,8 @@ def main(args):
     current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
 
     # Model summary
-    pan_example = torch.randn(1,1,tr_pan_size[0],tr_pan_size[1]).to(device)
-    mslr_example = torch.randn(1,in_chans,tr_mslr_size[0],tr_mslr_size[1]).to(device)
+    pan_example = torch.randn((1,1,tr_pan_size[0],tr_pan_size[1])).to(device)
+    mslr_example = torch.randn((1,in_chans,tr_mslr_size[0],tr_mslr_size[1])).to(device)
     
     summary(model, pan_example, mslr_example, verbose=1)
 
