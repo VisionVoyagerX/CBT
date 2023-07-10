@@ -51,7 +51,7 @@ task:
 network:
   patch_size: 1
   in_chans: 4
-  embed_dim: 48 # 144
+  embed_dim: 42 # 144
   depths: [4, 4, 4, 4] #, 6, 6
   num_heads: [4, 4, 4, 4] #, 6, 6
   window_size: 16
