@@ -653,7 +653,7 @@ class HAB(nn.Module):
         return x
 
 class CBAB(nn.Module):
-    # overlapping cross-attention block
+    # cross-band attention block
 
     def __init__(self, 
                  dim,

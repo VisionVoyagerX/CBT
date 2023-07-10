@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import StepLR
 from torch.nn import L1Loss
 from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
@@ -90,6 +91,9 @@ def main(args):
         optimizer_type = eval(config_data['training_settings']['optimizer']['type'])
         learning_rate = config_data['training_settings']['optimizer']['learning_rate']
         betas = config_data['training_settings']['optimizer']['betas']
+        lr_decay_type = eval(config_data['training_settings']['scheduler']['type'])
+        lr_decay_intervals = config_data['training_settings']['scheduler']['lr_decay_intervals']
+        lr_gamma = config_data['training_settings']['scheduler']['gamma']
         loss_type = eval(config_data['training_settings']['loss']['type'])
 
     '''except FileNotFoundError:
@@ -126,6 +130,8 @@ def main(args):
     
     optimizer = optimizer_type(model.parameters(), lr=learning_rate, betas=(betas[0], betas[1]))
     criterion = loss_type().to(device)
+
+    scheduler = lr_decay_type(optimizer, step_size=1, gamma=lr_gamma)
 
     metric_collection = MetricCollection({
         'psnr' : PeakSignalNoiseRatio().to(device),
@@ -180,10 +186,16 @@ def main(args):
         tr_report_loss += tr_loss
         batch_metric = metric_collection.forward(mssr, mshr)
         
+        
         # backward
         optimizer.zero_grad()
         tr_loss.backward()
         optimizer.step()
+
+        #lr_decay
+        if step in lr_decay_intervals:
+            scheduler.step()
+            #print(scheduler.get_last_lr())
 
         batch_metrics = {'loss' : tr_loss.item(),
                         'psnr' : batch_metric['psnr'].item(),

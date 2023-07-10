@@ -74,10 +74,14 @@ network:
 
 training_settings:
   steps: 2000
-  batch_size: 8 #32 on server
+  batch_size: 1 #32 on server
   optimizer:
     type: Adam
     learning_rate: !!float 2e-4
     betas: [0.9, 0.99]
+  scheduler:
+    type: StepLR
+    lr_decay_intervals: [250000, 400000, 450000, 475000]
+    gamma: 0.5
   loss:
     type: L1Loss
