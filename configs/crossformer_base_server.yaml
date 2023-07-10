@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: GaoFen2
-    path: "/home/ec2-user/project/Data/GaoFen-2/train/train_gf2-001.h5" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
+    path: "/home/ubuntu/project/Data/train/train_gf2-001.h5" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -21,7 +21,7 @@ data_pipeline:
 
   validation:
     dataset: GaoFen2
-    path: "/home/ec2-user/project/Data/GaoFen-2/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
+    path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
