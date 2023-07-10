@@ -52,8 +52,8 @@ network:
   patch_size: 1
   in_chans: 4
   embed_dim: 32 # 144
-  depths: [4, 4, 4, 4] #, 6, 6
-  num_heads: [4, 4, 4, 4] #, 6, 6
+  depths: [4, 4, 4] #, 6, 6
+  num_heads: [4, 4, 4] #, 6, 6
   window_size: 16
   compress_ratio: 24
   squeeze_factor: 24
