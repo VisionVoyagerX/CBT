@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-import torch.utils.checkpoint as checkpoint
+from torch.nn.init import trunc_normal_
+
 from .shallow_feature_extractor import *
 from .deep_feature_extractor import *
 from .image_reconstructor import *
 
-from basicsr.archs.arch_util import trunc_normal_
 
 import matplotlib.pyplot as plt
 

@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
-
-from basicsr.archs.arch_util import to_2tuple, trunc_normal_
-
+from torch.nn.init import trunc_normal_
+from .utils import retrieve_2d_tuple
 from einops import rearrange
 
 import matplotlib.pyplot as plt
@@ -583,7 +582,7 @@ class HAB(nn.Module):
         self.norm1 = norm_layer(dim)
         self.attn = WindowAttention(
             dim,
-            window_size=to_2tuple(self.window_size),
+            window_size=retrieve_2d_tuple(self.window_size),
             num_heads=num_heads,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
@@ -684,7 +683,7 @@ class CBAB(nn.Module):
         self.norm_cross = norm_layer(dim)
         self.cross_band_attn = CrossbandWindowAttention(
             dim,
-            window_size=to_2tuple(self.window_size),
+            window_size=retrieve_2d_tuple(self.window_size),
             num_heads=num_heads,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
@@ -1116,8 +1115,8 @@ class PatchEmbed(nn.Module):
 
     def __init__(self, img_size=224, patch_size=4, in_chans=3, embed_dim=96, norm_layer=None):
         super().__init__()
-        img_size = to_2tuple(img_size)
-        patch_size = to_2tuple(patch_size)
+        img_size = retrieve_2d_tuple(img_size)
+        patch_size = retrieve_2d_tuple(patch_size)
         patches_resolution = [img_size[0] //
                               patch_size[0], img_size[1] // patch_size[1]]
         self.img_size = img_size
@@ -1153,8 +1152,8 @@ class PatchUnEmbed(nn.Module):
 
     def __init__(self, img_size=224, patch_size=4, in_chans=3, embed_dim=96, norm_layer=None):
         super().__init__()
-        img_size = to_2tuple(img_size)
-        patch_size = to_2tuple(patch_size)
+        img_size = retrieve_2d_tuple(img_size)
+        patch_size = retrieve_2d_tuple(patch_size)
         patches_resolution = [img_size[0] //
                               patch_size[0], img_size[1] // patch_size[1]]
         self.img_size = img_size

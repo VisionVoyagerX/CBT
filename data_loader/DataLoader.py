@@ -6,7 +6,7 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 import cv2
 
-from torchvision.transforms import Resize, RandomHorizontalFlip
+from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip
 import matplotlib.pyplot as plt
 import h5py
 import numpy as np
@@ -62,12 +62,12 @@ class DIV2K(Dataset):
 
 
 class GaoFen2(Dataset):
-    def __init__(self, dir, transform=None) -> None:
+    def __init__(self, dir, transforms=None) -> None:
         f = h5py.File(str(dir),'r+')
         self.hr = torch.tensor(f['gt'][()], dtype=torch.float32)
         self.mslr = torch.tensor(f['ms'][()], dtype=torch.float32)
         self.pan = torch.tensor(f['pan'][()], dtype=torch.float32)
-        self.transform = transform
+        self.transforms = transforms
 
         #precomputed
         self.pan_mean = torch.tensor([250.0172]).view(1,1,1,1)
@@ -82,13 +82,15 @@ class GaoFen2(Dataset):
     def __getitem__(self, index):
 
         pan = self.pan[index]
-        mslr = self.mslr[index ]
+        mslr = self.mslr[index]
         hr = self.hr[index]
 
-        if self.transform:
-            pan = self.transform(pan)
-            mslr = self.transform(mslr)
-            hr = self.transform(hr)
+        if self.transforms:
+            for transform, prob in self.transforms:
+                if torch.randn(1) < prob:
+                    pan = transform(pan)
+                    mslr = transform(mslr)
+                    hr = transform(hr)
 
         return (pan, mslr, hr)
 
@@ -101,7 +103,7 @@ if __name__ == "__main__":
     #dir_test = Path(f'F:/Data/GaoFen-2/train/train_gf2-001.h5')
 
     tr_dataset = GaoFen2(
-        dir_tr)
+        dir_tr, transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)])
     train_loader = DataLoader(
         dataset=tr_dataset, batch_size=batch_size, shuffle=shuffle)
     
@@ -123,6 +125,7 @@ if __name__ == "__main__":
     channel_sum_of_squares = 0
     total_samples = 0
     # Iterate over the DataLoader
+    print('Length of Dataloader: ', len(tr_dataset))
     for pan, mslr, mshr in tr_dataset:
         # Assuming your data is a tensor
         # Compute the channel-wise mean and mean of squares

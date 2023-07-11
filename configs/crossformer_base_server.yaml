@@ -30,6 +30,15 @@ data_pipeline:
       cropping_on_the_fly: False
     val_steps: 100 #leave empty to evaluate the entire validation set
 
+  test:
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
+    preprocessing:
+      shuffle: False
+      cropping_on_the_fly: False
+
 machine_settings:
   num_gpu: 2
 
@@ -42,6 +51,7 @@ general_settings:
   report_interval: 50
   save_interval: 50
   evaluation_steps: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
+  test_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
 
 task:
   upscale: 1

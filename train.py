@@ -46,6 +46,12 @@ def main(args):
         val_cropping_on_the_fly = config_data['data_pipeline']['validation']['preprocessing']['cropping_on_the_fly']
         val_steps = config_data['data_pipeline']['validation']['val_steps']
 
+        test_dataset = eval(config_data['data_pipeline']['test']['dataset'])
+        test_path = Path(config_data['data_pipeline']['test']['path'])
+        test_mslr_size = config_data['data_pipeline']['test']['mslr_img_size']
+        test_pan_size = config_data['data_pipeline']['test']['pan_img_size']
+        test_cropping_on_the_fly = config_data['data_pipeline']['test']['preprocessing']['cropping_on_the_fly']
+
         # general settings
         model_name = config_data['general_settings']['name']
         model_type = eval(config_data['general_settings']['model_type'])
@@ -55,7 +61,8 @@ def main(args):
             checkpoint_path = get_checkpoint_path() / model_name / checkpoint_name
         report_interval = config_data['general_settings']['report_interval']
         save_interval = config_data['general_settings']['save_interval']
-        evaluation_steps = config_data['general_settings']['evaluation_steps']
+        evaluation_interval = config_data['general_settings']['evaluation_interval']
+        test_intervals = config_data['general_settings']['test_intervals']
         
         # task
         upscale = config_data['task']['upscale']
@@ -110,7 +117,7 @@ def main(args):
 
     # Initialize DataLoader
     train_dataset = tr_dataset(
-        tr_path)
+        tr_path, transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)])
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True)
 
@@ -118,6 +125,11 @@ def main(args):
         val_path)
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
+    
+    test_dataset = test_dataset(
+        test_path)
+    test_loader = DataLoader(
+        dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
     # TODO is imge_size necesasary?
@@ -144,10 +156,19 @@ def main(args):
         'ssim' : StructuralSimilarityIndexMeasure().to(device)
     })
 
+    test_metric_collection = MetricCollection({
+        'psnr' : PeakSignalNoiseRatio().to(device),
+        'ssim' : StructuralSimilarityIndexMeasure().to(device)
+    })
+
     tr_report_loss = 0
     val_report_loss = 0
+    test_report_loss = 0
     tr_metrics = []
     val_metrics = []
+    test_metrics = []
+    best_eval_psnr = 0
+    best_test_psnr = 0
     current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
 
     # Model summary
@@ -158,7 +179,7 @@ def main(args):
 
     #load checkpoint
     if continue_from_checkpoint:
-        tr_metrics, val_metrics = load_checkpoint(torch.load(checkpoint_path), model, optimizer, tr_metrics, val_metrics)
+        tr_metrics, val_metrics, test_metrics = load_checkpoint(torch.load(checkpoint_path), model, optimizer, tr_metrics, val_metrics, test_metrics)
 
     print('==> Starting training ...')
     train_iter = iter(train_loader)
@@ -169,7 +190,8 @@ def main(args):
                         'state_dict': model.state_dict(), 
                         'optimizer': optimizer.state_dict(),
                         'tr_metrics' : tr_metrics,
-                        'val_metrics': val_metrics}
+                        'val_metrics': val_metrics,
+                        'test_metrics' : test_metrics}
             save_checkpoint(checkpoint, model_name, current_daytime)
 
         try:
@@ -221,7 +243,7 @@ def main(args):
             metric_collection.reset()
 
         # Evaluate model
-        if (step + 1) in evaluation_steps and step != 0:
+        if (step + 1) in evaluation_interval and step != 0:
             # evaluation mode
             model.eval()
             with torch.no_grad():
@@ -229,7 +251,7 @@ def main(args):
                 val_steps = val_steps if val_steps else len(validation_loader)
                 eval_progress_bar = tqdm(iter(range(val_steps)), total=val_steps, desc="Validation", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
                 val_iter = iter(validation_loader)
-                for step in eval_progress_bar:
+                for eval_step in eval_progress_bar:
                     try:
                         # Samples the batch
                         pan, mslr, mshr = next(val_iter)
@@ -263,6 +285,65 @@ def main(args):
             
             #train mode
             model.train()
+
+
+            #save best evaluation model based on PSNR
+            if val_metrics[-1]['psnr'] > best_eval_psnr:
+                best_eval_psnr = val_metrics[-1]['psnr']
+                checkpoint = {'step' : step,
+                            'state_dict': model.state_dict(), 
+                            'optimizer': optimizer.state_dict(),
+                            'tr_metrics' : tr_metrics,
+                            'val_metrics': val_metrics,
+                            'test_metrics': test_metrics}
+                save_checkpoint(checkpoint, model_name, current_daytime + '_best_eval')
+
+
+        # test model
+        if (step + 1) in test_intervals and step != 0:
+                # evaluation mode
+                model.eval()
+                with torch.no_grad():
+                    print("\n==> Start testing ...")
+                    test_progress_bar = tqdm(iter(test_loader), total=len(test_loader), desc="Testing", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
+                    for pan, mslr, mshr in test_progress_bar:
+                        # forward
+                        pan, mslr, mshr = pan.to(device), mslr.to(device), mshr.to(device)
+                        mssr = model(pan, mslr)
+                        test_loss = criterion(mssr, mshr)
+                        test_metric = test_metric_collection.forward(mssr, mshr)
+                        test_report_loss += test_loss
+
+                        #report metrics
+                        test_progress_bar.set_postfix(loss = f'{test_loss.item()}' , psnr=f'{test_metric["psnr"].item():.2f}', ssim=f'{test_metric["ssim"].item():.2f}') 
+
+                    # compute metrics total
+                    test_report_loss = test_report_loss / len(test_loader)
+                    test_metric = test_metric_collection.compute()
+                    test_metrics.append({'loss' : test_report_loss.item(),
+                                    'psnr': test_metric['psnr'].item(), 
+                                    'ssim': test_metric['ssim'].item()})
+
+                    print(f'\nTesting: avg_loss = {test_report_loss.item():.4f} , avg_psnr= {test_metric["psnr"]:.4f}, avg_ssim={test_metric["ssim"]:.4f}')
+                    
+                    # reset metrics
+                    test_report_loss = 0
+                    test_metric_collection.reset() 
+                    print("==> End testing <==\n")
+
+                #train mode
+                model.train()
+
+                #save best test model based on PSNR
+                if test_metrics[-1]['psnr'] > best_test_psnr:
+                    best_test_psnr = test_metrics[-1]['psnr']
+                    checkpoint = {'step' : step,
+                                'state_dict': model.state_dict(), 
+                                'optimizer': optimizer.state_dict(),
+                                'tr_metrics' : tr_metrics,
+                                'val_metrics': val_metrics,
+                                'test_metrics': test_metrics}
+                    save_checkpoint(checkpoint, model_name, current_daytime + '_best_test')
 
     print('==> training ended <==')
 
