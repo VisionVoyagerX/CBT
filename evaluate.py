@@ -167,7 +167,7 @@ def main(args):
     # evaluation mode
     model.eval()
     with torch.no_grad():
-        """print("\n==> Start evaluating ...")
+        print("\n==> Start evaluating ...")
         eval_progress_bar = tqdm(iter(validation_loader), total=len(validation_loader), desc="Evaluation", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
         for pan, mslr, mshr in eval_progress_bar:
             # forward
@@ -193,7 +193,7 @@ def main(args):
         val_report_loss = 0
         val_metric_collection.reset() 
         print("==> End evaluating <==\n")
-    """
+    
 
         # test model
         with torch.no_grad():
