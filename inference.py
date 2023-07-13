@@ -197,7 +197,7 @@ def main(args):
             val_metric_collection.reset()
 
         lr, pan, mssr, mshr = highest_images
-        figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(10, 10))
+        figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 15))
         axis[0].imshow((scaleMinMax(lr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
         axis[0].set_title('(a) LR')
         axis[0].axis("off")
