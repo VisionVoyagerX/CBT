@@ -224,7 +224,7 @@ def main(args):
             test_metric_collection.reset() 
             print("==> End testing <==\n")
 
-        plt.imshow(pan)
+        #plt.imshow(pan)
         
 
 
