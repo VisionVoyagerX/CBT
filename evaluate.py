@@ -120,10 +120,10 @@ def main(args):
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
     
-    test_dataset = test_dataset(
+    te_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=test_dataset, batch_size=batch_size, shuffle=False)
+        dataset=te_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
     # TODO is imge_size necesasary?
@@ -224,8 +224,8 @@ def main(args):
             test_metric_collection.reset() 
             print("==> End testing <==\n")
 
-        #train mode
-        model.train()
+        plt.imshow(pan)
+        
 
 
 if __name__ == '__main__':
