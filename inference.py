@@ -198,7 +198,7 @@ def main(args):
 
         lr, pan, mssr, mshr = highest_images
         figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(10, 10))
-        axis[0].imshow((scaleMinMax(lr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy()) * 254).astype(np.int8), cmap='viridis')
+        axis[0].imshow((scaleMinMax(lr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
         axis[0].set_title('(a) LR')
         axis[0].axis("off")
 
@@ -206,11 +206,11 @@ def main(args):
         axis[1].set_title('(b) PAN')
         axis[1].axis("off")
 
-        axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())[...] * 254).astype(np.int8), cmap='viridis')
-        axis[2].set_title(f'(c) Ours {highest_psnr}dB/{highest_ssim}')
+        axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
+        axis[2].set_title(f'(c) Ours {highest_psnr:.2f}dB/{highest_ssim:.2f}')
         axis[2].axis("off")
 
-        axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())[...] * 254).astype(np.int8), cmap='viridis')
+        axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
         axis[3].set_title('(d) GT')
         axis[3].axis("off")
 
