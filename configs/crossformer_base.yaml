@@ -46,7 +46,7 @@ general_settings:
   name: "crossformer_base"
   model_type: CrossFormer
   continue_from_checkpoint: False
-  checkpoint_name: "crossformer_base_2023_07_10-17_45_38.pth.tar" #"crossformer_base_2023_07_05-17_19_41.pth.tar"
+  checkpoint_name: "crossformer_base_2023_07_11-14_22_15_best_eval.pth.tar" #"crossformer_base_2023_07_05-17_19_41.pth.tar"
   report_interval: 50
   save_interval: 50
   evaluation_interval: [10, 20, 30, 4000, 5000]
