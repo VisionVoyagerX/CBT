@@ -50,7 +50,7 @@ general_settings:
   checkpoint_name: crossformer_base_2023_07_10-17_45_38.pth.tar #"crossformer_base_2023_07_05-17_19_41.pth.tar"
   report_interval: 50
   save_interval: 50
-  evaluation_steps: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
+  evaluation_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
   test_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
 
 task:
