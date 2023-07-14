@@ -19,22 +19,22 @@ data_pipeline:
         enable: False
         degrees: 90
 
-  #validation:
-  #  dataset: GaoFen2_panformer
-  #  path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
-  #  data_pipeline:
-  #  mslr_img_size: [64, 64]
-  #  pan_img_size: [256, 256]
-  #  preprocessing:
-  #    shuffle: True
-  #    cropping_on_the_fly: False
-  #  val_steps: 100 #leave empty to evaluate the entire validation set
+  validation:
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
+    data_pipeline:
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
+    preprocessing:
+      shuffle: True
+      cropping_on_the_fly: False
+    val_steps: 100 #leave empty to evaluate the entire validation set
 
   test:
     dataset: GaoFen2
     path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
-    mslr_img_size: [100, 100]
-    pan_img_size: [400, 400]
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
     preprocessing:
       shuffle: False
       cropping_on_the_fly: False
@@ -47,7 +47,7 @@ general_settings:
   name: "crossformer_base_small"
   model_type: CrossFormer
   continue_from_checkpoint: False
-  checkpoint_name: #crossformer_base_2023_07_10-17_45_38.pth.tar
+  checkpoint_name:  #crossformer_base_2023_07_10-17_45_38.pth.tar
   report_interval: 50
   save_interval: 50
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
@@ -62,7 +62,7 @@ network:
   patch_size: 1
   in_chans: 4
   embed_dim: 48 # 144
-  depths: [6] # 6, 6
+  depths: [6]#, 6, 6
   num_heads: [6] #, 6, 6
   window_size: 16
   compress_ratio: 24
