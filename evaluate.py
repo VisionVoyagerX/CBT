@@ -15,8 +15,12 @@ from torchsummary import summary
 from model.CrossFormer import *
 from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3 
 from utils import *
+import os
 
 def main(args):
+    def scaleMinMax(x):
+        return((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
+    os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     config_file = args.config
     #try:
     with open(get_config_path() / config_file, 'r') as file:
@@ -120,10 +124,10 @@ def main(args):
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
     
-    te_dataset = test_dataset(
+    '''te_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=te_dataset, batch_size=batch_size, shuffle=False)
+        dataset=te_dataset, batch_size=batch_size, shuffle=False)'''
 
     # Initialize Model, optimizer, criterion and metrics
     # TODO is imge_size necesasary?
@@ -195,7 +199,7 @@ def main(args):
         print("==> End evaluating <==\n")
     
 
-        # test model
+        '''# test model
         with torch.no_grad():
             print("\n==> Start testing ...")
             test_progress_bar = tqdm(iter(test_loader), total=len(test_loader), desc="Testing", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
@@ -222,7 +226,7 @@ def main(args):
             # reset metrics
             test_report_loss = 0
             test_metric_collection.reset() 
-            print("==> End testing <==\n")
+            print("==> End testing <==\n")'''
 
         #plt.imshow(pan)
         
