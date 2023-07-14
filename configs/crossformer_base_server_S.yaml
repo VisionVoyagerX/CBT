@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: GaoFen2
-    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/test/"
+    path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
     mslr_img_size: [100, 100]
     pan_img_size: [400, 400]
     preprocessing:
