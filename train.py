@@ -13,7 +13,7 @@ from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimil
 from torchsummary import summary
 
 from model.CrossFormer import *
-from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3 
+from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3, GaoFen2_panformer
 from utils import *
 
 def main(args):
@@ -38,13 +38,13 @@ def main(args):
         if config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['enable']:
             tr_augmentation_list.append(RandomRotation(degrees=config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['degrees']))
 
-        val_dataset = eval(config_data['data_pipeline']['validation']['dataset'])
+        '''val_dataset = eval(config_data['data_pipeline']['validation']['dataset'])
         val_path = Path(config_data['data_pipeline']['validation']['path'])
         val_mslr_size = config_data['data_pipeline']['validation']['mslr_img_size']
         val_pan_size = config_data['data_pipeline']['validation']['pan_img_size']
         val_shuffle = config_data['data_pipeline']['validation']['preprocessing']['shuffle']
         val_cropping_on_the_fly = config_data['data_pipeline']['validation']['preprocessing']['cropping_on_the_fly']
-        val_steps = config_data['data_pipeline']['validation']['val_steps']
+        val_steps = config_data['data_pipeline']['validation']['val_steps']'''
 
         test_dataset = eval(config_data['data_pipeline']['test']['dataset'])
         test_path = Path(config_data['data_pipeline']['test']['path'])
@@ -121,10 +121,10 @@ def main(args):
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True)
 
-    validation_dataset = val_dataset(
+    '''validation_dataset = val_dataset(
         val_path)
     validation_loader = DataLoader(
-        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
+        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)'''
     
     test_dataset = test_dataset(
         test_path)
@@ -151,10 +151,10 @@ def main(args):
         'ssim' : StructuralSimilarityIndexMeasure().to(device)
     })
 
-    val_metric_collection = MetricCollection({
+    '''val_metric_collection = MetricCollection({
         'psnr' : PeakSignalNoiseRatio().to(device),
         'ssim' : StructuralSimilarityIndexMeasure().to(device)
-    })
+    })'''
 
     test_metric_collection = MetricCollection({
         'psnr' : PeakSignalNoiseRatio().to(device),
@@ -162,10 +162,10 @@ def main(args):
     })
 
     tr_report_loss = 0
-    val_report_loss = 0
+    #val_report_loss = 0
     test_report_loss = 0
     tr_metrics = []
-    val_metrics = []
+    #val_metrics = []
     test_metrics = []
     best_eval_psnr = 0
     best_test_psnr = 0
@@ -179,7 +179,7 @@ def main(args):
 
     #load checkpoint
     if continue_from_checkpoint:
-        tr_metrics, val_metrics, test_metrics = load_checkpoint(torch.load(checkpoint_path), model, optimizer, tr_metrics, val_metrics, test_metrics)
+        tr_metrics, test_metrics = load_checkpoint(torch.load(checkpoint_path), model, optimizer, tr_metrics, test_metrics) #val_metrics
 
     print('==> Starting training ...')
     train_iter = iter(train_loader)
@@ -190,7 +190,7 @@ def main(args):
                         'state_dict': model.state_dict(), 
                         'optimizer': optimizer.state_dict(),
                         'tr_metrics' : tr_metrics,
-                        'val_metrics': val_metrics,
+                        #'val_metrics': val_metrics,
                         'test_metrics' : test_metrics}
             save_checkpoint(checkpoint, model_name, current_daytime)
 
@@ -242,7 +242,7 @@ def main(args):
             tr_report_loss = 0
             metric_collection.reset()
 
-        # Evaluate model
+        '''# Evaluate model
         if (step + 1) in evaluation_interval and step != 0:
             # evaluation mode
             model.eval()
@@ -296,7 +296,7 @@ def main(args):
                             'tr_metrics' : tr_metrics,
                             'val_metrics': val_metrics,
                             'test_metrics': test_metrics}
-                save_checkpoint(checkpoint, model_name, current_daytime + '_best_eval')
+                save_checkpoint(checkpoint, model_name, current_daytime + '_best_eval')'''
 
 
         # test model
@@ -341,7 +341,7 @@ def main(args):
                                 'state_dict': model.state_dict(), 
                                 'optimizer': optimizer.state_dict(),
                                 'tr_metrics' : tr_metrics,
-                                'val_metrics': val_metrics,
+                                #'val_metrics': val_metrics,
                                 'test_metrics': test_metrics}
                     save_checkpoint(checkpoint, model_name, current_daytime + '_best_test')
 
