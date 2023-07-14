@@ -148,11 +148,11 @@ class GaoFen2_panformer(Dataset):
         self.transforms = transforms
 
         #precomputed
-        self.pan_mean = torch.tensor([255.2771]).view(1,1,1,1)
-        self.pan_std = torch.tensor([119.8192]).view(1,1,1,1)
+        self.pan_mean = torch.tensor([255.2780]).view(1,1,1,1)
+        self.pan_std = torch.tensor([119.8152]).view(1,1,1,1)
 
-        self.mslr_mean = torch.tensor([449.9449, 308.7544, 238.3702, 220.3061]).view(1,4,1,1)
-        self.mslr_std = torch.tensor([70.8778, 63.7980, 71.3171, 66.8198]).view(1,4,1,1)
+        self.mslr_mean = torch.tensor([385.9424, 268.0104, 218.5947, 259.1452]).view(1,4,1,1)
+        self.mslr_std = torch.tensor([134.2627, 110.1456, 117.1064, 113.4461]).view(1,4,1,1)
 
     def __len__(self):
         return len([name for name in os.listdir(self.dir/'LR')])
@@ -208,7 +208,7 @@ if __name__ == "__main__":
         channel_sum += torch.mean(pan)
         channel_sum_of_squares += torch.mean(pan ** 2)
 
-        lr_channel_sum += torch.mean(mslr)
+        lr_channel_sum += torch.mean(mslr, dim=(0,2,3))
         lr_channel_sum_of_squares += torch.mean(mslr ** 2, dim=(0,2,3))
 
         total_samples += 1
