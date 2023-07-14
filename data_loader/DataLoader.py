@@ -154,8 +154,10 @@ class GaoFen2panformer(Dataset):
         self.mslr_std = torch.tensor([134.2627, 110.1456, 117.1064, 113.4461]).view(1,4,1,1)
 
     def __len__(self):
-        return len([name for name in os.listdir(self.dir/'LR')])
-
+        dt_len = len([name for name in os.listdir(self.dir/'LR')])
+        print('dataset len: '  dt_len)
+        return dt_len
+        
     def __getitem__(self, index):
 
         pan = torch.tensor(
