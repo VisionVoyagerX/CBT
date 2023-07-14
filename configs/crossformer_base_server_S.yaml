@@ -20,7 +20,7 @@ data_pipeline:
         degrees: 90
 
   validation:
-    dataset: GaoFen2panformer
+    dataset: GaoFen2
     path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
