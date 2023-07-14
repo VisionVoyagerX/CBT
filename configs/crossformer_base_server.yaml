@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: GaoFen2_panformer
-    path: "F:/Data/GaoFen-2_panformer/train/" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
+    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/train/" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: GaoFen2_panformer
-    path: "F:/Data/Data/GaoFen-2_panformer/test/"
+    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/test/"
     mslr_img_size: [100, 100]
     pan_img_size: [400, 400]
     preprocessing:
