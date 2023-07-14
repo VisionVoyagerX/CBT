@@ -1,8 +1,8 @@
 # data pipeline settings
 data_pipeline:
   train:
-    dataset: GaoFen2panformer
-    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/train/" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/train/train_gf2-001.h5" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -31,8 +31,8 @@ data_pipeline:
   #  val_steps: 100 #leave empty to evaluate the entire validation set
 
   test:
-    dataset: GaoFen2panformer
-    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/test/"
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:
