@@ -94,7 +94,7 @@ class GaoFen2(Dataset):
 
         return (pan, mslr, hr)
 
-"""if __name__ == "__main__":
+if __name__ == "__main__":
     batch_size = 1
     shuffle = True
 
@@ -138,8 +138,7 @@ class GaoFen2(Dataset):
     mean = channel_sum / total_samples
     std = torch.sqrt((channel_sum_of_squares / total_samples) - mean ** 2)
 
-    print('mean: ', mean, ' std: ', std)"""
-
+    print('mean: ', mean, ' std: ', std)
 
 
 class GaoFen2panformer(Dataset):
@@ -224,6 +223,7 @@ if __name__ == "__main__":
     print('mean: ', mean, ' std: ', std)
     print('mean: ', lr_mean, ' std: ', lr_std)
     
+
 
 class Sev2Mod(Dataset):
     def __init__(self, dir, task, transform=None) -> None:
