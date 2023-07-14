@@ -142,7 +142,7 @@ class GaoFen2(Dataset):
 
 
 
-class GaoFen2_panformer(Dataset):
+class GaoFen2panformer(Dataset):
     def __init__(self, dir, transforms=None) -> None:
         self.dir = dir
         self.transforms = transforms
