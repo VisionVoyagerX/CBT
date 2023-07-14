@@ -13,7 +13,7 @@ from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimil
 from torchsummary import summary
 
 from model.CrossFormer import *
-from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3, GaoFen2_panformer
+from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3, GaoFen2panformer
 from utils import *
 
 def main(args):
