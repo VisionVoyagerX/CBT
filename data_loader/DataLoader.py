@@ -94,7 +94,7 @@ class GaoFen2(Dataset):
 
         return (pan, mslr, hr)
 
-"""if __name__ == "__main__":
+if __name__ == "__main__":
     batch_size = 1
     shuffle = True
 
@@ -138,92 +138,11 @@ class GaoFen2(Dataset):
     mean = channel_sum / total_samples
     std = torch.sqrt((channel_sum_of_squares / total_samples) - mean ** 2)
 
-    print('mean: ', mean, ' std: ', std)"""
-
-
-
-class GaoFen2_panformer(Dataset):
-    def __init__(self, dir, transforms=None) -> None:
-        self.dir = dir
-        self.transforms = transforms
-
-        #precomputed
-        self.pan_mean = torch.tensor([255.2780]).view(1,1,1,1)
-        self.pan_std = torch.tensor([119.8152]).view(1,1,1,1)
-
-        self.mslr_mean = torch.tensor([385.9424, 268.0104, 218.5947, 259.1452]).view(1,4,1,1)
-        self.mslr_std = torch.tensor([134.2627, 110.1456, 117.1064, 113.4461]).view(1,4,1,1)
-
-    def __len__(self):
-        return len([name for name in os.listdir(self.dir/'LR')])
-
-    def __getitem__(self, index):
-
-        pan = torch.tensor(
-            np.load(self.dir/'PAN'/f'{index:04d}.npy', allow_pickle=True).astype('float32'))
-        mslr = torch.tensor(
-            np.load(self.dir/'LR'/f'{index:04d}.npy', allow_pickle=True).astype('float32'))
-        hr = torch.tensor(
-            np.load(self.dir/'HR'/f'{index:04d}.npy', allow_pickle=True).astype('float32'))
-        
-        
-
-        if self.transforms:
-            for transform, prob in self.transforms:
-                if torch.randn(1) < prob:
-                    pan = transform(pan)
-                    mslr = transform(mslr)
-                    hr = transform(hr)
-
-        return (pan, mslr, hr)#(None, None, None) #
-
-if __name__ == "__main__":
-    batch_size = 1
-
-    dir_tr = Path(f'F:/Data/GaoFen-2_panformer/train/')
-    dir_test = Path(f'F:/Data/GaoFen-2_panformer/test/')
-
-    # Load training dataset
-    tr_dataset = GaoFen2_panformer(dir_tr)
-    train_loader = DataLoader(
-        dataset=tr_dataset, batch_size=batch_size, shuffle=True)
-
-    # Load test dataset
-    test_dataset = GaoFen2_panformer(dir_test)
-    test_loader = DataLoader(
-        dataset=test_dataset, batch_size=batch_size, shuffle=False)
-
-    channel_sum = 0
-    channel_sum_of_squares = 0
-
-    lr_channel_sum = 0
-    lr_channel_sum_of_squares = 0 
-
-    total_samples = 0
-    # Iterate over the DataLoader
-    print('Length of Dataloader: ', len(train_loader))
-    for pan, mslr, mshr in train_loader:
-        # Assuming your data is a tensor
-        # Compute the channel-wise mean and mean of squares
-        channel_sum += torch.mean(pan)
-        channel_sum_of_squares += torch.mean(pan ** 2)
-
-        lr_channel_sum += torch.mean(mslr, dim=(0,2,3))
-        lr_channel_sum_of_squares += torch.mean(mslr ** 2, dim=(0,2,3))
-
-        total_samples += 1
-
-    # Compute the mean and standard deviation for each channel
-    mean = channel_sum / total_samples
-    std = torch.sqrt((channel_sum_of_squares / total_samples) - mean ** 2)
-
-    # Compute the mean and standard deviation for each channel
-    lr_mean = lr_channel_sum / total_samples
-    lr_std = torch.sqrt((lr_channel_sum_of_squares / total_samples) - lr_mean ** 2)
-
     print('mean: ', mean, ' std: ', std)
-    print('mean: ', lr_mean, ' std: ', lr_std)
-    
+
+
+
+
 
 class Sev2Mod(Dataset):
     def __init__(self, dir, task, transform=None) -> None:
