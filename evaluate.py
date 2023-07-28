@@ -133,10 +133,10 @@ def main(args):
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
 
-    '''te_dataset = test_dataset(
+    te_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=te_dataset, batch_size=batch_size, shuffle=False)'''
+        dataset=te_dataset, batch_size=1, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
     # TODO is imge_size necesasary?
@@ -176,7 +176,7 @@ def main(args):
         tr_metrics = load_checkpoint(torch.load(
             checkpoint_path), model, optimizer, tr_metrics)
 
-    # evaluation mode
+    """# evaluation mode
     model.eval()
     with torch.no_grad():
         print("\n==> Start evaluating ...")
@@ -207,36 +207,40 @@ def main(args):
         # reset metrics
         val_report_loss = 0
         val_metric_collection.reset()
-        print("==> End evaluating <==\n")
+        print("==> End evaluating <==\n")"""
 
-        '''# test model
-        with torch.no_grad():
-            print("\n==> Start testing ...")
-            test_progress_bar = tqdm(iter(test_loader), total=len(test_loader), desc="Testing", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
-            for pan, mslr, mshr in test_progress_bar:
-                # forward
-                pan, mslr, mshr = pan.to(device), mslr.to(device), mshr.to(device)
-                mssr = model(pan, mslr)
-                test_loss = criterion(mssr, mshr)
-                test_metric = test_metric_collection.forward(mssr, mshr)
-                test_report_loss += test_loss
+    # test model
+    with torch.no_grad():
+        print("\n==> Start testing ...")
+        test_progress_bar = tqdm(iter(test_loader), total=len(
+            test_loader), desc="Testing", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
+        for pan, mslr, mshr in test_progress_bar:
+            # forward
+            pan, mslr, mshr = pan.to(device), mslr.to(
+                device), mshr.to(device)
+            mssr = model(pan, mslr)
+            test_loss = criterion(mssr, mshr)
+            test_metric = test_metric_collection.forward(mssr, mshr)
+            test_report_loss += test_loss
 
-                #report metrics
-                test_progress_bar.set_postfix(loss = f'{test_loss.item()}' , psnr=f'{test_metric["psnr"].item():.2f}', ssim=f'{test_metric["ssim"].item():.2f}') 
+            # report metrics
+            test_progress_bar.set_postfix(
+                loss=f'{test_loss.item()}', psnr=f'{test_metric["psnr"].item():.2f}', ssim=f'{test_metric["ssim"].item():.2f}')
 
-            # compute metrics total
-            test_report_loss = test_report_loss / len(test_loader)
-            test_metric = test_metric_collection.compute()
-            test_metrics.append({'loss' : test_report_loss.item(),
-                            'psnr': test_metric['psnr'].item(), 
-                            'ssim': test_metric['ssim'].item()})
+        # compute metrics total
+        test_report_loss = test_report_loss / len(test_loader)
+        test_metric = test_metric_collection.compute()
+        test_metrics.append({'loss': test_report_loss.item(),
+                             'psnr': test_metric['psnr'].item(),
+                             'ssim': test_metric['ssim'].item()})
 
-            print(f'\nTesting: avg_loss = {test_report_loss.item():.4f} , avg_psnr= {test_metric["psnr"]:.4f}, avg_ssim={test_metric["ssim"]:.4f}')
-            
-            # reset metrics
-            test_report_loss = 0
-            test_metric_collection.reset() 
-            print("==> End testing <==\n")'''
+        print(
+            f'\nTesting: avg_loss = {test_report_loss.item():.4f} , avg_psnr= {test_metric["psnr"]:.4f}, avg_ssim={test_metric["ssim"]:.4f}')
+
+        # reset metrics
+        test_report_loss = 0
+        test_metric_collection.reset()
+        print("==> End testing <==\n")
 
         # plt.imshow(pan)
 
