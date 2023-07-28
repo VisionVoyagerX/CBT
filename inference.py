@@ -173,7 +173,7 @@ def main(args):
         tr_metrics = load_checkpoint(torch.load(
             checkpoint_path), model, optimizer, tr_metrics)
 
-    idx = 15
+    idx = 14
     # evaluation mode
     model.eval()
     with torch.no_grad():
@@ -213,14 +213,14 @@ def main(args):
                 axis[3].set_title('(d) GT')
                 axis[3].axis("off")
 
-                plt.savefig('results/Images_GF2.png')
+                plt.savefig('results/Images_WV3.png')
 
                 mslr = mslr.permute(0, 3, 2, 1).detach().cpu().numpy()
                 pan = pan.permute(0, 3, 2, 1).detach().cpu().numpy()
                 mssr = mssr.permute(0, 3, 2, 1).detach().cpu().numpy()
                 gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
 
-                np.savez('results/img_array_GF2.npz', mslr=mslr,
+                np.savez('results/img_array_WV3.npz', mslr=mslr,
                          pan=pan, mssr=mssr, gt=gt)
 
 
