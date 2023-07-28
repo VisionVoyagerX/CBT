@@ -19,22 +19,22 @@ data_pipeline:
         enable: False
         degrees: 90
 
-  #validation:
-  #  dataset: GaoFen2
-  #  path: "/home/ubuntu/project/Data/val/valid_gf2.h5"
-  #  data_pipeline:
-  #  mslr_img_size: [64, 64]
-  #  pan_img_size: [256, 256]
-  #  preprocessing:
-  #    shuffle: True
-  #    cropping_on_the_fly: False
-  #  val_steps: 100 #leave empty to evaluate the entire validation set
+  validation:
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/val/valid_gf2.h5"
+    data_pipeline:
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
+    preprocessing:
+      shuffle: True
+      cropping_on_the_fly: False
+    val_steps: 100 #leave empty to evaluate the entire validation set
 
   test:
     dataset: GaoFen2
     path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
-    mslr_img_size: [100, 100]
-    pan_img_size: [400, 400]
+    mslr_img_size: [64, 64]
+    pan_img_size: [256, 256]
     preprocessing:
       shuffle: False
       cropping_on_the_fly: False
