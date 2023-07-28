@@ -13,20 +13,20 @@ import numpy as np
 
 
 class DIV2K(Dataset):
-    def __init__(self, dir, transforms: list=None) -> None:
+    def __init__(self, dir, transforms: list = None) -> None:
         self.dir = dir
         self.transforms = transforms
 
-        #TODO add mean and stf for all other datasets
+        # TODO add mean and stf for all other datasets
 
     def __len__(self):
         return len([name for name in os.listdir(self.dir/'LR')])
 
     def __getitem__(self, index):
         lr = torch.tensor(
-            cv2.imread(str(self.dir/'LR'/f'{index + 1:04d}x3.png')), dtype=torch.float32).permute(2,0,1)
+            cv2.imread(str(self.dir/'LR'/f'{index + 1:04d}x3.png')), dtype=torch.float32).permute(2, 0, 1)
         hr = torch.tensor(
-            cv2.imread(str(self.dir/'HR'/f'{index + 1:04d}.png')), dtype=torch.float32).permute(2,0,1)
+            cv2.imread(str(self.dir/'HR'/f'{index + 1:04d}.png')), dtype=torch.float32).permute(2, 0, 1)
 
         if self.transforms:
             mslr = self.transforms[0](mslr)
@@ -63,18 +63,20 @@ class DIV2K(Dataset):
 
 class GaoFen2(Dataset):
     def __init__(self, dir, transforms=None) -> None:
-        f = h5py.File(str(dir),'r+')
+        f = h5py.File(str(dir), 'r+')
         self.hr = torch.tensor(f['gt'][()], dtype=torch.float32)
         self.mslr = torch.tensor(f['ms'][()], dtype=torch.float32)
         self.pan = torch.tensor(f['pan'][()], dtype=torch.float32)
         self.transforms = transforms
 
-        #precomputed
-        self.pan_mean = torch.tensor([250.0172]).view(1,1,1,1)
-        self.pan_std = torch.tensor([80.2501]).view(1,1,1,1)
+        # precomputed
+        self.pan_mean = torch.tensor([250.0172]).view(1, 1, 1, 1)
+        self.pan_std = torch.tensor([80.2501]).view(1, 1, 1, 1)
 
-        self.mslr_mean = torch.tensor([449.9449, 308.7544, 238.3702, 220.3061]).view(1,4,1,1)
-        self.mslr_std = torch.tensor([70.8778, 63.7980, 71.3171, 66.8198]).view(1,4,1,1)
+        self.mslr_mean = torch.tensor(
+            [449.9449, 308.7544, 238.3702, 220.3061]).view(1, 4, 1, 1)
+        self.mslr_std = torch.tensor(
+            [70.8778, 63.7980, 71.3171, 66.8198]).view(1, 4, 1, 1)
 
     def __len__(self):
         return self.mslr.shape[0]
@@ -94,19 +96,20 @@ class GaoFen2(Dataset):
 
         return (pan, mslr, hr)
 
+
 if __name__ == "__main__":
     batch_size = 1
     shuffle = True
 
     dir_tr = Path(f'F:/Data/GaoFen-2/train/train_gf2-001.h5')
     dir_val = Path(f'F:/Data/GaoFen-2/val/valid_gf2.h5')
-    #dir_test = Path(f'F:/Data/GaoFen-2/train/train_gf2-001.h5')
+    # dir_test = Path(f'F:/Data/GaoFen-2/train/train_gf2-001.h5')
 
     tr_dataset = GaoFen2(
         dir_tr, transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)])
     train_loader = DataLoader(
         dataset=tr_dataset, batch_size=batch_size, shuffle=shuffle)
-    
+
     val_dataset = GaoFen2(
         dir_val)
     validation_loader = DataLoader(
@@ -119,7 +122,6 @@ if __name__ == "__main__":
     # validation shapes
     pan, mslr, hr = next(iter(validation_loader))
     print(pan.shape, mslr.shape, hr.shape)'''
-
 
     channel_sum = 0
     channel_sum_of_squares = 0
@@ -146,18 +148,20 @@ class GaoFen2panformer(Dataset):
         self.dir = dir
         self.transforms = transforms
 
-        #precomputed
-        self.pan_mean = torch.tensor([255.2780]).view(1,1,1,1)
-        self.pan_std = torch.tensor([119.8152]).view(1,1,1,1)
+        # precomputed
+        self.pan_mean = torch.tensor([255.2780]).view(1, 1, 1, 1)
+        self.pan_std = torch.tensor([119.8152]).view(1, 1, 1, 1)
 
-        self.mslr_mean = torch.tensor([385.9424, 268.0104, 218.5947, 259.1452]).view(1,4,1,1)
-        self.mslr_std = torch.tensor([134.2627, 110.1456, 117.1064, 113.4461]).view(1,4,1,1)
+        self.mslr_mean = torch.tensor(
+            [385.9424, 268.0104, 218.5947, 259.1452]).view(1, 4, 1, 1)
+        self.mslr_std = torch.tensor(
+            [134.2627, 110.1456, 117.1064, 113.4461]).view(1, 4, 1, 1)
 
     def __len__(self):
         dt_len = len([name for name in os.listdir(self.dir/'LR')])
-        print('dataset len: '  dt_len)
+        print('dataset len: ',  dt_len)
         return dt_len
-        
+
     def __getitem__(self, index):
 
         pan = torch.tensor(
@@ -166,8 +170,6 @@ class GaoFen2panformer(Dataset):
             np.load(self.dir/'LR'/f'{index:04d}.npy', allow_pickle=True).astype('float32'))
         hr = torch.tensor(
             np.load(self.dir/'HR'/f'{index:04d}.npy', allow_pickle=True).astype('float32'))
-        
-        
 
         if self.transforms:
             for transform, prob in self.transforms:
@@ -176,7 +178,8 @@ class GaoFen2panformer(Dataset):
                     mslr = transform(mslr)
                     hr = transform(hr)
 
-        return (pan, mslr, hr)#(None, None, None) #
+        return (pan, mslr, hr)  # (None, None, None) #
+
 
 if __name__ == "__main__":
     batch_size = 1
@@ -198,7 +201,7 @@ if __name__ == "__main__":
     channel_sum_of_squares = 0
 
     lr_channel_sum = 0
-    lr_channel_sum_of_squares = 0 
+    lr_channel_sum_of_squares = 0
 
     total_samples = 0
     # Iterate over the DataLoader
@@ -209,8 +212,8 @@ if __name__ == "__main__":
         channel_sum += torch.mean(pan)
         channel_sum_of_squares += torch.mean(pan ** 2)
 
-        lr_channel_sum += torch.mean(mslr, dim=(0,2,3))
-        lr_channel_sum_of_squares += torch.mean(mslr ** 2, dim=(0,2,3))
+        lr_channel_sum += torch.mean(mslr, dim=(0, 2, 3))
+        lr_channel_sum_of_squares += torch.mean(mslr ** 2, dim=(0, 2, 3))
 
         total_samples += 1
 
@@ -220,11 +223,11 @@ if __name__ == "__main__":
 
     # Compute the mean and standard deviation for each channel
     lr_mean = lr_channel_sum / total_samples
-    lr_std = torch.sqrt((lr_channel_sum_of_squares / total_samples) - lr_mean ** 2)
+    lr_std = torch.sqrt((lr_channel_sum_of_squares /
+                        total_samples) - lr_mean ** 2)
 
     print('mean: ', mean, ' std: ', std)
     print('mean: ', lr_mean, ' std: ', lr_std)
-    
 
 
 class Sev2Mod(Dataset):
@@ -241,9 +244,9 @@ class Sev2Mod(Dataset):
         pan = torch.tensor(
             np.load(self.dir/'PAN'/f'{index:04d}_{self.task}.npy', allow_pickle=True))
         mslr = torch.tensor(
-            np.load(self.dir/'LR'/f'{self.task}'/f'{index:04d}_{self.task}.npy', allow_pickle=True))[:3,...]
+            np.load(self.dir/'LR'/f'{self.task}'/f'{index:04d}_{self.task}.npy', allow_pickle=True))[:3, ...]
         hr = torch.tensor(
-            np.load(self.dir/'HR'/f'{self.task}'/f'{index:04d}_{self.task}.npy', allow_pickle=True))[:3,...]
+            np.load(self.dir/'HR'/f'{self.task}'/f'{index:04d}_{self.task}.npy', allow_pickle=True))[:3, ...]
 
         if self.transform:
             pan = self.transform(pan)
@@ -251,6 +254,7 @@ class Sev2Mod(Dataset):
             hr = self.transform(hr)
 
         return (pan, mslr, hr)
+
 
 '''if __name__ == "__main__":
     batch_size = 8
@@ -290,7 +294,7 @@ class Sev2Mod(Dataset):
 
 class WV3(Dataset):
     def __init__(self, dir, transform=None) -> None:
-        f = h5py.File(str(dir),'r+')
+        f = h5py.File(str(dir), 'r+')
         self.hr = torch.tensor(f['gt'][()], dtype=torch.float32)
         self.mslr = torch.tensor(f['ms'][()], dtype=torch.float32)
         self.pan = torch.tensor(f['pan'][()], dtype=torch.float32)
@@ -302,7 +306,7 @@ class WV3(Dataset):
     def __getitem__(self, index):
 
         pan = self.pan[index]
-        mslr = self.mslr[index ]
+        mslr = self.mslr[index]
         hr = self.hr[index]
 
         if self.transform:
@@ -311,6 +315,7 @@ class WV3(Dataset):
             hr = self.transform(hr)
 
         return (pan, mslr, hr)
+
 
 '''if __name__ == "__main__":
     batch_size = 8
