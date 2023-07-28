@@ -132,7 +132,7 @@ def main(args):
     te_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=te_dataset, batch_size=batch_size, shuffle=False)
+        dataset=te_dataset, batch_size=1, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
     # TODO is imge_size necesasary?
