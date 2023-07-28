@@ -170,8 +170,8 @@ def main(args):
 
     # load checkpoint
     if continue_from_checkpoint:
-        tr_metrics, val_metrics = load_checkpoint(torch.load(
-            checkpoint_path), model, optimizer, tr_metrics, val_metrics)
+        tr_metrics = load_checkpoint(torch.load(
+            checkpoint_path), model, optimizer, tr_metrics)
 
     idx = 15
     # evaluation mode
