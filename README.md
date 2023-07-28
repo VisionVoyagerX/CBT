@@ -1,4 +1,4 @@
-# '''
+```
 
 # Layer (type:depth-idx) Output Shape Param #
 
@@ -43,4 +43,4 @@ Forward/backward pass size (MB): 9354.88
 Params size (MB): 4.00
 Estimated Total Size (MB): 9359.21
 ==================================================================================================================================
-'''
+```
