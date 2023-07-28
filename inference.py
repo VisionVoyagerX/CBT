@@ -10,36 +10,42 @@ from torch.nn import L1Loss
 from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
 from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
-from torchsummary import summary
+from torchinfo import summary
 
 from model.CrossFormer import *
-from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3 
+from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3
 from utils import *
 import numpy as np
 
+
 def main(args):
     config_file = args.config
-    #try:
+    # try:
     with open(get_config_path() / config_file, 'r') as file:
         config_data = yaml.safe_load(file)
 
         # input pipeline
-        tr_dataset = eval(config_data['data_pipeline']['train']['dataset']) #str to object
+        tr_dataset = eval(config_data['data_pipeline']
+                          ['train']['dataset'])  # str to object
         tr_path = Path(config_data['data_pipeline']['train']['path'])
         tr_mslr_size = config_data['data_pipeline']['train']['mslr_img_size']
         tr_pan_size = config_data['data_pipeline']['train']['pan_img_size']
-        
+
         tr_augmentation_list = []
         tr_shuffle = config_data['data_pipeline']['train']['preprocessing']['shuffle']
         tr_cropping_on_the_fly = config_data['data_pipeline']['train']['preprocessing']['cropping_on_the_fly']
         if config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['enable']:
-            tr_augmentation_list.append(RandomHorizontalFlip(p=config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['prob']))
+            tr_augmentation_list.append(RandomHorizontalFlip(
+                p=config_data['data_pipeline']['train']['preprocessing']['RandomHorizontalFlip']['prob']))
         if config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['enable']:
-            tr_augmentation_list.append(RandomVerticalFlip(p=config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['prob']))
+            tr_augmentation_list.append(RandomVerticalFlip(
+                p=config_data['data_pipeline']['train']['preprocessing']['RandomVerticalFlip']['prob']))
         if config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['enable']:
-            tr_augmentation_list.append(RandomRotation(degrees=config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['degrees']))
+            tr_augmentation_list.append(RandomRotation(
+                degrees=config_data['data_pipeline']['train']['preprocessing']['RandomRotation']['degrees']))
 
-        val_dataset = eval(config_data['data_pipeline']['validation']['dataset'])
+        val_dataset = eval(
+            config_data['data_pipeline']['validation']['dataset'])
         val_path = Path(config_data['data_pipeline']['validation']['path'])
         val_mslr_size = config_data['data_pipeline']['validation']['mslr_img_size']
         val_pan_size = config_data['data_pipeline']['validation']['pan_img_size']
@@ -64,10 +70,10 @@ def main(args):
         # task
         upscale = config_data['task']['upscale']
         mslr_to_pan_scale = config_data['task']['mslr_to_pan_scale']
-        
-        # network configs 
+
+        # network configs
         patch_size = config_data['network']['patch_size']
-        in_chans= config_data['network']['in_chans']
+        in_chans = config_data['network']['in_chans']
         embed_dim = config_data['network']['embed_dim']
         depths = config_data['network']['depths']
         num_heads = config_data['network']['num_heads']
@@ -89,12 +95,14 @@ def main(args):
         upsampler = config_data['network']['upsampler']
         resi_connection = config_data['network']['resi_connection']
 
-        #training_settings
+        # training_settings
         batch_size = config_data['training_settings']['batch_size']
-        optimizer_type = eval(config_data['training_settings']['optimizer']['type'])
+        optimizer_type = eval(
+            config_data['training_settings']['optimizer']['type'])
         learning_rate = config_data['training_settings']['optimizer']['learning_rate']
         betas = config_data['training_settings']['optimizer']['betas']
-        lr_decay_type = eval(config_data['training_settings']['scheduler']['type'])
+        lr_decay_type = eval(
+            config_data['training_settings']['scheduler']['type'])
         lr_gamma = config_data['training_settings']['scheduler']['gamma']
         loss_type = eval(config_data['training_settings']['loss']['type'])
 
@@ -120,7 +128,7 @@ def main(args):
         val_path)
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
-    
+
     te_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
@@ -128,105 +136,103 @@ def main(args):
 
     # Initialize Model, optimizer, criterion and metrics
     # TODO is imge_size necesasary?
-    model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), pan_scale = mslr_to_pan_scale, patch_size=patch_size, in_chans=in_chans, 
-                       embed_dim=embed_dim,depths=depths,num_heads=num_heads,window_size=window_size,compress_ratio=compress_ratio,
-                       squeeze_factor=squeeze_factor,conv_scale=conv_scale, overlap_ratio=overlap_ratio, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
-                       qk_scale=qk_scale, drop_rate=drop_rate, attn_drop_rate=attn_drop_rate, drop_path_rate=drop_path_rate, norm_layer=norm_layer, 
-                       ape=ape, patch_norm=patch_norm, upscale=upscale,img_range=img_range, upsampler=upsampler,resi_connection=resi_connection,
-                       mslr_mean = train_dataset.mslr_mean.to(device), mslr_std = train_dataset.mslr_std.to(device), pan_mean = train_dataset.pan_mean.to(device),
-                        pan_std = train_dataset.pan_std.to(device)).to(device)
-    
-    optimizer = optimizer_type(model.parameters(), lr=learning_rate, betas=(betas[0], betas[1]))
+    model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), pan_scale=mslr_to_pan_scale, patch_size=patch_size, in_chans=in_chans,
+                       embed_dim=embed_dim, depths=depths, num_heads=num_heads, window_size=window_size, compress_ratio=compress_ratio,
+                       squeeze_factor=squeeze_factor, conv_scale=conv_scale, overlap_ratio=overlap_ratio, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
+                       qk_scale=qk_scale, drop_rate=drop_rate, attn_drop_rate=attn_drop_rate, drop_path_rate=drop_path_rate, norm_layer=norm_layer,
+                       ape=ape, patch_norm=patch_norm, upscale=upscale, img_range=img_range, upsampler=upsampler, resi_connection=resi_connection,
+                       mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
+                       pan_std=train_dataset.pan_std.to(device)).to(device)
+
+    optimizer = optimizer_type(
+        model.parameters(), lr=learning_rate, betas=(betas[0], betas[1]))
     criterion = loss_type().to(device)
 
     val_metric_collection = MetricCollection({
-        'psnr' : PeakSignalNoiseRatio().to(device),
-        'ssim' : StructuralSimilarityIndexMeasure().to(device)
+        'psnr': PeakSignalNoiseRatio().to(device),
+        'ssim': StructuralSimilarityIndexMeasure().to(device)
     })
 
     test_metric_collection = MetricCollection({
-        'psnr' : PeakSignalNoiseRatio().to(device),
-        'ssim' : StructuralSimilarityIndexMeasure().to(device)
+        'psnr': PeakSignalNoiseRatio().to(device),
+        'ssim': StructuralSimilarityIndexMeasure().to(device)
     })
 
     val_report_loss = 0
     test_report_loss = 0
-    highest_psnr = 0 
+    highest_psnr = 0
     highest_ssim = 0
     tr_metrics = []
     val_metrics = []
     test_metrics = []
 
     # Model summary
-    pan_example = torch.randn((1,1,tr_pan_size[0],tr_pan_size[1])).to(device)
-    mslr_example = torch.randn((1,in_chans,tr_mslr_size[0],tr_mslr_size[1])).to(device)
-    
-    summary(model, pan_example, mslr_example, verbose=1)
 
-    #load checkpoint
+    # load checkpoint
     if continue_from_checkpoint:
-        tr_metrics, val_metrics = load_checkpoint(torch.load(checkpoint_path), model, optimizer, tr_metrics, val_metrics)
+        tr_metrics, val_metrics = load_checkpoint(torch.load(
+            checkpoint_path), model, optimizer, tr_metrics, val_metrics)
 
+    idx = 15
+    # evaluation mode
+    model.eval()
     with torch.no_grad():
-        for pan, lr, mshr in test_loader:
-            pan, lr, mshr = pan.to(device), lr.to(device), mshr.to(device)
-            mssr = model(pan, lr)
-            val_loss = criterion(mssr, mshr)
-            val_metric = val_metric_collection.forward(mssr, mshr)
-            
-            #metrics
-            val_metric = val_metric_collection.compute()
-            metric = {'loss' : val_loss.item(),
-                'psnr': val_metric['psnr'].item(), 
-                'ssim': val_metric['ssim'].item()}
-            
-            if metric['psnr'] > highest_psnr:
-                highest_psnr = metric['psnr']
-                highest_ssim = metric['ssim']
-                highest_images = [lr, pan, mssr, mshr]
+        test_iterator = iter(test_loader)
+        for i, (pan, mslr, mshr) in enumerate(test_iterator):
+            if idx == i:
+                # forward
+                pan, mslr, mshr = pan.to(device), mslr.to(
+                    device), mshr.to(device)
+                mssr = model(pan, mslr)
+                test_loss = criterion(mssr, mshr)
+                test_metric = test_metric_collection.forward(mssr, mshr)
+                test_report_loss += test_loss
 
+                # compute metrics
+                test_metric = test_metric_collection.compute()
 
-            print(metric)
-            
-            
+                figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
+                axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
+                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+                axis[0].set_title('(a) LR')
+                axis[0].axis("off")
 
+                axis[1].imshow(pan.permute(0, 3, 2, 1).detach().cpu()[
+                               0, ...], cmap='gray')
+                axis[1].set_title('(b) PAN')
+                axis[1].axis("off")
 
+                axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
+                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+                axis[2].set_title(
+                    f'(c) PNN {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
+                axis[2].axis("off")
 
-            # reset metrics
-            val_report_loss = 0
-            val_metric_collection.reset()
+                axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
+                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+                axis[3].set_title('(d) GT')
+                axis[3].axis("off")
 
-        lr, pan, mssr, mshr = highest_images
-        figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 15))
-        axis[0].imshow((scaleMinMax(lr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
-        axis[0].set_title('(a) LR')
-        axis[0].axis("off")
+                plt.savefig('results/Images_GF2.png')
 
-        axis[1].imshow(pan.permute(0, 3, 2, 1).detach().cpu()[0,...], cmap='gray')
-        axis[1].set_title('(b) PAN')
-        axis[1].axis("off")
+                mslr = mslr.permute(0, 3, 2, 1).detach().cpu().numpy()
+                pan = pan.permute(0, 3, 2, 1).detach().cpu().numpy()
+                mssr = mssr.permute(0, 3, 2, 1).detach().cpu().numpy()
+                gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
 
-        axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
-        axis[2].set_title(f'(c) Ours {highest_psnr:.2f}dB/{highest_ssim:.4f}')
-        axis[2].axis("off")
+                np.savez('results/img_array_GF2.npz', mslr=mslr,
+                         pan=pan, mssr=mssr, gt=gt)
 
-        axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[0,...].numpy())).astype(np.float32)[...,:3], cmap='viridis')
-        axis[3].set_title('(d) GT')
-        axis[3].axis("off")
-
-
-        plt.savefig('result.png')
 
 def scaleMinMax(x):
-    return((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
-        
+    return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Evaluation of CrossFormer')
-    parser.add_argument('-c', '--config', type=str, 
+    parser.add_argument('-c', '--config', type=str,
                         help='config file name', required=True)
-    
+
     args = parser.parse_args()
-    
+
     main(args)
