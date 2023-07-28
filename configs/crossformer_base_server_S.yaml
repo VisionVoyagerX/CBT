@@ -1,8 +1,8 @@
 # data pipeline settings
 data_pipeline:
   train:
-    dataset: GaoFen2panformer
-    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/train/" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/train/train_gf2-001.h5" #"F:/Data/GaoFen-2/train/train_gf2-001.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -20,8 +20,8 @@ data_pipeline:
         degrees: 90
 
   validation:
-    dataset: GaoFen2panformer
-    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5" #"F:/Data/GaoFen-2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
@@ -31,8 +31,8 @@ data_pipeline:
     val_steps: 100 #leave empty to evaluate the entire validation set
 
   test:
-    dataset: GaoFen2panformer
-    path: "/home/ubuntu/project/Data/GaoFen-2_panformer/test/"
+    dataset: GaoFen2
+    path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:
@@ -47,7 +47,7 @@ general_settings:
   name: "crossformer_base_small"
   model_type: CrossFormer
   continue_from_checkpoint: False
-  checkpoint_name: #crossformer_base_2023_07_10-17_45_38.pth.tar
+  checkpoint_name: crossformer_base_small_2023_07_13-10_39_01.pth.tar
   report_interval: 50
   save_interval: 50
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
