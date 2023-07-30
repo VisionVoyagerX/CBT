@@ -669,7 +669,6 @@ class SCBAB(nn.Module):
                  num_heads: int,
                  window_size: int = 7,
                  shift_size: int = 0,
-                 compress_ratio: int = 3,
                  mlp_ratio: int = 4.,
                  qkv_bias: bool = True,
                  qk_scale: float = None,
@@ -686,7 +685,6 @@ class SCBAB(nn.Module):
             num_heads (int): Number of attention heads.
             window_size (int, optional): Window size. Defaults to 7.
             shift_size (int, optional): Shift size for CrossBandWindowAttention. Defaults to 0.
-            compress_ratio (int, optional): Compression ration. Defaults to 3.
             mlp_ratio (int, optional): Ratio of mlp hidden dim to embedding dim. Defaults to 4..
             qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Defaults to True.
             qk_scale (float, optional): Override default qk scale of head_dim ** -0.5 if set.
@@ -1141,7 +1139,6 @@ class MBAG(nn.Module):
                 num_heads=num_heads,
                 window_size=window_size,
                 shift_size=0 if (i % 2 == 0) else window_size // 2,
-                compress_ratio=compress_ratio,
                 squeeze_factor=squeeze_factor,
                 conv_scale=conv_scale,
                 mlp_ratio=mlp_ratio,
@@ -1158,7 +1155,6 @@ class MBAG(nn.Module):
                 num_heads=num_heads,
                 window_size=window_size,
                 shift_size=0 if (i % 2 == 0) else window_size // 2,
-                compress_ratio=compress_ratio,
                 squeeze_factor=squeeze_factor,
                 conv_scale=conv_scale,
                 mlp_ratio=mlp_ratio,
