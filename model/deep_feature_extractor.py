@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn.init import trunc_normal_
-from .utils import retrieve_2d_tuple
+from utils import retrieve_2d_tuple
 from einops import rearrange
 
 import matplotlib.pyplot as plt
@@ -31,7 +31,6 @@ class Deep_Feature_Extractor(nn.Module):
                  ape=False,
                  patch_norm=True,
                  upscale=2,
-                 img_range=1.,
                  upsampler='',
                  resi_connection='1conv',
                  **kwargs):
@@ -41,8 +40,6 @@ class Deep_Feature_Extractor(nn.Module):
         self.shift_size = window_size // 2
         self.overlap_ratio = overlap_ratio
 
-        self.img_range = img_range
-        
         self.upscale = upscale
         self.upsampler = upsampler
 
@@ -53,7 +50,7 @@ class Deep_Feature_Extractor(nn.Module):
                              relative_position_index_SA)
         self.register_buffer('relative_position_index_OCA',
                              relative_position_index_OCA)
-        #=======
+        # =======
         self.num_layers = len(depths)
         self.embed_dim = embed_dim
         self.ape = ape
@@ -105,14 +102,14 @@ class Deep_Feature_Extractor(nn.Module):
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate,
                                                 sum(depths))]  # stochastic depth decay rule
 
-        # build Residual Hybrid Attention Groups (RHAG)
+        # build Multi Band Attention Groups (MBAG)
         self.layers = nn.ModuleList()
         for i_layer in range(self.num_layers):
-            layer = RHAG(
+            layer = MBAG(
                 dim=embed_dim,
                 input_resolution=(
                     patches_resolution[0], patches_resolution[1]),
-                depth=depths[i_layer], 
+                depth=depths[i_layer],
                 num_heads=num_heads[i_layer],
                 window_size=window_size,
                 compress_ratio=compress_ratio,
@@ -138,7 +135,8 @@ class Deep_Feature_Extractor(nn.Module):
         # build the last conv layer in deep feature extraction
         if resi_connection == '1conv':
             self.pan_conv_after_body = nn.Conv2d(embed_dim, embed_dim, 3, 1, 1)
-            self.mslr_conv_after_body = nn.Conv2d(embed_dim, embed_dim, 3, 1, 1)
+            self.mslr_conv_after_body = nn.Conv2d(
+                embed_dim, embed_dim, 3, 1, 1)
         elif resi_connection == 'identity':
             self.pan_conv_after_body = nn.Identity()
             self.mslr_conv_after_body = nn.Identity()
@@ -147,7 +145,8 @@ class Deep_Feature_Extractor(nn.Module):
         # calculate relative position index for SA
         coords_h = torch.arange(self.window_size)
         coords_w = torch.arange(self.window_size)
-        coords = torch.stack(torch.meshgrid([coords_h, coords_w], indexing='ij'))  # 2, Wh, Ww
+        coords = torch.stack(torch.meshgrid(
+            [coords_h, coords_w], indexing='ij'))  # 2, Wh, Ww
         coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
         relative_coords = coords_flatten[:, :, None] - \
             coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
@@ -224,7 +223,7 @@ class Deep_Feature_Extractor(nn.Module):
     @torch.jit.ignore
     def no_weight_decay_keywords(self):
         return {'relative_position_bias_table'}
-    
+
     def forward(self, pan, mslr):
         x_size = (pan.shape[2], mslr.shape[3])
 
@@ -243,17 +242,19 @@ class Deep_Feature_Extractor(nn.Module):
         mslr_forward = self.pos_drop(mslr_forward)
 
         for layers in self.layers:
-            pan_forward, mslr_forward = layers(pan_forward, mslr_forward, x_size, params)
+            pan_forward, mslr_forward = layers(
+                pan_forward, mslr_forward, x_size, params)
 
         pan_forward = self.pan_norm(pan_forward)  # b seq_len c
         mslr_forward = self.pan_norm(mslr_forward)
-        
+
         pan_forward = self.pan_patch_unembed(pan_forward, x_size)
         mslr_forward = self.mslr_patch_unembed(mslr_forward, x_size)
 
         pan_forward = self.pan_conv_after_body(pan_forward) + pan
         mslr_forward = self.mslr_conv_after_body(mslr_forward) + mslr
         return pan_forward, mslr_forward
+
 
 def drop_path(x, drop_prob: float = 0., training: bool = False):
     """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
@@ -271,28 +272,27 @@ def drop_path(x, drop_prob: float = 0., training: bool = False):
     output = x.div(keep_prob) * random_tensor
     return output
 
+
 class DropPath(nn.Module):
-    """Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
-
-    From: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/drop.py
-    """
-
     def __init__(self, drop_prob=None):
+        """Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
+
+        From: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/drop.py
+        """
         super().__init__()
         self.drop_prob = drop_prob
 
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training)
-    
+
 
 class ChannelAttention(nn.Module):
-    """Channel attention used in RCAN.
-    Args:
-        num_feat (int): Channel number of intermediate features.
-        squeeze_factor (int): Channel squeeze factor. Default: 16.
-    """
-
     def __init__(self, num_feat, squeeze_factor=16):
+        """Channel attention used in RCAN.
+        Args:
+            num_feat (int): Channel number of intermediate features.
+            squeeze_factor (int): Channel squeeze factor. Default: 16.
+        """
         super().__init__()
         self.attention = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
@@ -307,8 +307,14 @@ class ChannelAttention(nn.Module):
 
 
 class CAB(nn.Module):
-
     def __init__(self, num_feat, compress_ratio=3, squeeze_factor=30):
+        """Channel Attention Block
+
+        Args:
+            num_feat (int): Feat number
+            compress_ratio (int, optional): Compress ratio. Defaults to 3.
+            squeeze_factor (int, optional): Squeeze factor. Defaults to 30.
+        """
         super().__init__()
 
         self.cab = nn.Sequential(
@@ -324,7 +330,16 @@ class CAB(nn.Module):
 
 class Mlp(nn.Module):
 
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
+    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer: nn.Module = nn.GELU, drop=0.):
+        """Multi Layer Perceptron
+
+        Args:
+            in_features (int): Input features
+            hidden_features (int, optional): Hidden features.
+            out_features (int, optional): Output features. Defaults to None.
+            act_layer (nn.Module, optional): Activation layer. Defaults to nn.GELU.
+            drop (float, optional): Drop. Defaults to 0..
+        """
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
@@ -360,15 +375,16 @@ def window_partition(x, window_size):
 
 
 def window_reverse(windows, window_size, h, w):
-    """
+    """ Window reverse
+
     Args:
-        windows: (num_windows*b, window_size, window_size, c)
-        window_size (int): Window size
-        h (int): Height of image
-        w (int): Width of image
+        windows : Windows
+        window_size (tuple): Window size
+        h : Height
+        w : Width
 
     Returns:
-        x: (b, h, w, c)
+        _type_: _description_
     """
     b = int(windows.shape[0] / (h * w / window_size / window_size))
     x = windows.view(b, h // window_size, w // window_size,
@@ -378,21 +394,19 @@ def window_reverse(windows, window_size, h, w):
 
 
 class WindowAttention(nn.Module):
-    r""" Window based multi-head self attention (W-MSA) module with relative position bias.
-    It supports both of shifted and non-shifted window.
-
-    Args:
-        dim (int): Number of input channels.
-        window_size (tuple[int]): The height and width of the window.
-        num_heads (int): Number of attention heads.
-        qkv_bias (bool, optional):  If True, add a learnable bias to query, key, value. Default: True
-        qk_scale (float | None, optional): Override default qk scale of head_dim ** -0.5 if set
-        attn_drop (float, optional): Dropout ratio of attention weight. Default: 0.0
-        proj_drop (float, optional): Dropout ratio of output. Default: 0.0
-    """
-
     def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0., proj_drop=0.):
+        """ Window based multi-head self attention (W-MSA) module with relative position bias.
+        It supports both of shifted and non-shifted window.
 
+        Args:
+            dim (int): Number of input channels.
+            window_size (tuple[int]): The height and width of the window.
+            num_heads (int): Number of attention heads.
+            qkv_bias (bool, optional):  If True, add a learnable bias to query, key, value. Default: True
+            qk_scale (float | None, optional): Override default qk scale of head_dim ** -0.5 if set
+            attn_drop (float, optional): Dropout ratio of attention weight. Default: 0.0
+            proj_drop (float, optional): Dropout ratio of output. Default: 0.0
+        """
         super().__init__()
         self.dim = dim
         self.window_size = window_size  # Wh, Ww
@@ -422,7 +436,6 @@ class WindowAttention(nn.Module):
         b_, n, c = x.shape
         qkv = self.qkv(x).reshape(b_, n, 3, self.num_heads, c //
                                   self.num_heads).permute(2, 0, 3, 1, 4)
-        # make torchscript happy (cannot use tensor as tuple)
         q, k, v = qkv[0], qkv[1], qkv[2]
 
         q = q * self.scale
@@ -451,28 +464,23 @@ class WindowAttention(nn.Module):
         return x
 
 
-class CrossbandWindowAttention(nn.Module): #FIXME Attention matrices here, do not have to be the same shape
-    r""" Window based multi-head self attention (W-MSA) module with relative position bias.
-    It supports both of shifted and non-shifted window.
-
-    Args:
-        dim (int): Number of input channels.
-        window_size (tuple[int]): The height and width of the window.
-        num_heads (int): Number of attention heads.
-        qkv_bias (bool, optional):  If True, add a learnable bias to query, key, value. Default: True
-        qk_scale (float | None, optional): Override default qk scale of head_dim ** -0.5 if set
-        attn_drop (float, optional): Dropout ratio of attention weight. Default: 0.0
-        proj_drop (float, optional): Dropout ratio of output. Default: 0.0
-    """
-
+class CrossBandWindowAttention(nn.Module):
     def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0., proj_drop=0.):
+        """ Cross Band Multi Headed Self Attention module with relative position bias.
+        It supports both of shifted and non-shifted window.
 
+        Args:
+            dim (int): Number of input channels.
+            window_size (tuple[int]): Window size of window.
+            num_heads (int): Number of attention heads.
+            qkv_bias (bool, optional):  If True, add a learnable bias to query, key, value. Default: True
+            attn_drop (float, optional): Dropout ratio of attention weight. Default: 0.0
+            proj_drop (float, optional): Dropout ratio of output. Default: 0.0
+        """
         super().__init__()
         self.dim = dim
         self.window_size = window_size  # Wh, Ww
         self.num_heads = num_heads
-        head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim**-0.5
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
@@ -495,19 +503,17 @@ class CrossbandWindowAttention(nn.Module): #FIXME Attention matrices here, do no
             mask: (0/-inf) mask with shape of (num_windows, Wh*Ww, Wh*Ww) or None
         """
         b_, n, c = x.shape
-        # FIXME also try to change x and cross_x here
         q = self.q(x).reshape(b_, n, 1, self.num_heads, c //
-                                  self.num_heads).permute(2, 0, 3, 1, 4)
-        
-        kv = self.kv(cross_x).reshape(b_, n, 2, self.num_heads, c //
-                                  self.num_heads).permute(2, 0, 3, 1, 4)
-        # make torchscript happy (cannot use tensor as tuple)
-        q= q[0]
-        k ,v = kv[0], kv[1] #FIXME i dont like this part
+                              self.num_heads).permute(2, 0, 3, 1, 4)
 
-        q = q * self.scale # FIXME i dont know if i need this one
+        kv = self.kv(cross_x).reshape(b_, n, 2, self.num_heads, c //
+                                      self.num_heads).permute(2, 0, 3, 1, 4)
+        q = q[0]
+        k, v = kv[0], kv[1]
+
         attn = (q @ k.transpose(-2, -1))
 
+        # Relative position bias
         relative_position_bias = self.relative_position_bias_table[rpi.view(-1)].view(
             self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1)  # Wh*Ww,Wh*Ww,nH
         relative_position_bias = relative_position_bias.permute(
@@ -530,43 +536,47 @@ class CrossbandWindowAttention(nn.Module): #FIXME Attention matrices here, do no
         x = self.proj_drop(x)
         return x
 
+
 class HAB(nn.Module):
-    r""" Hybrid Attention Block.
-
-    Args:
-        dim (int): Number of input channels.
-        input_resolution (tuple[int]): Input resolution.
-        num_heads (int): Number of attention heads.
-        window_size (int): Window size.
-        shift_size (int): Shift size for SW-MSA.
-        mlp_ratio (float): Ratio of mlp hidden dim to embedding dim.
-        qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Default: True
-        qk_scale (float | None, optional): Override default qk scale of head_dim ** -0.5 if set.
-        drop (float, optional): Dropout rate. Default: 0.0
-        attn_drop (float, optional): Attention dropout rate. Default: 0.0
-        drop_path (float, optional): Stochastic depth rate. Default: 0.0
-        act_layer (nn.Module, optional): Activation layer. Default: nn.GELU
-        norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
-    """
-
     def __init__(self,
-                 dim,
-                 input_resolution,
-                 num_heads,
-                 window_size=7,
-                 shift_size=0,
-                 compress_ratio=3,
-                 squeeze_factor=30,
-                 conv_scale=0.01,
-                 mlp_ratio=4.,
-                 qkv_bias=True,
-                 qk_scale=None,
-                 drop=0.,
-                 attn_drop=0.,
+                 dim: int,
+                 input_resolution: tuple[int],
+                 num_heads: int,
+                 window_size: int = 7,
+                 shift_size: int = 0,
+                 compress_ratio: int = 3,
+                 squeeze_factor: int = 30,
+                 conv_scale: float = 0.01,
+                 mlp_ratio: int = 4.,
+                 qkv_bias: bool = True,
+                 qk_scale: float = None,
+                 drop: float = 0.,
+                 attn_drop: float = 0.,
                  drop_path=0.,
-                 act_layer=nn.GELU,
-                 norm_layer=nn.LayerNorm):
+                 act_layer: nn.Module = nn.GELU,
+                 norm_layer: nn.Module = nn.LayerNorm):
+        """Hybrid Attention Block
+
+        Args:
+            dim (int): Number of input channels
+            input_resolution (tuple[int]): Input resolution.
+            num_heads (int): Number of attention heads.
+            window_size (int, optional): Window size Defaults to 7.
+            shift_size (int, optional): Shift size for WindowAttention. Defaults to 0.
+            compress_ratio (int, optional): Compression ration. Defaults to 3.
+            squeeze_factor (int, optional): Squeeze factor. Defaults to 30.
+            conv_scale (float, optional): Conv scale. Defaults to 0.01.
+            mlp_ratio (int, optional): Ratio of mlp hidden dim to embedding dim. Defaults to 4..
+            qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Defaults to True.
+            qk_scale (float, optional): Override default qk scale of head_dim ** -0.5 if set.
+            drop (float, optional): Dropout rate. Default: 0.0
+            attn_drop (float, optional): Attention dropout rate. Default: 0.0
+            drop_path (_type_, optional): Stochastic depth rate. Default: 0.0
+            act_layer (nn.Module, optional): Activation layer. Default: nn.GELU
+            norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
+        """
         super().__init__()
+
         self.dim = dim
         self.input_resolution = input_resolution
         self.num_heads = num_heads
@@ -628,7 +638,7 @@ class HAB(nn.Module):
         # nw*b, window_size*window_size, c
         x_windows = x_windows.view(-1, self.window_size * self.window_size, c)
 
-        # W-MSA/SW-MSA (to be compatible for testing on images whose shapes are the multiple of window size
+        # W-MSA/SW-MSA
         attn_windows = self.attn(x_windows, rpi=rpi_sa, mask=attn_mask)
 
         # merge windows
@@ -651,37 +661,54 @@ class HAB(nn.Module):
 
         return x
 
-class CBAB(nn.Module):
-    # cross-band attention block
 
-    def __init__(self, 
-                 dim,
-                 input_resolution,
-                 num_heads,
-                 window_size=7,
-                 shift_size=0,
-                 compress_ratio=3,
-                 squeeze_factor=30,
-                 conv_scale=0.01,
-                 mlp_ratio=4.,
-                 qkv_bias=True,
-                 qk_scale=None,
-                 drop=0.,
-                 attn_drop=0.,
-                 act_layer=nn.GELU,
-                 norm_layer=nn.LayerNorm
+class SCBAB(nn.Module):
+    def __init__(self,
+                 dim: int,
+                 input_resolution: tuple[int],
+                 num_heads: int,
+                 window_size: int = 7,
+                 shift_size: int = 0,
+                 mlp_ratio: int = 4.,
+                 qkv_bias: bool = True,
+                 qk_scale: float = None,
+                 drop: float = 0.,
+                 attn_drop: float = 0.,
+                 act_layer: nn.Module = nn.GELU,
+                 norm_layer: nn.Module = nn.LayerNorm
                  ):
+        """ Shifted Cross Band Attention Block
 
+        Args:
+            dim (int): Number of input channels.
+            input_resolution (tuple[int]): Input resolution.
+            num_heads (int): Number of attention heads.
+            window_size (int, optional): Window size. Defaults to 7.
+            shift_size (int, optional): Shift size for CrossBandWindowAttention. Defaults to 0.
+            mlp_ratio (int, optional): Ratio of mlp hidden dim to embedding dim. Defaults to 4..
+            qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Defaults to True.
+            qk_scale (float, optional): Override default qk scale of head_dim ** -0.5 if set.
+            drop (float, optional): Dropout rate. Default: 0.0
+            attn_drop (float, optional): Attention dropout rate. Default: 0.0
+            act_layer (nn.Module, optional): Activation layer. Default: nn.GELU
+            norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
+        """
         super().__init__()
         self.dim = dim
         self.input_resolution = input_resolution
         self.num_heads = num_heads
         self.window_size = window_size
         self.mlp_ratio = mlp_ratio
+        self.shift_size = shift_size
+        if min(self.input_resolution) <= self.window_size:
+            # if window size is larger than input resolution, we don't partition windows
+            self.shift_size = 0
+            self.window_size = min(self.input_resolution)
+        assert 0 <= self.shift_size < self.window_size, 'shift_size must in 0-window_size'
 
         self.norm1 = norm_layer(dim)
         self.norm_cross = norm_layer(dim)
-        self.cross_band_attn = CrossbandWindowAttention(
+        self.cross_band_attn = CrossBandWindowAttention(
             dim,
             window_size=retrieve_2d_tuple(self.window_size),
             num_heads=num_heads,
@@ -689,7 +716,7 @@ class CBAB(nn.Module):
             qk_scale=qk_scale,
             attn_drop=attn_drop,
             proj_drop=drop)
-                
+
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim,
@@ -704,17 +731,31 @@ class CBAB(nn.Module):
         cross_x = self.norm_cross(cross_x)
         x = x.view(b, h, w, c)
         cross_x = cross_x.view(b, h, w, c)
-        
+
+        # cyclic shift
+        if self.shift_size > 0:
+            shifted_x = torch.roll(
+                x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2))
+            attn_mask = attn_mask
+            shifted_cross_x = torch.roll(
+                cross_x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2))
+            attn_mask = attn_mask
+        else:
+            shifted_x = x
+            shifted_cross_x = cross_x
+            attn_mask = None
+
         # partition windows
         # nw*b, window_size, window_size, c
-        x_windows = window_partition(x, self.window_size)
-        cross_x_windows = window_partition(cross_x, self.window_size)
+        x_windows = window_partition(shifted_x, self.window_size)
+        cross_x_windows = window_partition(shifted_cross_x, self.window_size)
         # nw*b, window_size*window_size, c
         x_windows = x_windows.view(-1, self.window_size * self.window_size, c)
-        cross_x_windows = cross_x_windows.view(-1, self.window_size * self.window_size, c)
+        cross_x_windows = cross_x_windows.view(-1,
+                                               self.window_size * self.window_size, c)
 
-
-        attn_windows = self.cross_band_attn(x_windows, cross_x_windows, rpi=rpi_sa, mask=attn_mask)
+        attn_windows = self.cross_band_attn(
+            x_windows, cross_x_windows, rpi=rpi_sa, mask=attn_mask)
 
         # merge windows
         attn_windows = attn_windows.view(-1,
@@ -722,23 +763,29 @@ class CBAB(nn.Module):
         shifted_x = window_reverse(
             attn_windows, self.window_size, h, w)  # b h' w' c
 
-        attn_x = shifted_x.view(b, h * w, c)
+        # reverse cyclic shift
+        if self.shift_size > 0:
+            attn_x = torch.roll(shifted_x, shifts=(
+                self.shift_size, self.shift_size), dims=(1, 2))
+        else:
+            attn_x = shifted_x
+        attn_x = attn_x.view(b, h * w, c)
 
         # FFN
-        x = shortcut + attn_x 
+        x = shortcut + attn_x
         x = x + self.mlp(self.norm2(x))
         return x
-    
+
+
 class PatchMerging(nn.Module):
-    r""" Patch Merging Layer.
+    def __init__(self, input_resolution: tuple[int], dim: int, norm_layer: nn.Module = nn.LayerNorm):
+        """ Patch Merging Layer
 
-    Args:
-        input_resolution (tuple[int]): Resolution of input feature.
-        dim (int): Number of input channels.
-        norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
-    """
-
-    def __init__(self, input_resolution, dim, norm_layer=nn.LayerNorm):
+        Args:
+            input_resolution (tuple[int]): Input Resolution
+            dim (int): Number of input channels
+            norm_layer (nn.Module, optional): Normalization layer. Defaults to nn.LayerNorm.
+        """
         super().__init__()
         self.input_resolution = input_resolution
         self.dim = dim
@@ -770,8 +817,6 @@ class PatchMerging(nn.Module):
 
 
 class OCAB(nn.Module):
-    # overlapping cross-attention block
-
     def __init__(self, dim,
                  input_resolution,
                  window_size,
@@ -782,7 +827,19 @@ class OCAB(nn.Module):
                  mlp_ratio=2,
                  norm_layer=nn.LayerNorm
                  ):
+        """Overlapping Cross Attention Block
 
+        Args:
+            dim (int): Input dimension
+            input_resolution (tuple): Resolution of input 
+            window_size (int): Window size
+            overlap_ratio (float): Overlapping ration
+            num_heads (int): Number of Attention heads
+            qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Defaults to True.
+            qk_scale (float, optional): Override default qk scale of head_dim ** -0.5 if set.
+            act_layer (nn.Module, optional): Activation layer. Default: nn.GELU
+            norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
+        """
         super().__init__()
         self.dim = dim
         self.input_resolution = input_resolution
@@ -867,9 +924,126 @@ class OCAB(nn.Module):
 
         x = x + self.mlp(self.norm2(x))
         return x
-  
-class RHAG(nn.Module):
-    """Residual Hybrid Attention Group (RHAG).
+
+
+class OCBAB(nn.Module):
+    def __init__(self, dim,
+                 input_resolution,
+                 window_size,
+                 overlap_ratio,
+                 num_heads,
+                 qkv_bias=True,
+                 qk_scale=None,
+                 mlp_ratio=2,
+                 norm_layer=nn.LayerNorm
+                 ):
+        """ Overlapping Cross Band Attention Block
+
+        Args:
+            dim (int): Input dimension
+            input_resolution (tuple): Resolution of input 
+            window_size (int): Window size
+            overlap_ratio (float): Overlapping ration
+            num_heads (int): Number of Attention heads
+            qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Defaults to True.
+            qk_scale (float, optional): Override default qk scale of head_dim ** -0.5 if set.
+            act_layer (nn.Module, optional): Activation layer. Default: nn.GELU
+            norm_layer (nn.Module, optional): Normalization layer.  Default: nn.LayerNorm
+        """
+        super().__init__()
+        self.dim = dim
+        self.input_resolution = input_resolution
+        self.window_size = window_size
+        self.num_heads = num_heads
+        head_dim = dim // num_heads
+        self.scale = qk_scale or head_dim**-0.5
+        self.overlap_win_size = int(window_size * overlap_ratio) + window_size
+
+        self.norm1 = norm_layer(dim)
+        self.norm_cross = norm_layer(dim)
+        self.q = nn.Linear(dim, dim, bias=qkv_bias)
+        self.kv = nn.Linear(dim, dim * 2, bias=qkv_bias)
+        self.unfold = nn.Unfold(kernel_size=(self.overlap_win_size, self.overlap_win_size),
+                                stride=window_size, padding=(self.overlap_win_size - window_size) // 2)
+
+        # define a parameter table of relative position bias
+        self.relative_position_bias_table = nn.Parameter(
+            torch.zeros((window_size + self.overlap_win_size - 1) * (window_size + self.overlap_win_size - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
+
+        trunc_normal_(self.relative_position_bias_table, std=.02)
+        self.softmax = nn.Softmax(dim=-1)
+
+        self.proj = nn.Linear(dim, dim)
+
+        self.norm2 = norm_layer(dim)
+        mlp_hidden_dim = int(dim * mlp_ratio)
+        self.mlp = Mlp(in_features=dim,
+                       hidden_features=mlp_hidden_dim, act_layer=nn.GELU)
+
+    def forward(self, x, cross_x, x_size, rpi):
+        h, w = x_size
+        b, _, c = x.shape
+
+        shortcut = x
+        x = self.norm1(x)
+        cross_x = self.norm_cross(cross_x)
+        x = x.view(b, h, w, c)
+        cross_x = cross_x.view(b, h, w, c)
+
+        q = self.q(x).reshape(b, h, w, 1, c).permute(
+            3, 0, 4, 1, 2)  # 1, b, c, h, w
+        kv = self.kv(cross_x).reshape(b, h, w, 2, c).permute(
+            3, 0, 4, 1, 2)  # 2, b, c, h, w
+        q = q.squeeze(0).permute(0, 2, 3, 1)  # b, h, w, c
+        kv = torch.cat((kv[0], kv[1]), dim=1)
+
+        q = q * self.scale  # partition windows
+        # nw*b, window_size, window_size, c
+        q_windows = window_partition(q, self.window_size)
+        # nw*b, window_size*window_size, c
+        q_windows = q_windows.view(-1, self.window_size * self.window_size, c)
+
+        kv_windows = self.unfold(kv)  # b, c*w*w, nw
+        kv_windows = rearrange(kv_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=2,
+                               ch=c, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous()  # 2, nw*b, ow*ow, c
+        k_windows, v_windows = kv_windows[0], kv_windows[1]  # nw*b, ow*ow, c
+
+        b_, nq, _ = q_windows.shape
+        _, n, _ = k_windows.shape
+        d = self.dim // self.num_heads
+        q = q_windows.reshape(b_, nq, self.num_heads, d).permute(
+            0, 2, 1, 3)  # nw*b, nH, nq, d
+        k = k_windows.reshape(b_, n, self.num_heads, d).permute(
+            0, 2, 1, 3)  # nw*b, nH, n, d
+        v = v_windows.reshape(b_, n, self.num_heads, d).permute(
+            0, 2, 1, 3)  # nw*b, nH, n, d
+
+        q = q * self.scale
+        attn = (q @ k.transpose(-2, -1))
+
+        relative_position_bias = self.relative_position_bias_table[rpi.view(-1)].view(
+            self.window_size * self.window_size, self.overlap_win_size * self.overlap_win_size, -1)  # ws*ws, wse*wse, nH
+        relative_position_bias = relative_position_bias.permute(
+            2, 0, 1).contiguous()  # nH, ws*ws, wse*wse
+        attn = attn + relative_position_bias.unsqueeze(0)
+
+        attn = self.softmax(attn)
+        attn_windows = (attn @ v).transpose(1, 2).reshape(b_, nq, self.dim)
+
+        # merge windows
+        attn_windows = attn_windows.view(-1,
+                                         self.window_size, self.window_size, self.dim)
+        x = window_reverse(attn_windows, self.window_size, h, w)  # b h w c
+        x = x.view(b, h * w, self.dim)
+
+        x = self.proj(x) + shortcut
+
+        x = x + self.mlp(self.norm2(x))
+        return x
+
+
+class MBAG(nn.Module):
+    """Multi Band Attention Group (MBAG).
 
     Args:
         dim (int): Number of input channels.
@@ -917,8 +1091,7 @@ class RHAG(nn.Module):
         self.input_resolution = input_resolution
         self.depth = depth
 
-        # FIXME unify 
-        # build blocks
+        # HAB blocks
         self.pan_hab_blocks = nn.ModuleList([
             HAB(
                 dim=dim,
@@ -958,37 +1131,43 @@ class RHAG(nn.Module):
                 norm_layer=norm_layer) for i in range(depth)
         ])
 
-        #CBAB
-        self.pan_cbab0 = CBAB(
-            dim=dim,
-            input_resolution=input_resolution,
-            num_heads=num_heads,
-            window_size=window_size,
-            compress_ratio=compress_ratio,
-            squeeze_factor=squeeze_factor,
-            conv_scale=conv_scale,
-            mlp_ratio=mlp_ratio,
-            qkv_bias=qkv_bias,
-            qk_scale=qk_scale,
-            drop=drop,
-            attn_drop=attn_drop,
-            norm_layer=norm_layer)
-        self.mslr_cbab0 = CBAB(
-            dim=dim,
-            input_resolution=input_resolution,
-            num_heads=num_heads,
-            window_size=window_size,
-            compress_ratio=compress_ratio,
-            squeeze_factor=squeeze_factor,
-            conv_scale=conv_scale,
-            mlp_ratio=mlp_ratio,
-            qkv_bias=qkv_bias,
-            qk_scale=qk_scale,
-            drop=drop,
-            attn_drop=attn_drop,
-            norm_layer=norm_layer)
-        
-        # OCAB
+        # SCBAB blocks
+        self.pan_scbab_blocks = nn.ModuleList([
+            SCBAB(
+                dim=dim,
+                input_resolution=input_resolution,
+                num_heads=num_heads,
+                window_size=window_size,
+                shift_size=0 if (i % 2 == 0) else window_size // 2,
+                compress_ratio=compress_ratio,
+                squeeze_factor=squeeze_factor,
+                conv_scale=conv_scale,
+                mlp_ratio=mlp_ratio,
+                qkv_bias=qkv_bias,
+                qk_scale=qk_scale,
+                drop=drop,
+                attn_drop=attn_drop,
+                norm_layer=norm_layer) for i in range(depth)
+        ])
+        self.mslr_scbab_blocks = nn.ModuleList([
+            SCBAB(
+                dim=dim,
+                input_resolution=input_resolution,
+                num_heads=num_heads,
+                window_size=window_size,
+                shift_size=0 if (i % 2 == 0) else window_size // 2,
+                compress_ratio=compress_ratio,
+                squeeze_factor=squeeze_factor,
+                conv_scale=conv_scale,
+                mlp_ratio=mlp_ratio,
+                qkv_bias=qkv_bias,
+                qk_scale=qk_scale,
+                drop=drop,
+                attn_drop=attn_drop,
+                norm_layer=norm_layer) for i in range(depth)
+        ])
+
+        # OCAB block
         self.pan_overlap_attn = OCAB(
             dim=dim,
             input_resolution=input_resolution,
@@ -1012,34 +1191,26 @@ class RHAG(nn.Module):
             norm_layer=norm_layer
         )
 
-        #CBAB
-        self.pan_cbab = CBAB(
+        # OCBAB block
+        self.pan_cbab = OCBAB(
             dim=dim,
             input_resolution=input_resolution,
-            num_heads=num_heads,
             window_size=window_size,
-            compress_ratio=compress_ratio,
-            squeeze_factor=squeeze_factor,
-            conv_scale=conv_scale,
+            num_heads=num_heads,
+            overlap_ratio=overlap_ratio,
             mlp_ratio=mlp_ratio,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
-            drop=drop,
-            attn_drop=attn_drop,
             norm_layer=norm_layer)
-        self.mslr_cbab = CBAB(
+        self.mslr_cbab = OCBAB(
             dim=dim,
             input_resolution=input_resolution,
-            num_heads=num_heads,
             window_size=window_size,
-            compress_ratio=compress_ratio,
-            squeeze_factor=squeeze_factor,
-            conv_scale=conv_scale,
+            num_heads=num_heads,
+            overlap_ratio=overlap_ratio,
             mlp_ratio=mlp_ratio,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
-            drop=drop,
-            attn_drop=attn_drop,
             norm_layer=norm_layer)
 
         # patch merging layer
@@ -1076,17 +1247,32 @@ class RHAG(nn.Module):
 
         # Multiple HAB
         for pan_blk, mslr_blk in zip(self.pan_hab_blocks, self.mslr_hab_blocks):
-            pan_forward = pan_blk(pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
-            mslr_forward = mslr_blk(mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
+            pan_forward = pan_blk(pan_forward, x_size,
+                                  params['rpi_sa'], params['attn_mask'])
+            mslr_forward = mslr_blk(
+                mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
-        pan_forward = self.pan_cbab(pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
-        mslr_forward = self.mslr_cbab(mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
+        # Multiple SCBAB
+        for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
+            pan_forward_temp = pan_blk(
+                pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
+            mslr_forward_temp = mslr_blk(
+                mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
-        pan_forward = self.pan_overlap_attn(pan_forward, x_size, params['rpi_oca'])
-        mslr_forward = self.mslr_overlap_attn(mslr_forward, x_size, params['rpi_oca'])
-        
-        pan_forward_ = self.pan_cbab(pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
-        mslr_forward_ = self.mslr_cbab(mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
+            pan_forward = pan_forward_temp
+            mslr_forward = mslr_forward_temp
+
+        # OCAB
+        pan_forward = self.pan_overlap_attn(
+            pan_forward, x_size, params['rpi_oca'])
+        mslr_forward = self.mslr_overlap_attn(
+            mslr_forward, x_size, params['rpi_oca'])
+
+        # CBAB
+        pan_forward_ = self.pan_cbab(
+            pan_forward, mslr_forward, x_size, params['rpi_oca'])
+        mslr_forward_ = self.mslr_cbab(
+            mslr_forward, pan_forward, x_size, params['rpi_oca'])
 
         if self.pan_downsample is not None:
             pan_forward_ = self.pan_downsample(pan_forward_)
@@ -1100,20 +1286,19 @@ class RHAG(nn.Module):
         mslr_forward = self.mslr_patch_embed(mslr_forward) + mslr
 
         return pan_forward, mslr_forward
-    
+
 
 class PatchEmbed(nn.Module):
-    r""" Image to Patch Embedding
-
-    Args:
-        img_size (int): Image size.  Default: 224.
-        patch_size (int): Patch token size. Default: 4.
-        in_chans (int): Number of input image channels. Default: 3.
-        embed_dim (int): Number of linear projection output channels. Default: 96.
-        norm_layer (nn.Module, optional): Normalization layer. Default: None
-    """
-
     def __init__(self, img_size=224, patch_size=4, in_chans=3, embed_dim=96, norm_layer=None):
+        """ Image to Patch Embedding
+
+        Args:
+            img_size (int): Image size.  Default: 224.
+            patch_size (int): Patch token size. Default: 4.
+            in_chans (int): Number of input image channels. Default: 3.
+            embed_dim (int): Number of linear projection output channels. Default: 96.
+            norm_layer (nn.Module, optional): Normalization layer. Default: None
+        """
         super().__init__()
         img_size = retrieve_2d_tuple(img_size)
         patch_size = retrieve_2d_tuple(patch_size)
@@ -1140,17 +1325,16 @@ class PatchEmbed(nn.Module):
 
 
 class PatchUnEmbed(nn.Module):
-    r""" Image to Patch Unembedding
-
-    Args:
-        img_size (int): Image size.  Default: 224.
-        patch_size (int): Patch token size. Default: 4.
-        in_chans (int): Number of input image channels. Default: 3.
-        embed_dim (int): Number of linear projection output channels. Default: 96.
-        norm_layer (nn.Module, optional): Normalization layer. Default: None
-    """
-
     def __init__(self, img_size=224, patch_size=4, in_chans=3, embed_dim=96, norm_layer=None):
+        """ Image to Patch Unembedding
+
+        Args:
+            img_size (int): Image size.  Default: 224.
+            patch_size (int): Patch token size. Default: 4.
+            in_chans (int): Number of input image channels. Default: 3.
+            embed_dim (int): Number of linear projection output channels. Default: 96.
+            norm_layer (nn.Module, optional): Normalization layer. Default: None
+        """
         super().__init__()
         img_size = retrieve_2d_tuple(img_size)
         patch_size = retrieve_2d_tuple(patch_size)
@@ -1168,4 +1352,3 @@ class PatchUnEmbed(nn.Module):
         x = x.transpose(1, 2).contiguous().view(
             x.shape[0], self.embed_dim, x_size[0], x_size[1])  # b Ph*Pw c
         return x
-
