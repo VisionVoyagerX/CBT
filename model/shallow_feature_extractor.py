@@ -1,5 +1,5 @@
 import torch.nn as nn
-from image_reconstructor import *
+from .image_reconstructor import *
 
 
 class Shallow_Feature_Extractor(nn.Module):

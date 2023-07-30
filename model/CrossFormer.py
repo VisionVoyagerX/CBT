@@ -3,9 +3,9 @@ import torch.nn as nn
 from torch.nn.init import trunc_normal_
 from torchinfo import summary
 
-from shallow_feature_extractor import *
-from deep_feature_extractor import *
-from image_reconstructor import *
+from .shallow_feature_extractor import *
+from .deep_feature_extractor import *
+from .image_reconstructor import *
 
 
 import matplotlib.pyplot as plt
