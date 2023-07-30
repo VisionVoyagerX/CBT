@@ -540,7 +540,7 @@ class CrossBandWindowAttention(nn.Module):
 class HAB(nn.Module):
     def __init__(self,
                  dim: int,
-                 input_resolution: tuple[int],
+                 input_resolution: tuple,
                  num_heads: int,
                  window_size: int = 7,
                  shift_size: int = 0,
@@ -665,7 +665,7 @@ class HAB(nn.Module):
 class SCBAB(nn.Module):
     def __init__(self,
                  dim: int,
-                 input_resolution: tuple[int],
+                 input_resolution: tuple,
                  num_heads: int,
                  window_size: int = 7,
                  shift_size: int = 0,
@@ -778,7 +778,7 @@ class SCBAB(nn.Module):
 
 
 class PatchMerging(nn.Module):
-    def __init__(self, input_resolution: tuple[int], dim: int, norm_layer: nn.Module = nn.LayerNorm):
+    def __init__(self, input_resolution: tuple, dim: int, norm_layer: nn.Module = nn.LayerNorm):
         """ Patch Merging Layer
 
         Args:
