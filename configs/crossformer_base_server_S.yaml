@@ -44,8 +44,8 @@ machine_settings:
 
 # general settings
 general_settings:
-  name: "crossformer_base_small"
-  model_type: CrossFormer
+  name: "MBA_base_small"
+  model_type: MBA
   continue_from_checkpoint: False
   checkpoint_name:
   report_interval: 50
