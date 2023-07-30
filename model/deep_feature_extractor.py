@@ -1155,7 +1155,6 @@ class MBAG(nn.Module):
                 num_heads=num_heads,
                 window_size=window_size,
                 shift_size=0 if (i % 2 == 0) else window_size // 2,
-                squeeze_factor=squeeze_factor,
                 conv_scale=conv_scale,
                 mlp_ratio=mlp_ratio,
                 qkv_bias=qkv_bias,
