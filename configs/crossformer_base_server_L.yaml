@@ -44,7 +44,7 @@ machine_settings:
 
 # general settings
 general_settings:
-  name: "MBA_base"
+  name: "MBA_base_Large"
   model_type: MBA
   continue_from_checkpoint: False
   checkpoint_name:
