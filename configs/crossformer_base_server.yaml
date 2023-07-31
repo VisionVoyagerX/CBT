@@ -61,10 +61,10 @@ task:
 network:
   patch_size: 1
   in_chans: 4
-  embed_dim: 48
+  embed_dim: 30
   depths: [6, 6] # 6, 6
   num_heads: [6, 6] #, 6, 6
-  window_size: 16
+  window_size: 8
   compress_ratio: 24
   squeeze_factor: 24
   conv_scale: 0.01
