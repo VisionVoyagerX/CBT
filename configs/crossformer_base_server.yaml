@@ -61,9 +61,9 @@ task:
 network:
   patch_size: 1
   in_chans: 4
-  embed_dim: 60
-  depths: [2, 2] # 6, 6
-  num_heads: [2, 2] #, 6, 6
+  embed_dim: 48
+  depths: [6, 6] # 6, 6
+  num_heads: [6, 6] #, 6, 6
   window_size: 16
   compress_ratio: 24
   squeeze_factor: 24
@@ -84,7 +84,7 @@ network:
 
 training_settings:
   steps: 500000
-  batch_size: 2
+  batch_size: 8
   optimizer:
     type: Adam
     learning_rate: !!float 2e-4
