@@ -180,56 +180,6 @@ class GaoFen2panformer(Dataset):
 
         return (pan, mslr, hr)  # (None, None, None) #
 
-
-if __name__ == "__main__":
-    batch_size = 1
-
-    dir_tr = Path(f'F:/Data/GaoFen-2_panformer/train/')
-    dir_test = Path(f'F:/Data/GaoFen-2_panformer/test/')
-
-    # Load training dataset
-    tr_dataset = GaoFen2_panformer(dir_tr)
-    train_loader = DataLoader(
-        dataset=tr_dataset, batch_size=batch_size, shuffle=True)
-
-    # Load test dataset
-    test_dataset = GaoFen2_panformer(dir_test)
-    test_loader = DataLoader(
-        dataset=test_dataset, batch_size=batch_size, shuffle=False)
-
-    channel_sum = 0
-    channel_sum_of_squares = 0
-
-    lr_channel_sum = 0
-    lr_channel_sum_of_squares = 0
-
-    total_samples = 0
-    # Iterate over the DataLoader
-    print('Length of Dataloader: ', len(train_loader))
-    for pan, mslr, mshr in train_loader:
-        # Assuming your data is a tensor
-        # Compute the channel-wise mean and mean of squares
-        channel_sum += torch.mean(pan)
-        channel_sum_of_squares += torch.mean(pan ** 2)
-
-        lr_channel_sum += torch.mean(mslr, dim=(0, 2, 3))
-        lr_channel_sum_of_squares += torch.mean(mslr ** 2, dim=(0, 2, 3))
-
-        total_samples += 1
-
-    # Compute the mean and standard deviation for each channel
-    mean = channel_sum / total_samples
-    std = torch.sqrt((channel_sum_of_squares / total_samples) - mean ** 2)
-
-    # Compute the mean and standard deviation for each channel
-    lr_mean = lr_channel_sum / total_samples
-    lr_std = torch.sqrt((lr_channel_sum_of_squares /
-                        total_samples) - lr_mean ** 2)
-
-    print('mean: ', mean, ' std: ', std)
-    print('mean: ', lr_mean, ' std: ', lr_std)
-
-
 class Sev2Mod(Dataset):
     def __init__(self, dir, task, transform=None) -> None:
         self.dir = dir
@@ -293,12 +243,23 @@ class Sev2Mod(Dataset):
 
 
 class WV3(Dataset):
-    def __init__(self, dir, transform=None) -> None:
+    def __init__(self, dir, transforms=None) -> None:
         f = h5py.File(str(dir), 'r+')
         self.hr = torch.tensor(f['gt'][()], dtype=torch.float32)
         self.mslr = torch.tensor(f['ms'][()], dtype=torch.float32)
         self.pan = torch.tensor(f['pan'][()], dtype=torch.float32)
-        self.transform = transform
+        self.transforms = transforms
+
+        # precomputed
+        self.pan_mean = torch.tensor([400.1155]).view(1, 1, 1, 1)
+        self.pan_std = torch.tensor([231.4912]).view(1, 1, 1, 1)
+
+        self.mslr_mean = torch.tensor(
+            [274.7202, 321.7943, 407.2370, 350.4585, 286.0128, 335.0426, 433.5523,
+             317.5977]).view(1, 8, 1, 1)
+        self.mslr_std = torch.tensor(
+            [76.1222, 125.6397, 205.9311, 221.6230, 210.6218, 182.3110, 224.2404,
+             163.7575]).view(1, 8, 1, 1)
 
     def __len__(self):
         return self.mslr.shape[0]
@@ -309,36 +270,57 @@ class WV3(Dataset):
         mslr = self.mslr[index]
         hr = self.hr[index]
 
-        if self.transform:
-            pan = self.transform(pan)
-            mslr = self.transform(mslr)
-            hr = self.transform(hr)
+        if self.transforms:
+            for transform, prob in self.transforms:
+                if torch.randn(1) < prob:
+                    pan = transform(pan)
+                    mslr = transform(mslr)
+                    hr = transform(hr)
 
         return (pan, mslr, hr)
 
 
-'''if __name__ == "__main__":
-    batch_size = 8
+if __name__ == "__main__":
+    batch_size = 1
     shuffle = True
 
     dir_tr = Path(f'F:/Data/WorldView3/train/train_wv3-001.h5')
     dir_val = Path(f'F:/Data/WorldView3/val/valid_wv3.h5')
+    # dir_test = Path(f'F:/Data/GaoFen-2/train/train_gf2-001.h5')
 
-    dataset = WV3(
-        dir_tr)
+    tr_dataset = GaoFen2(
+        dir_tr, transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)])
     train_loader = DataLoader(
-        dataset=dataset, batch_size=batch_size, shuffle=shuffle)
-    
+        dataset=tr_dataset, batch_size=batch_size, shuffle=shuffle)
 
-    val_dataset = WV3(
+    val_dataset = GaoFen2(
         dir_val)
     validation_loader = DataLoader(
         dataset=val_dataset, batch_size=batch_size, shuffle=shuffle)
 
-    # train shapes
+    '''# train shapes
     pan, mslr, hr = next(iter(train_loader))
     print(pan.shape, mslr.shape, hr.shape)
 
     # validation shapes
     pan, mslr, hr = next(iter(validation_loader))
     print(pan.shape, mslr.shape, hr.shape)'''
+
+    channel_sum = 0
+    channel_sum_of_squares = 0
+    total_samples = 0
+    # Iterate over the DataLoader
+    print('Length of Dataloader: ', len(tr_dataset))
+    for pan, mslr, mshr in tr_dataset:
+        # Assuming your data is a tensor
+        # Compute the channel-wise mean and mean of squares
+        channel_sum += torch.mean(mslr, dim=(1, 2))
+        channel_sum_of_squares += torch.mean(mslr ** 2, dim=(1, 2))
+
+        total_samples += 1
+
+    # Compute the mean and standard deviation for each channel
+    mean = channel_sum / total_samples
+    std = torch.sqrt((channel_sum_of_squares / total_samples) - mean ** 2)
+
+    print('mean: ', mean, ' std: ', std)
