@@ -481,6 +481,8 @@ class CrossBandWindowAttention(nn.Module):
         self.dim = dim
         self.window_size = window_size  # Wh, Ww
         self.num_heads = num_heads
+        head_dim = dim // num_heads
+        self.scale = qk_scale or head_dim**-0.5
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
@@ -511,6 +513,7 @@ class CrossBandWindowAttention(nn.Module):
         q = q[0]
         k, v = kv[0], kv[1]
 
+        q = q * self.scale
         attn = (q @ k.transpose(-2, -1))
 
         # Relative position bias
