@@ -44,7 +44,7 @@ machine_settings:
 
 # general settings
 general_settings:
-  name: "MBA_base_tiny_GF2"
+  name: "MBA_base_tiny_GF2_noSCBAB"
   model_type: MBA
   continue_from_checkpoint: False
   checkpoint_name:
@@ -91,7 +91,7 @@ training_settings:
     betas: [0.9, 0.99]
   scheduler:
     type: StepLR
-    lr_decay_intervals: [250000, 400000, 500000, 525000, 550000, 575000]
+    lr_decay_intervals: [150000, 250000, 400000, 500000, 550000, 575000]
     gamma: 0.5
   loss:
     type: L1Loss

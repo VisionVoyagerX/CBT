@@ -114,7 +114,7 @@ class MBA(nn.Module):
                                                                       )
 
         # ------------------------- 3, high quality image reconstruction ------------------------- #
-        self.image_recunstruction = Image_Reconstruction(
+        self.image_reconstruction = Image_Reconstruction(
             embed_dim, num_feat, num_out_ch, upscale)
 
         self.apply(self._init_weights)
@@ -141,7 +141,7 @@ class MBA(nn.Module):
         # add
         mssr = pan + mslr
         # image_reconstruction
-        mssr = self.image_recunstruction(mssr)
+        mssr = self.image_reconstruction(mssr)
 
         # channel-wise denormalization
         pan = pan * self.pan_std + self.pan_mean
