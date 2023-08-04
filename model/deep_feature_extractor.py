@@ -1269,6 +1269,10 @@ class MBAG(nn.Module):
             pan_forward, mslr_forward, x_size, params['rpi_oca'])
         mslr_forward_ = self.mslr_cbab(
             mslr_forward, pan_forward, x_size, params['rpi_oca'])"""
+        
+        #FIXME DELETE TWO LINES
+        pan_forward = pan_forward
+        mslr_forward_ = mslr_forward
 
         if self.pan_downsample is not None:
             pan_forward_ = self.pan_downsample(pan_forward_)
