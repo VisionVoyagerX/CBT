@@ -141,6 +141,7 @@ class MBA(nn.Module):
         # add
         # mssr = pan + mslr
         mssr = torch.cat((pan, mslr), dim=1)
+        print(mssr.shape)
         # image_reconstruction
         mssr = self.image_reconstruction(mssr)
 
