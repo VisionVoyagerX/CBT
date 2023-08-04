@@ -139,7 +139,8 @@ class MBA(nn.Module):
         # deep_feature_extractor
         pan, mslr = self.pan_mslr_deep_feature_extractor(pan, mslr)
         # add
-        mssr = pan + mslr
+        # mssr = pan + mslr
+        mssr = torch.cat((pan, mslr), dim=1)
         # image_reconstruction
         mssr = self.image_reconstruction(mssr)
 
