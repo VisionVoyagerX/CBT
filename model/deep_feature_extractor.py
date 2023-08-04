@@ -1133,7 +1133,7 @@ class MBAG(nn.Module):
                 norm_layer=norm_layer) for i in range(depth)
         ])
 
-        # SCBAB blocks
+        """# SCBAB blocks
         self.pan_scbab_blocks = nn.ModuleList([
             SCBAB(
                 dim=dim,
@@ -1161,7 +1161,7 @@ class MBAG(nn.Module):
                 drop=drop,
                 attn_drop=attn_drop,
                 norm_layer=norm_layer) for i in range(depth)
-        ])
+        ])"""
 
         # OCAB block
         self.pan_overlap_attn = OCAB(
@@ -1248,7 +1248,7 @@ class MBAG(nn.Module):
             mslr_forward = mslr_blk(
                 mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
-        # Multiple SCBAB
+        """# Multiple SCBAB
         for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
             pan_forward_temp = pan_blk(
                 pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
@@ -1256,7 +1256,7 @@ class MBAG(nn.Module):
                 mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
             pan_forward = pan_forward_temp
-            mslr_forward = mslr_forward_temp
+            mslr_forward = mslr_forward_temp"""
 
         # OCAB
         pan_forward = self.pan_overlap_attn(
@@ -1269,8 +1269,8 @@ class MBAG(nn.Module):
             pan_forward, mslr_forward, x_size, params['rpi_oca'])
         mslr_forward_ = self.mslr_cbab(
             mslr_forward, pan_forward, x_size, params['rpi_oca'])"""
-        
-        #FIXME DELETE TWO LINES
+
+        # FIXME DELETE TWO LINES
         pan_forward_ = pan_forward
         mslr_forward_ = mslr_forward
 
