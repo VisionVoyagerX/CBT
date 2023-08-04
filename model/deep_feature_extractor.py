@@ -1271,7 +1271,7 @@ class MBAG(nn.Module):
             mslr_forward, pan_forward, x_size, params['rpi_oca'])"""
         
         #FIXME DELETE TWO LINES
-        pan_forward = pan_forward
+        pan_forward_ = pan_forward
         mslr_forward_ = mslr_forward
 
         if self.pan_downsample is not None:
