@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn.init import trunc_normal_
-from utils import retrieve_2d_tuple
+from .utils import retrieve_2d_tuple
 from einops import rearrange
 
 import matplotlib.pyplot as plt
