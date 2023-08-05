@@ -1134,7 +1134,7 @@ class MBAG(nn.Module):
         ])
 
         # SCBAB blocks
-        self.pan_scbab_blocks = nn.ModuleList([
+        """self.pan_scbab_blocks = nn.ModuleList([
             SCBAB(
                 dim=dim,
                 input_resolution=input_resolution,
@@ -1161,7 +1161,7 @@ class MBAG(nn.Module):
                 drop=drop,
                 attn_drop=attn_drop,
                 norm_layer=norm_layer) for i in range(depth)
-        ])
+        ])"""
 
         # OCAB block
         self.pan_overlap_attn = OCAB(
@@ -1188,7 +1188,7 @@ class MBAG(nn.Module):
         )
 
         # OCBAB block
-        self.pan_cbab = OCBAB(
+        """self.pan_cbab = OCBAB(
             dim=dim,
             input_resolution=input_resolution,
             window_size=window_size,
@@ -1207,7 +1207,7 @@ class MBAG(nn.Module):
             mlp_ratio=mlp_ratio,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
-            norm_layer=norm_layer)
+            norm_layer=norm_layer)"""
 
         # patch merging layer
         if downsample is not None:
@@ -1249,14 +1249,14 @@ class MBAG(nn.Module):
                 mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
         # Multiple SCBAB
-        for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
+        """for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
             pan_forward_temp = pan_blk(
                 pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
             mslr_forward_temp = mslr_blk(
                 mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
             pan_forward = pan_forward_temp
-            mslr_forward = mslr_forward_temp
+            mslr_forward = mslr_forward_temp"""
 
         # OCAB
         pan_forward = self.pan_overlap_attn(
@@ -1264,15 +1264,15 @@ class MBAG(nn.Module):
         mslr_forward = self.mslr_overlap_attn(
             mslr_forward, x_size, params['rpi_oca'])
 
-        # OCBAB
+        """# OCBAB
         pan_forward_ = self.pan_cbab(
             pan_forward, mslr_forward, x_size, params['rpi_oca'])
         mslr_forward_ = self.mslr_cbab(
-            mslr_forward, pan_forward, x_size, params['rpi_oca'])
+            mslr_forward, pan_forward, x_size, params['rpi_oca'])"""
 
-        '''# FIXME DELETE TWO LINES
+        # FIXME DELETE TWO LINES
         pan_forward_ = pan_forward
-        mslr_forward_ = mslr_forward'''
+        mslr_forward_ = mslr_forward
 
         if self.pan_downsample is not None:
             pan_forward_ = self.pan_downsample(pan_forward_)

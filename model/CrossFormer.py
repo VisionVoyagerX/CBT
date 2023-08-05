@@ -114,9 +114,8 @@ class MBA(nn.Module):
                                                                       )
 
         # ------------------------- 3, high quality image reconstruction ------------------------- #
-        # FIXME change *2
         self.image_reconstruction = Image_Reconstruction(
-            embed_dim * 2, num_feat, num_out_ch, upscale)
+            embed_dim, num_feat, num_out_ch, upscale)
 
         self.apply(self._init_weights)
 
@@ -140,9 +139,8 @@ class MBA(nn.Module):
         # deep_feature_extractor
         pan, mslr = self.pan_mslr_deep_feature_extractor(pan, mslr)
         # add
-        # mssr = pan + mslr
-        mssr = torch.concat((pan, mslr), dim=1)
-        print('shape: ', mssr.shape)
+        mssr = pan + mslr
+        # mssr = torch.concat((pan, mslr), dim=1)
         # image_reconstruction
         mssr = self.image_reconstruction(mssr)
 

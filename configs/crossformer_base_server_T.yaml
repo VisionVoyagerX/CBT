@@ -44,7 +44,7 @@ machine_settings:
 
 # general settings
 general_settings:
-  name: "MBA_base_tiny_GF2_noOCBAB"
+  name: "MBA_base_tiny_GF2_noboth"
   model_type: MBA
   continue_from_checkpoint: False
   checkpoint_name:
