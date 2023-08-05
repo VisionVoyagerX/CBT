@@ -41,14 +41,14 @@ data_pipeline:
 
 # general settings
 general_settings:
-  name: "MBA_base_Large"
+  name: "MBA_base_Large_GF2"
   model_type: MBA
   continue_from_checkpoint: False
   checkpoint_name:
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 550000, 600000]
-  test_intervals: [599990, 599991, 599992, 599993, 599994, 599995, 599996, 599997, 599998, 599999, 600000]
+  test_intervals: [50, 599990, 599991, 599992, 599993, 599994, 599995, 599996, 599997, 599998, 599999, 600000]
 
 task:
   upscale: 1
