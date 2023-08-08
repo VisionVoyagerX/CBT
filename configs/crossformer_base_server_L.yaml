@@ -43,8 +43,8 @@ data_pipeline:
 general_settings:
   name: "MBA_base_Large_GF2"
   model_type: MBA
-  continue_from_checkpoint: False
-  checkpoint_name:
+  continue_from_checkpoint: True
+  checkpoint_name: MBA_base_Large_GF2_2023_08_05-15_17_53_best_test.pth.tar
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 550000, 600000]
