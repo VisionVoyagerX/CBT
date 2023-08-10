@@ -183,19 +183,18 @@ class GaoFen2panformer(Dataset):
 
 
 class Sev2Mod(Dataset):
-    def __init__(self, dir, task, transforms=None) -> None:
+    def __init__(self, dir, transforms=None) -> None:
         self.dir = dir
-        self.task = task
         self.transforms = transforms
 
         # precomputed
-        self.pan_mean = torch.tensor([23.2275]).view(1, 1, 1, 1)
-        self.pan_std = torch.tensor([13.3237]).view(1, 1, 1, 1)
+        self.pan_mean = torch.tensor([24.1487]).view(1, 1, 1, 1)
+        self.pan_std = torch.tensor([14.7485]).view(1, 1, 1, 1)
 
         self.mslr_mean = torch.tensor(
-            [20.6023, 24.3169]).view(1, 2, 1, 1)
+            [21.1784, 25.9739]).view(1, 2, 1, 1)
         self.mslr_std = torch.tensor(
-            [12.7123, 14.0642]).view(1, 2, 1, 1)
+            [14.3856, 15.3645]).view(1, 2, 1, 1)
 
     def __len__(self):
         return len([name for name in os.listdir(self.dir/'LR')])
@@ -228,7 +227,7 @@ if __name__ == "__main__":
     dir_test = Path(f'/media/nick/INTENSO/Data/SEV2MOD_X12/test/')
 
     # Load training dataset
-    tr_dataset = Sev2Mod(dir_tr, task)
+    tr_dataset = Sev2Mod(dir_tr)
     train_loader = DataLoader(
         dataset=tr_dataset, batch_size=batch_size, shuffle=True)
 

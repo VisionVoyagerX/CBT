@@ -152,27 +152,27 @@ class MBA(nn.Module):
 
 
 if __name__ == "__main__":
-    upscale = 4
+    upscale = 3
     window_size = 8
-    height = 16  # (95 // upscale // window_size + 1) * window_size
-    width = 16  # (95 // upscale // window_size + 1) * window_size
+    height = 32  # (95 // upscale // window_size + 1) * window_size
+    width = 32  # (95 // upscale // window_size + 1) * window_size
     # precomputed
     pan_mean = torch.tensor([250.0172]).view(1, 1, 1, 1)
     pan_std = torch.tensor([80.2501]).view(1, 1, 1, 1)
 
     mslr_mean = torch.tensor(
-        [449.9449, 308.7544, 238.3702, 220.3061]).view(1, 4, 1, 1)
+        [449.9449, 308.7544]).view(1, 2, 1, 1)
     mslr_std = torch.tensor(
-        [70.8778, 63.7980, 71.3171, 66.8198]).view(1, 4, 1, 1)
+        [70.8778, 63.7980]).view(1, 2, 1, 1)
 
-    model = MBA(upscale=1, pan_img_size=(height, width), pan_low_size_ratio=4, in_chans=4,
-                window_size=window_size, depths=[6, 6, 6],
-                embed_dim=30, num_heads=[6, 6, 6], mlp_ratio=2, upsampler='pixelshuffle', pan_mean=pan_mean, pan_std=pan_std, mslr_mean=mslr_mean, mslr_std=mslr_std)
+    model = MBA(upscale=4, pan_img_size=(height, width), pan_low_size_ratio=3, in_chans=2,
+                window_size=window_size, depths=[2],
+                embed_dim=30, num_heads=[2], mlp_ratio=2, upsampler='pixelshuffle', pan_mean=pan_mean, pan_std=pan_std, mslr_mean=mslr_mean, mslr_std=mslr_std)
 
-    mslr = torch.rand((1, 4, height, width), dtype=torch.float32)
-    pan = torch.rand((1, 1, height * 4, width * 4), dtype=torch.float32)
+    mslr = torch.rand((1, 2, height, width), dtype=torch.float32)
+    pan = torch.rand((1, 1, height * 3, width * 3), dtype=torch.float32)
 
-    model(pan, mslr)
-    summary(model, [(1, 1, 256, 256), (1, 4, 64, 64)],
-            dtypes=[torch.float32, torch.float32])
-    print()
+    res = model(pan, mslr)
+    # summary(model, [(1, 1, 96, 96), (1, 2, 32, 32)],
+    #        dtypes=[torch.float32, torch.float32])
+    print(1)
