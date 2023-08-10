@@ -201,6 +201,9 @@ def main(args):
             train_iter = iter(train_loader)
             pan, mslr, mshr = next(train_iter)
 
+        print(pan.shape)
+        print(mslr.shape)
+        print(mshr.shape)
         # forward
         pan, mslr, mshr = pan.to(device), mslr.to(device), mshr.to(device)
         mssr = model(pan, mslr)
@@ -291,49 +294,54 @@ def main(args):
 
         # test model
         if (step + 1) in test_intervals and step != 0:
-                # evaluation mode
-                model.eval()
-                with torch.no_grad():
-                    print("\n==> Start testing ...")
-                    test_progress_bar = tqdm(iter(test_loader), total=len(test_loader), desc="Testing", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
-                    for pan, mslr, mshr in test_progress_bar:
-                        # forward
-                        pan, mslr, mshr = pan.to(device), mslr.to(device), mshr.to(device)
-                        mssr = model(pan, mslr)
-                        test_loss = criterion(mssr, mshr)
-                        test_metric = test_metric_collection.forward(mssr, mshr)
-                        test_report_loss += test_loss
+            # evaluation mode
+            model.eval()
+            with torch.no_grad():
+                print("\n==> Start testing ...")
+                test_progress_bar = tqdm(iter(test_loader), total=len(
+                    test_loader), desc="Testing", leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
+                for pan, mslr, mshr in test_progress_bar:
+                    # forward
+                    pan, mslr, mshr = pan.to(device), mslr.to(
+                        device), mshr.to(device)
+                    mssr = model(pan, mslr)
+                    test_loss = criterion(mssr, mshr)
+                    test_metric = test_metric_collection.forward(mssr, mshr)
+                    test_report_loss += test_loss
 
-                        #report metrics
-                        test_progress_bar.set_postfix(loss = f'{test_loss.item()}' , psnr=f'{test_metric["psnr"].item():.2f}', ssim=f'{test_metric["ssim"].item():.2f}') 
+                    # report metrics
+                    test_progress_bar.set_postfix(
+                        loss=f'{test_loss.item()}', psnr=f'{test_metric["psnr"].item():.2f}', ssim=f'{test_metric["ssim"].item():.2f}')
 
-                    # compute metrics total
-                    test_report_loss = test_report_loss / len(test_loader)
-                    test_metric = test_metric_collection.compute()
-                    test_metrics.append({'loss' : test_report_loss.item(),
-                                    'psnr': test_metric['psnr'].item(), 
-                                    'ssim': test_metric['ssim'].item()})
+                # compute metrics total
+                test_report_loss = test_report_loss / len(test_loader)
+                test_metric = test_metric_collection.compute()
+                test_metrics.append({'loss': test_report_loss.item(),
+                                     'psnr': test_metric['psnr'].item(),
+                                     'ssim': test_metric['ssim'].item()})
 
-                    print(f'\nTesting: avg_loss = {test_report_loss.item():.4f} , avg_psnr= {test_metric["psnr"]:.4f}, avg_ssim={test_metric["ssim"]:.4f}')
-                    
-                    # reset metrics
-                    test_report_loss = 0
-                    test_metric_collection.reset() 
-                    print("==> End testing <==\n")
+                print(
+                    f'\nTesting: avg_loss = {test_report_loss.item():.4f} , avg_psnr= {test_metric["psnr"]:.4f}, avg_ssim={test_metric["ssim"]:.4f}')
 
-                #train mode
-                model.train()
+                # reset metrics
+                test_report_loss = 0
+                test_metric_collection.reset()
+                print("==> End testing <==\n")
 
-                #save best test model based on PSNR
-                if test_metrics[-1]['psnr'] > best_test_psnr:
-                    best_test_psnr = test_metrics[-1]['psnr']
-                    checkpoint = {'step' : step,
-                                'state_dict': model.state_dict(), 
-                                'optimizer': optimizer.state_dict(),
-                                'tr_metrics' : tr_metrics,
-                                #'val_metrics': val_metrics,
-                                'test_metrics': test_metrics}
-                    save_checkpoint(checkpoint, model_name, current_daytime + '_best_test')
+            # train mode
+            model.train()
+
+            # save best test model based on PSNR
+            if test_metrics[-1]['psnr'] > best_test_psnr:
+                best_test_psnr = test_metrics[-1]['psnr']
+                checkpoint = {'step': step,
+                              'state_dict': model.state_dict(),
+                              'optimizer': optimizer.state_dict(),
+                              'tr_metrics': tr_metrics,
+                              # 'val_metrics': val_metrics,
+                              'test_metrics': test_metrics}
+                save_checkpoint(checkpoint, model_name,
+                                current_daytime + '_best_test')
 
     print('==> training ended <==')
 
