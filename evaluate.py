@@ -118,7 +118,6 @@ def main(args):
         return
 '''
     # Prepare device
-    # TODO add more code for server
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
 
@@ -139,7 +138,6 @@ def main(args):
         dataset=te_dataset, batch_size=1, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
-    # TODO is imge_size necesasary?
     model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), pan_scale=mslr_to_pan_scale, patch_size=patch_size, in_chans=in_chans,
                        embed_dim=embed_dim, depths=depths, num_heads=num_heads, window_size=window_size, compress_ratio=compress_ratio,
                        squeeze_factor=squeeze_factor, conv_scale=conv_scale, overlap_ratio=overlap_ratio, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
@@ -168,7 +166,7 @@ def main(args):
     val_metrics = []
     test_metrics = []
 
-    summary(model, [(1, 1, 256, 256), (1, 4, 64, 64)],
+    summary(model, [(1, 1, 256, 256), (1, 8, 64, 64)],
             dtypes=[torch.float32, torch.float32])
 
     # load checkpoint
