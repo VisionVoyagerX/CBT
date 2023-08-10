@@ -619,7 +619,6 @@ class HAB(nn.Module):
 
         shortcut = x
         x = self.norm1(x)
-        print(x.shape)
         x = x.view(b, h, w, c)
 
         # Conv_X

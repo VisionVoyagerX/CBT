@@ -201,9 +201,6 @@ def main(args):
             train_iter = iter(train_loader)
             pan, mslr, mshr = next(train_iter)
 
-        print(pan.shape)
-        print(mslr.shape)
-        print(mshr.shape)
         # forward
         pan, mslr, mshr = pan.to(device), mslr.to(device), mshr.to(device)
         mssr = model(pan, mslr)
