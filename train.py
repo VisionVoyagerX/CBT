@@ -172,7 +172,7 @@ def main(args):
     current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
 
     # Model summary
-    summary(model, [(1, 1, 256, 256), (1, in_chans, 64, 64)],
+    summary(model, [(1, 1, test_pan_size, test_pan_size), (1, in_chans, test_mslr_size, test_mslr_size)],
             dtypes=[torch.float32, torch.float32])
 
     # load checkpoint
