@@ -169,10 +169,11 @@ if __name__ == "__main__":
                 window_size=window_size, depths=[2],
                 embed_dim=30, num_heads=[2], mlp_ratio=2, upsampler='pixelshuffle', pan_mean=pan_mean, pan_std=pan_std, mslr_mean=mslr_mean, mslr_std=mslr_std)
 
-    mslr = torch.rand((1, 2, height, width), dtype=torch.float32)
-    pan = torch.rand((1, 1, height * 3, width * 3), dtype=torch.float32)
+    mslr = torch.rand((8, 2, height, width), dtype=torch.float32)
+    pan = torch.rand((8, 1, height * 3, width * 3), dtype=torch.float32)
 
     res = model(pan, mslr)
+    print(res.shape)
     # summary(model, [(1, 1, 96, 96), (1, 2, 32, 32)],
     #        dtypes=[torch.float32, torch.float32])
     print(1)

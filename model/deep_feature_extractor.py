@@ -224,7 +224,7 @@ class Deep_Feature_Extractor(nn.Module):
         return {'relative_position_bias_table'}
 
     def forward(self, pan, mslr):
-        x_size = (pan.shape[2], mslr.shape[3])
+        x_size = (pan.shape[2], pan.shape[3])  # FIXME it was MSLR.shape
 
         # Calculate attention mask and relative position index in advance to speed up inference.
         # The original code is very time-cosuming for large window size.
