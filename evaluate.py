@@ -173,6 +173,7 @@ def main(args):
     if continue_from_checkpoint:
         tr_metrics = load_checkpoint(torch.load(
             checkpoint_path), model, optimizer, tr_metrics)
+        print('Model Loaded successfully')
 
     """# evaluation mode
     model.eval()
