@@ -50,16 +50,12 @@ def save_checkpoint(state, filename: str, current_daytime: str):
 
 def load_checkpoint(checkpoint, model, optimizer, tr_metrics):
     # print("=> Loading checkpoint")
-    try:
-        model.load_state_dict(checkpoint['state_dict'])
-        print('here1')
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        print('here2')
-        tr_metrics = checkpoint['tr_metrics']
-        print('here3')
-        # val_metrics = checkpoint['val_metrics']
+    model.load_state_dict(checkpoint['state_dict'])
+    print('here1')
+    optimizer.load_state_dict(checkpoint['optimizer'])
+    print('here2')
+    tr_metrics = checkpoint['tr_metrics']
+    print('here3')
+    # val_metrics = checkpoint['val_metrics']
 
-        return (tr_metrics)
-    except:
-        print('Could not load model')
-        return Exception
+    return (tr_metrics)
