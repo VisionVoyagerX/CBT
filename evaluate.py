@@ -166,7 +166,7 @@ def main(args):
     val_metrics = []
     test_metrics = []
 
-    summary(model, [(1, 1, 256, 256), (1, 8, 64, 64)],
+    summary(model, [(1, 1, 256, 256), (1, in_chans, 64, 64)],
             dtypes=[torch.float32, torch.float32])
 
     # load checkpoint
@@ -240,19 +240,6 @@ def main(args):
         test_report_loss = 0
         test_metric_collection.reset()
         print("==> End testing <==\n")
-
-        current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
-        step = 600000
-        checkpoint = {'step': step,
-                      'state_dict': model.state_dict(),
-                      'optimizer': optimizer.state_dict(),
-                      'tr_metrics': tr_metrics
-                      # 'val_metrics': val_metrics,
-                      # 'test_metrics': test_metrics
-                      }
-        save_checkpoint(checkpoint, model_name, current_daytime + '_best_test')
-
-        # plt.imshow(pan)
 
 
 if __name__ == '__main__':
