@@ -240,6 +240,17 @@ def main(args):
         test_metric_collection.reset()
         print("==> End testing <==\n")
 
+        current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+        step = 600000
+        checkpoint = {'step': step,
+                      'state_dict': model.state_dict(),
+                      'optimizer': optimizer.state_dict(),
+                      'tr_metrics': tr_metrics
+                      # 'val_metrics': val_metrics,
+                      # 'test_metrics': test_metrics
+                      }
+        save_checkpoint(checkpoint, model_name, current_daytime + '_best_test')
+
         # plt.imshow(pan)
 
 
