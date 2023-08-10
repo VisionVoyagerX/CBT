@@ -1,8 +1,8 @@
 # data pipeline settings
 data_pipeline:
   train:
-    dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12//train/"
+    dataset: WV3
+    path: "/home/ubuntu/project/Data/WorldView3/train/train_wv3-001.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -20,8 +20,8 @@ data_pipeline:
         degrees: 90
 
   validation:
-    dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12/val/"
+    dataset: WV3
+    path: "/home/ubuntu/project/Data/WorldView3/val/valid_wv3.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
@@ -31,8 +31,8 @@ data_pipeline:
     val_steps: 100 #leave empty to evaluate the entire validation set
 
   test:
-    dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12/test/"
+    dataset: WV3
+    path: "/home/ubuntu/project/Data/WorldView3/drive-download-20230627T115841Z-001/test_wv3_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:
@@ -44,23 +44,23 @@ machine_settings:
 
 # general settings
 general_settings:
-  name: "MBA_base_tiny_S2M"
+  name: "MBA_base_tiny_WV3"
   model_type: MBA
-  continue_from_checkpoint: False
-  checkpoint_name:
+  continue_from_checkpoint: True
+  checkpoint_name: MBA_base_tiny_wv3_2023_08_02-17_32_10.pth.tar
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
   test_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
 
 task:
-  upscale: 4
-  mslr_to_pan_scale: 3
+  upscale: 1
+  mslr_to_pan_scale: 4
 
 # network structures
 network:
   patch_size: 1
-  in_chans: 2
+  in_chans: 8
   embed_dim: 30
   depths: [2]
   num_heads: [2]
