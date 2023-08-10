@@ -208,6 +208,7 @@ def main(args):
         print("==> End evaluating <==\n")"""
 
     # test model
+    model.eval()
     with torch.no_grad():
         print("\n==> Start testing ...")
         test_progress_bar = tqdm(iter(test_loader), total=len(
