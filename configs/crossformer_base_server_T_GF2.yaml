@@ -39,6 +39,9 @@ data_pipeline:
       shuffle: False
       cropping_on_the_fly: False
 
+machine_settings:
+  num_gpu: 2
+
 # general settings
 general_settings:
   name: "MBA_base_tiny_GF2"
