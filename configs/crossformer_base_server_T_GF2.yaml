@@ -47,7 +47,7 @@ general_settings:
   name: "MBA_base_tiny_WV3"
   model_type: MBA
   continue_from_checkpoint: True
-  checkpoint_name: MBA_base_Large_WV3_2023_08_08-06_23_56.pth.tar
+  checkpoint_name: MBA_base_tiny_wv3_2023_08_02-17_32_10.pth.tar
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
