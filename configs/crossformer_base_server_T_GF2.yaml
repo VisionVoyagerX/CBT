@@ -1,7 +1,7 @@
 # data pipeline settings
 data_pipeline:
   train:
-    dataset: Sev2Mod
+    dataset: GaoFen2
     path: "/home/ubuntu/project/Data/GaoFen-2/train/train_gf2-001.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
@@ -20,7 +20,7 @@ data_pipeline:
         degrees: 90
 
   validation:
-    dataset: Sev2Mod
+    dataset: GaoFen2
     path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
@@ -31,7 +31,7 @@ data_pipeline:
     val_steps: 100 #leave empty to evaluate the entire validation set
 
   test:
-    dataset: Sev2Mod
+    dataset: GaoFen2
     path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
