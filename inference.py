@@ -171,8 +171,8 @@ def main(args):
 
     # load checkpoint
     if continue_from_checkpoint:
-        tr_metrics = load_checkpoint(torch.load(
-            checkpoint_path), model, optimizer, tr_metrics)
+        tr_metrics, val_metrics = load_checkpoint(torch.load(
+            checkpoint_path), model, optimizer, tr_metrics, val_metrics)
 
     choose_dataset = str(config_data['data_pipeline']
                          ['train']['dataset'])
