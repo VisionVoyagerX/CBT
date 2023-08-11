@@ -113,6 +113,7 @@ def main(args):
         print(f"Error while parsing YAML in config file '{config_file}': {exc}")
         return
 '''
+
     # Prepare device
     # TODO add more code for server
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -173,55 +174,57 @@ def main(args):
         tr_metrics = load_checkpoint(torch.load(
             checkpoint_path), model, optimizer, tr_metrics)
 
-    idx = 14
+    choose_dataset = str(config_data['data_pipeline']
+                         ['train']['dataset'])
+
     # evaluation mode
     model.eval()
     with torch.no_grad():
         test_iterator = iter(test_loader)
         for i, (pan, mslr, mshr) in enumerate(test_iterator):
-            if idx == i:
-                # forward
-                pan, mslr, mshr = pan.to(device), mslr.to(
-                    device), mshr.to(device)
-                mssr = model(pan, mslr)
-                test_loss = criterion(mssr, mshr)
-                test_metric = test_metric_collection.forward(mssr, mshr)
-                test_report_loss += test_loss
+            # forward
+            pan, mslr, mshr = pan.to(device), mslr.to(
+                device), mshr.to(device)
+            mssr = model(pan, mslr)
+            test_loss = criterion(mssr, mshr)
+            test_metric = test_metric_collection.forward(mssr, mshr)
+            test_report_loss += test_loss
 
-                # compute metrics
-                test_metric = test_metric_collection.compute()
+            # compute metrics
+            test_metric = test_metric_collection.compute()
+            test_metric_collection.reset()
 
-                figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
-                axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
-                axis[0].set_title('(a) LR')
-                axis[0].axis("off")
+            figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
+            axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
+                            0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+            axis[0].set_title('(a) LR')
+            axis[0].axis("off")
 
-                axis[1].imshow(pan.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...], cmap='gray')
-                axis[1].set_title('(b) PAN')
-                axis[1].axis("off")
+            axis[1].imshow(pan.permute(0, 3, 2, 1).detach().cpu()[
+                0, ...], cmap='gray')
+            axis[1].set_title('(b) PAN')
+            axis[1].axis("off")
 
-                axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
-                axis[2].set_title(
-                    f'(c) CrossFormer {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
-                axis[2].axis("off")
+            axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
+                            0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+            axis[2].set_title(
+                f'(c) CrossFormer {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
+            axis[2].axis("off")
 
-                axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
-                axis[3].set_title('(d) GT')
-                axis[3].axis("off")
+            axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
+                            0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+            axis[3].set_title('(d) GT')
+            axis[3].axis("off")
 
-                plt.savefig('results/Images_GF2_S.png')
+            plt.savefig(f'results/Images_{choose_dataset}_{i}.png')
 
-                mslr = mslr.permute(0, 3, 2, 1).detach().cpu().numpy()
-                pan = pan.permute(0, 3, 2, 1).detach().cpu().numpy()
-                mssr = mssr.permute(0, 3, 2, 1).detach().cpu().numpy()
-                gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
+            mslr = mslr.permute(0, 3, 2, 1).detach().cpu().numpy()
+            pan = pan.permute(0, 3, 2, 1).detach().cpu().numpy()
+            mssr = mssr.permute(0, 3, 2, 1).detach().cpu().numpy()
+            gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
 
-                np.savez('results/img_array_GF2_S.npz', mslr=mslr,
-                         pan=pan, mssr=mssr, gt=gt)
+            np.savez(f'results/img_array_{choose_dataset}_{i}.npz', mslr=mslr,
+                     pan=pan, mssr=mssr, gt=gt)
 
 
 def scaleMinMax(x):
