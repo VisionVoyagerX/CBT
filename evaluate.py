@@ -166,8 +166,8 @@ def main(args):
     val_metrics = []
     test_metrics = []
 
-    summary(model, [(1, 1, 256, 256), (1, in_chans, 64, 64)],
-            dtypes=[torch.float32, torch.float32])
+    '''summary(model, [(1, 1, 256, 256), (1, in_chans, 64, 64)],
+            dtypes=[torch.float32, torch.float32])'''
 
     # load checkpoint
     if continue_from_checkpoint:
