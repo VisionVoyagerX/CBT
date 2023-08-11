@@ -47,7 +47,7 @@ general_settings:
   name: "MBA_base_tiny_S2M"
   model_type: MBA
   continue_from_checkpoint: False
-  checkpoint_name: MBA_base_tiny_S2M_2023_08_10-22_24_13.pth.tar
+  checkpoint_name: MBA_base_tiny_S2M_2023_08_11-10_38_09.pth.tar
   report_interval: 50
   save_interval: 1000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
