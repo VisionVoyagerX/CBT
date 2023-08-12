@@ -195,7 +195,7 @@ def main(args):
 
             figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
             axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
-                            0, ...].numpy())).astype(np.float32)[..., :1], cmap='viridis')
+                            0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
             axis[0].set_title('(a) LR')
             axis[0].axis("off")
 
@@ -205,13 +205,13 @@ def main(args):
             axis[1].axis("off")
 
             axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
-                            0, ...].numpy())).astype(np.float32)[..., :1], cmap='viridis')
+                            0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
             axis[2].set_title(
                 f'(c) CrossFormer {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
             axis[2].axis("off")
 
             axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
-                            0, ...].numpy())).astype(np.float32)[..., :1], cmap='viridis')
+                            0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
             axis[3].set_title('(d) GT')
             axis[3].axis("off")
 
@@ -222,7 +222,7 @@ def main(args):
             mssr = mssr.permute(0, 3, 2, 1).detach().cpu().numpy()
             gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
 
-            np.savez(f'results/img_array_{choose_dataset}_{i}.npz', mslr=mslr,
+            np.savez(f'results/img_array_{choose_dataset}_{i}_{model_name}.npz', mslr=mslr,
                      pan=pan, mssr=mssr, gt=gt)
 
 
