@@ -203,12 +203,15 @@ class Sev2Mod(Dataset):
 
     def __getitem__(self, index):
 
-        pan = torch.tensor(
-            np.load(self.dir/'PAN'/f'{index:04d}_x3.npy', allow_pickle=True))
-        mslr = torch.tensor(
-            np.load(self.dir/'LR'/f'{index:04d}_x12.npy', allow_pickle=True))
-        hr = torch.tensor(
-            np.load(self.dir/'HR'/f'{index:04d}_x12.npy', allow_pickle=True))
+        try:
+            pan = torch.tensor(
+                np.load(self.dir/'PAN'/f'{index:04d}_x3.npy', allow_pickle=True))
+            mslr = torch.tensor(
+                np.load(self.dir/'LR'/f'{index:04d}_x12.npy', allow_pickle=True))
+            hr = torch.tensor(
+                np.load(self.dir/'HR'/f'{index:04d}_x12.npy', allow_pickle=True))
+        except:
+            self.__getitem__(index)  # FIXME This is not correct
 
         if self.transforms:
             for transform, prob in self.transforms:
