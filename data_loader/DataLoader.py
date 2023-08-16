@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 
 class DIV2K(Dataset):
@@ -208,6 +209,8 @@ class Sev2Mod(Dataset):
             np.load(self.dir/'LR'/f'{index:04d}_x12.npy', allow_pickle=True))
         hr = torch.tensor(
             np.load(self.dir/'HR'/f'{index:04d}_x12.npy', allow_pickle=True))
+
+        hr = F.max_pool2d(hr, kernel_size=4, stride=4)
 
         if self.transforms:
             for transform, prob in self.transforms:
