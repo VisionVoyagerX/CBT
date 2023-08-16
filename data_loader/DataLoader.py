@@ -210,8 +210,6 @@ class Sev2Mod(Dataset):
         hr = torch.tensor(
             np.load(self.dir/'HR'/f'{index:04d}_x12.npy', allow_pickle=True))
 
-        hr = F.max_pool2d(hr, kernel_size=4, stride=4)
-
         if self.transforms:
             for transform, prob in self.transforms:
                 if torch.randn(1) < prob:
