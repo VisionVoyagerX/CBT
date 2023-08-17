@@ -196,7 +196,7 @@ def main(args):
         try:
             # Samples the batch
             pan, mslr, mshr = next(train_iter)
-        except StopIteration:
+        except:  # StopIteration
             # restart the loader if the previous loader is exhausted.
             train_iter = iter(train_loader)
             pan, mslr, mshr = next(train_iter)
