@@ -211,8 +211,7 @@ class Sev2Mod(Dataset):
             hr = torch.tensor(
                 np.load(self.dir/'HR'/f'{index:04d}_x12.npy', allow_pickle=True))
         except:
-            self.__getitem__(index)  # FIXME This is not correct
-
+            pass
         if self.transforms:
             for transform, prob in self.transforms:
                 if torch.randn(1) < prob:
