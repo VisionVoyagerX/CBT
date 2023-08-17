@@ -210,16 +210,16 @@ class Sev2Mod(Dataset):
                 np.load(self.dir/'LR'/f'{index:04d}_x12.npy', allow_pickle=True))
             hr = torch.tensor(
                 np.load(self.dir/'HR'/f'{index:04d}_x12.npy', allow_pickle=True))
-        except:
-            pass
-        if self.transforms:
-            for transform, prob in self.transforms:
-                if torch.randn(1) < prob:
-                    pan = transform(pan)
-                    mslr = transform(mslr)
-                    hr = transform(hr)
+            if self.transforms:
+                for transform, prob in self.transforms:
+                    if torch.randn(1) < prob:
+                        pan = transform(pan)
+                        mslr = transform(mslr)
+                        hr = transform(hr)
 
-        return (pan, mslr, hr)
+            return (pan, mslr, hr)
+        except:
+            return None
 
 
 if __name__ == "__main__":

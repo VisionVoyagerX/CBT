@@ -120,17 +120,17 @@ def main(args):
     train_dataset = tr_dataset(
         tr_path, transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)])
     train_loader = DataLoader(
-        dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True)
+        dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True, collate_fn=collate_fn)
 
     validation_dataset = val_dataset(
         val_path)
     validation_loader = DataLoader(
-        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
+        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle, collate_fn=collate_fn)
 
     test_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=test_dataset, batch_size=batch_size, shuffle=False)
+        dataset=test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
     # Initialize Model, optimizer, criterion and metrics
     model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), pan_low_size_ratio=mslr_to_pan_scale, patch_size=patch_size, in_chans=in_chans,
@@ -375,6 +375,11 @@ def main(args):
         test_report_loss = 0
         test_metric_collection.reset()
         print("==> End testing <==\n")
+
+
+def collate_fn(batch):
+    batch = list(filter(lambda x: x is not None, batch))
+    return torch.utils.data.dataloader.default_collate(batch)
 
 
 if __name__ == '__main__':
