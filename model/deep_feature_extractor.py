@@ -1291,9 +1291,9 @@ class MBAG(nn.Module):
 
         # FIXME  delete these blocks
         # OCAB 2
-        pan_forward = self.pan_overlap_attn2(
+        pan_forward_ = self.pan_overlap_attn2(
             pan_forward, x_size, params['rpi_oca'])
-        mslr_forward = self.mslr_overlap_attn2(
+        mslr_forward_ = self.mslr_overlap_attn2(
             mslr_forward, x_size, params['rpi_oca'])
 
         """# OCBAB
