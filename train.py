@@ -120,17 +120,17 @@ def main(args):
     train_dataset = tr_dataset(
         tr_path, transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)])
     train_loader = DataLoader(
-        dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True, collate_fn=collate_fn)
+        dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True)  # , collate_fn=collate_fn
 
-    validation_dataset = val_dataset(
+    """validation_dataset = val_dataset(
         val_path)
     validation_loader = DataLoader(
-        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle, collate_fn=collate_fn)
+        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle) #, collate_fn=collate_fn
 
     test_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+        dataset=test_dataset, batch_size=batch_size, shuffle=False)  # , collate_fn=collate_fn """
 
     # Initialize Model, optimizer, criterion and metrics
     model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), pan_low_size_ratio=mslr_to_pan_scale, patch_size=patch_size, in_chans=in_chans,
@@ -241,7 +241,7 @@ def main(args):
             tr_report_loss = 0
             metric_collection.reset()
 
-        # Evaluate model
+        """# Evaluate model
         if (step + 1) in evaluation_interval and step != 0:
             # evaluation mode
             model.eval()
@@ -287,9 +287,9 @@ def main(args):
                 print("==> End evaluating <==\n")
 
             # train mode
-            model.train()
+            model.train()"""
 
-        # test model
+        """# test model
         if (step + 1) in test_intervals and step != 0:
             # evaluation mode
             model.eval()
@@ -324,7 +324,7 @@ def main(args):
                 test_report_loss = 0
                 test_metric_collection.reset()
                 print("==> End testing <==\n")
-
+                
             # train mode
             model.train()
 
@@ -338,11 +338,11 @@ def main(args):
                               # 'val_metrics': val_metrics,
                               'test_metrics': test_metrics}
                 save_checkpoint(checkpoint, model_name,
-                                current_daytime + '_best_test')
+                                current_daytime + '_best_test')"""
 
     print('==> training ended <==')
 
-    # test model
+    """# test model
     model.eval()
     with torch.no_grad():
         print("\n==> Start testing ...")
@@ -374,7 +374,7 @@ def main(args):
         # reset metrics
         test_report_loss = 0
         test_metric_collection.reset()
-        print("==> End testing <==\n")
+        print("==> End testing <==\n")"""
 
 
 def collate_fn(batch):
