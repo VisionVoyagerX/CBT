@@ -13,7 +13,7 @@ from torchmetrics import MetricCollection
 from torchmetrics.image import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from torchinfo import summary
 
-from model.CrossFormer import *
+from model.CBT import *
 from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3
 from utils import *
 
@@ -384,7 +384,7 @@ def collate_fn(batch):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Original Implementation of CrossFormer in Pytorch')
+        description='Original Implementation of CBT in Pytorch')
     parser.add_argument('-c', '--config', type=str,
                         help='config file name', required=True)
 
