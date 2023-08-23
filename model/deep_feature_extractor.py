@@ -209,7 +209,6 @@ class Deep_Feature_Extractor(nn.Module):
         mask_windows = mask_windows.view(-1,
                                          self.window_size * self.window_size)
         attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
-        # TODO that with torch.where
         attn_mask = attn_mask.masked_fill(
             attn_mask != 0, float(-100.0)).masked_fill(attn_mask == 0, float(0.0))
 
@@ -224,7 +223,7 @@ class Deep_Feature_Extractor(nn.Module):
         return {'relative_position_bias_table'}
 
     def forward(self, pan, mslr):
-        x_size = (pan.shape[2], pan.shape[3])  # FIXME it was MSLR.shape
+        x_size = (pan.shape[2], pan.shape[3])
 
         # Calculate attention mask and relative position index in advance to speed up inference.
         # The original code is very time-cosuming for large window size.
@@ -1133,7 +1132,7 @@ class MBAG(nn.Module):
                 norm_layer=norm_layer) for i in range(depth)
         ])
 
-        """# SCBAB blocks
+        # SCBAB blocks
         self.pan_scbab_blocks = nn.ModuleList([
             SCBAB(
                 dim=dim,
@@ -1161,7 +1160,7 @@ class MBAG(nn.Module):
                 drop=drop,
                 attn_drop=attn_drop,
                 norm_layer=norm_layer) for i in range(depth)
-        ])"""
+        ])
 
         # OCAB block
         self.pan_overlap_attn = OCAB(
@@ -1187,7 +1186,33 @@ class MBAG(nn.Module):
             norm_layer=norm_layer
         )
 
-        # OCBAB block
+
+        # FIXME delete this
+        # OCAB block
+        self.pan_overlap_attn2 = OCAB(
+            dim=dim,
+            input_resolution=input_resolution,
+            window_size=window_size,
+            overlap_ratio=overlap_ratio,
+            num_heads=num_heads,
+            qkv_bias=qkv_bias,
+            qk_scale=qk_scale,
+            mlp_ratio=mlp_ratio,
+            norm_layer=norm_layer
+        )
+        self.mslr_overlap_attn2 = OCAB(
+            dim=dim,
+            input_resolution=input_resolution,
+            window_size=window_size,
+            overlap_ratio=overlap_ratio,
+            num_heads=num_heads,
+            qkv_bias=qkv_bias,
+            qk_scale=qk_scale,
+            mlp_ratio=mlp_ratio,
+            norm_layer=norm_layer
+        )
+
+        """# OCBAB block
         self.pan_cbab = OCBAB(
             dim=dim,
             input_resolution=input_resolution,
@@ -1207,7 +1232,7 @@ class MBAG(nn.Module):
             mlp_ratio=mlp_ratio,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
-            norm_layer=norm_layer)
+            norm_layer=norm_layer)"""
 
         # patch merging layer
         if downsample is not None:
@@ -1248,7 +1273,7 @@ class MBAG(nn.Module):
             mslr_forward = mslr_blk(
                 mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
-        """# Multiple SCBAB
+        # Multiple SCBAB
         for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
             pan_forward_temp = pan_blk(
                 pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
@@ -1256,19 +1281,26 @@ class MBAG(nn.Module):
                 mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
             pan_forward = pan_forward_temp
-            mslr_forward = mslr_forward_temp"""
+            mslr_forward = mslr_forward_temp
 
         # OCAB
         pan_forward = self.pan_overlap_attn(
             pan_forward, x_size, params['rpi_oca'])
         mslr_forward = self.mslr_overlap_attn(
             mslr_forward, x_size, params['rpi_oca'])
+        
+        #FIXME delete this
+        # OCAB
+        pan_forward_ = self.pan_overlap_attn2(
+            pan_forward, x_size, params['rpi_oca'])
+        mslr_forward_ = self.mslr_overlap_attn2(
+            mslr_forward, x_size, params['rpi_oca'])
 
-        # OCBAB
+        """# OCBAB
         pan_forward_ = self.pan_cbab(
             pan_forward, mslr_forward, x_size, params['rpi_oca'])
         mslr_forward_ = self.mslr_cbab(
-            mslr_forward, pan_forward, x_size, params['rpi_oca'])
+            mslr_forward, pan_forward, x_size, params['rpi_oca'])"""
 
         if self.pan_downsample is not None:
             pan_forward_ = self.pan_downsample(pan_forward_)
