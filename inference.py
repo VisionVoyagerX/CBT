@@ -125,10 +125,10 @@ def main(args):
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=batch_size, shuffle=tr_shuffle, drop_last=True)
 
-    validation_dataset = val_dataset(
+    """validation_dataset = val_dataset(
         val_path)
     validation_loader = DataLoader(
-        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)
+        dataset=validation_dataset, batch_size=batch_size, shuffle=val_shuffle)"""
 
     te_dataset = test_dataset(
         test_path)
