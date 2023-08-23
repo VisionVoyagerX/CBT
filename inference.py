@@ -207,7 +207,7 @@ def main(args):
             axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
                             0, ...].numpy())).astype(np.float32)[..., :1], cmap='viridis')
             axis[2].set_title(
-                f'(c) CrossFormer {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
+                f'(c) CBT {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
             axis[2].axis("off")
 
             axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
