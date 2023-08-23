@@ -44,7 +44,7 @@ machine_settings:
 
 # general settings
 general_settings:
-  name: "CBT_base_tiny_GF2_noSCBAB"
+  name: "CBT_base_tiny_GF2_noSCBAB_by_replace"
   model_type: CBT
   continue_from_checkpoint: False
   checkpoint_name: "CBT_base_tiny_GF2_noSCBAB_2023_08_03-20_06_34.pth.tar"
