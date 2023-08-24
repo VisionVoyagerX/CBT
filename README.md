@@ -18,12 +18,12 @@ Sample data can be downloaded from here https://drive.google.com/file/d/1ptOImqd
 
 # Benchmark methods used in the study
 
-Markup : _ ArbRPN: https://github.com/nickdndndn/ArbRPN
-_ PanFormer: https://github.com/nickdndndn/PanFormer
-_ GPPNN: https://github.com/nickdndndn/GPPNN
-_ MSDCNN: https://github.com/nickdndndn/MSDCNN
-_ PanNet: https://github.com/nickdndndn/PanNet
-_ PNN: https://github.com/nickdndndn/PNN
+Markup : * ArbRPN: https://github.com/nickdndndn/ArbRPN
+* PanFormer: https://github.com/nickdndndn/PanFormer
+* GPPNN: https://github.com/nickdndndn/GPPNN
+* MSDCNN: https://github.com/nickdndndn/MSDCNN
+* PanNet: https://github.com/nickdndndn/PanNet
+* PNN: https://github.com/nickdndndn/PNN
 
 # Set Up
 
