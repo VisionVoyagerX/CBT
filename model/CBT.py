@@ -115,7 +115,7 @@ class CBT(nn.Module):
 
         # ------------------------- 3, high quality image reconstruction ------------------------- #
         self.image_reconstruction = Image_Reconstruction(
-            embed_dim, num_feat, num_out_ch, upscale)
+            embed_dim * 2, num_feat, num_out_ch, upscale)
 
         self.apply(self._init_weights)
 
