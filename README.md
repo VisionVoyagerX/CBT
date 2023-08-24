@@ -33,4 +33,8 @@ Sample data (test sets) can be downloaded from [here](https://drive.google.com/f
 
 # Validate
 
+`
+python3 evaluate.py -c CBT_base_server_T_GF2.yaml
+`
+
 # Inference
