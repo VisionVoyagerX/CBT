@@ -1186,33 +1186,7 @@ class MBAG(nn.Module):
             norm_layer=norm_layer
         )
 
-
-        # FIXME delete this
-        # OCAB block
-        self.pan_overlap_attn2 = OCAB(
-            dim=dim,
-            input_resolution=input_resolution,
-            window_size=window_size,
-            overlap_ratio=overlap_ratio,
-            num_heads=num_heads,
-            qkv_bias=qkv_bias,
-            qk_scale=qk_scale,
-            mlp_ratio=mlp_ratio,
-            norm_layer=norm_layer
-        )
-        self.mslr_overlap_attn2 = OCAB(
-            dim=dim,
-            input_resolution=input_resolution,
-            window_size=window_size,
-            overlap_ratio=overlap_ratio,
-            num_heads=num_heads,
-            qkv_bias=qkv_bias,
-            qk_scale=qk_scale,
-            mlp_ratio=mlp_ratio,
-            norm_layer=norm_layer
-        )
-
-        """# OCBAB block
+        # OCBAB block
         self.pan_cbab = OCBAB(
             dim=dim,
             input_resolution=input_resolution,
@@ -1232,7 +1206,7 @@ class MBAG(nn.Module):
             mlp_ratio=mlp_ratio,
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
-            norm_layer=norm_layer)"""
+            norm_layer=norm_layer)
 
         # patch merging layer
         if downsample is not None:
@@ -1289,18 +1263,11 @@ class MBAG(nn.Module):
         mslr_forward = self.mslr_overlap_attn(
             mslr_forward, x_size, params['rpi_oca'])
         
-        #FIXME delete this
-        # OCAB
-        pan_forward_ = self.pan_overlap_attn2(
-            pan_forward, x_size, params['rpi_oca'])
-        mslr_forward_ = self.mslr_overlap_attn2(
-            mslr_forward, x_size, params['rpi_oca'])
-
-        """# OCBAB
+        # OCBAB
         pan_forward_ = self.pan_cbab(
             pan_forward, mslr_forward, x_size, params['rpi_oca'])
         mslr_forward_ = self.mslr_cbab(
-            mslr_forward, pan_forward, x_size, params['rpi_oca'])"""
+            mslr_forward, pan_forward, x_size, params['rpi_oca'])
 
         if self.pan_downsample is not None:
             pan_forward_ = self.pan_downsample(pan_forward_)
