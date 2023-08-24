@@ -10,15 +10,15 @@ bibteX
 
 # Datasets
 
-The GaoFen-2 and WorldView-3 dataset download links can be found in https://github.com/liangjiandeng/PanCollection
+The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://github.com/liangjiandeng/PanCollection)
 
-Sample data can be downloaded from here https://drive.google.com/file/d/1ptOImqdEM94P6Ev0Un99EjDS4CohKHO4/view?usp=sharing
+Sample data (test sets) can be downloaded from [hre](https://drive.google.com/file/d/1ptOImqdEM94P6Ev0Un99EjDS4CohKHO4/view?usp=sharing)
 
 # TODO add Sev2Mod dataset link
 
 # Benchmark methods used in the study
 
- Implementation of benchmark models with pretrained weights on GaoFen-2 and WorldView3 datasets.
+ Implementation of benchmark methods with pretrained weights on GaoFen-2 and WorldView3 datasets.
  
 - [ArbRPN](https://github.com/nickdndndn/ArbRPN)
 - [PanFormer](https://github.com/nickdndndn/PanFormer)
