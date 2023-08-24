@@ -186,7 +186,7 @@ def main(args):
                               leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
     for step in train_progress_bar:
         if step % save_interval == 0 and step != 0:
-            checkpoint = {'step': step,
+            checkpoint = {'step': 600000, #step
                           'state_dict': model.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'tr_metrics': tr_metrics,

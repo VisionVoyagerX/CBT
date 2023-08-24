@@ -46,12 +46,12 @@ machine_settings:
 general_settings:
   name: "CBT_base_tiny_GF2_noOCBAB_by_replace"
   model_type: CBT
-  continue_from_checkpoint: False
+  continue_from_checkpoint: True
   checkpoint_name: "CBT_base_tiny_GF2_noOCBAB_by_replace_2023_08_23-21_56_40.pth.tar"
   report_interval: 50
-  save_interval: 5000
-  evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
-  test_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
+  save_interval: 100 # 5000
+  evaluation_interval: [100, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
+  test_intervals: [100, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
 
 task:
   upscale: 1
