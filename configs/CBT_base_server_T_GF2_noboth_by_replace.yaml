@@ -46,8 +46,8 @@ machine_settings:
 general_settings:
   name: "CBT_base_tiny_GF2_noboth_by_replace"
   model_type: CBT
-  continue_from_checkpoint: False
-  checkpoint_name:
+  continue_from_checkpoint: True
+  checkpoint_name: CBT_base_tiny_GF2_noboth_by_replace_2023_08_22-07_58_30.pth.tar
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
