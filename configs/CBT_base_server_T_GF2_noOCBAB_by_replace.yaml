@@ -47,7 +47,7 @@ general_settings:
   name: "CBT_base_tiny_GF2_noOCBAB_by_replace"
   model_type: CBT
   continue_from_checkpoint: False
-  checkpoint_name: "CBT_base_tiny_GF2_noOCBAB_2023_08_23-21_56_40_best_test.pth.tar"
+  checkpoint_name: "CBT_base_tiny_GF2_noOCBAB_by_replace_2023_08_23-21_56_40.pth.tar"
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
