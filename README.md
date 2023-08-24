@@ -18,6 +18,7 @@ Sample data can be downloaded from here https://drive.google.com/file/d/1ptOImqd
 
 # Benchmark methods used in the study
 
+ Implementation of benchmark models with pretrained weights on GaoFen-2 and WorldView3 datasets.
 - [ArbRPN](https://github.com/nickdndndn/ArbRPN)
 - [PanFormer](https://github.com/nickdndndn/PanFormer)
 - [GPPNN](https://github.com/nickdndndn/GPPNN)
