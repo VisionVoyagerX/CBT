@@ -48,11 +48,11 @@ def save_checkpoint(state, filename: str, current_daytime: str):
                f'{filename}_{current_daytime}.pth.tar')
 
 
-def load_checkpoint(checkpoint, model, optimizer, tr_metrics, val_metrics):
-    # print("=> Loading checkpoint")
+def load_checkpoint(checkpoint, model, optimizer, tr_metrics): #val_metrics
+    # print("=> Loading checkpoint") 
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
     tr_metrics = checkpoint['tr_metrics']
-    val_metrics = checkpoint['val_metrics']
+    #val_metrics = checkpoint['val_metrics']
 
-    return (tr_metrics, val_metrics)
+    return (tr_metrics) # val_metrics
