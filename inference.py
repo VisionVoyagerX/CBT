@@ -12,7 +12,7 @@ from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalF
 from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from torchinfo import summary
 
-from model.CrossFormer import *
+from model.CBT import *
 from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3
 from utils import *
 import numpy as np
