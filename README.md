@@ -10,12 +10,9 @@ TODO citation
 
 <img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=600>
 
-![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
-
-| Method      | GaoFen-2| WorldView-3 |
+| Method      | GaoFen-2 PSNR| GaoFen-2 SSIM| WorldView-3 PSNR | WorldView-3 SSIM|
 |-------------|:-------------:|:-------------:|:----------------:|:----------------:|
-|  | **PSNR**      | **SSIM**      | **PSNR**         | **SSIM**         |
 | PNN         | 36.3094       | 0.9350        | 31.2246          | 0.9042           |
 | PanNet      | 37.9091       | 0.9533        | 33.1460          | 0.9484           |
 | MSDCNN      | 38.1485       | 0.9563        | 33.5880          | 0.9552           |
@@ -26,17 +23,17 @@ TODO citation
 | ArbRPN      | 43.9760       | 0.9827        | 37.5401          | 0.9775           |
 | **CBT_Large**| **44.8258**  | **0.9853**    | **37.7194**      | **0.9783**       |
 
-# Performance on real world datasets
+# Performance GaoFen-2 imagery
+
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
 # Datasets
 
 The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://github.com/liangjiandeng/PanCollection)
 
-Sample data (test sets) can be downloaded from [here](https://drive.google.com/file/d/1ptOImqdEM94P6Ev0Un99EjDS4CohKHO4/view?usp=sharing)
-
 # TODO add Sev2Mod dataset link
 
-# Benchmark methods used in the study
+# Implementation of benchmark methods used in the study
 
  Implementation of benchmark methods with pretrained weights on GaoFen-2 and WorldView3 datasets.
  
