@@ -13,7 +13,7 @@ TODO citation
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
 
-| Method      | GaoFen-2 PSNR | GaoFen-2 SSIM | WorldView-3 PSNR | WorldView-3 SSIM |
+| Method      | GaoFen-2 | GaoFen-2 | WorldView-3 | WorldView-3 |
 |-------------|:-------------:|:-------------:|:----------------:|:----------------:|
 | **Method**  | **PSNR**      | **SSIM**      | **PSNR**         | **SSIM**         |
 | PNN         | 36.3094       | 0.9350        | 31.2246          | 0.9042           |
