@@ -50,8 +50,9 @@ The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://
 
 # Validate
 
+
 `
-python3 evaluate.py -c [choose config from /configs file].yaml
+python3 evaluate.py -c [choose config from /configs file].yaml #ex. CBT_base_server_L_GF2.yaml
 `
 
 # Inference
