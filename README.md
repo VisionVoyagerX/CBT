@@ -10,7 +10,6 @@ TODO citation
 
 <img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=600>
 
-
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/performance.png?raw=true)
 
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
