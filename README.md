@@ -7,6 +7,12 @@ TODO citation
 
 # Performance on benchmark datasets
 
+
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true)
+
+
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
+
 # Performance on real world datasets
 
 # Datasets
