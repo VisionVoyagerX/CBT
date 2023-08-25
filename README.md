@@ -46,19 +46,24 @@ The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://
 
 # Set Up
 
-# Train
+After downloaded the dataset, you can run the bellow command to either train. validate or do inference of the trained models.
+
+modify a config file to train your own model
+
+
+**Train**
+
 `
 python3 train.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
 `
 
-# Validate
-
+**Validate**
 
 `
 python3 evaluate.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
 `
 
-# Inference
+**Inference**
 
 `
 python3 inference.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
