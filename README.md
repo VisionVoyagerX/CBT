@@ -27,7 +27,7 @@ The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://
 | MSDCNN | are neat      |    $1 |
 | GPPNN | are neat      |    $1 |
 | CBT | are neat      |    $1 |
--------------------------------
+| ------------------------------- |
 | PanFormer | are neat      |    $1 |
 | ArbRPN | are neat      |    $1 |
 | CBTLarge | are neat      |    $1 |
