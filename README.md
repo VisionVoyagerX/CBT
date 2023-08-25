@@ -1,6 +1,6 @@
 # CBT
 
-A new Cross Band Transformer (CBT) architecture for pansharpening of satellite imagery
+**A new Cross Band Transformer (CBT) architecture for pansharpening of satellite imagery**
 
 bibteX
 
