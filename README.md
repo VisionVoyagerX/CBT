@@ -8,9 +8,10 @@ TODO citation
 # Performance on benchmark datasets
 
 
-<img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=500>
+<img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=600>
 
-<img src="https://github.com/nickdndndn/CBT/blob/main/Images/performance.png?raw=true" alt="alt text" width=250>
+
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/performance.png?raw=true)
 
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
