@@ -190,13 +190,13 @@ class Sev2Mod(Dataset):
         self.transforms = transforms
 
         # precomputed
-        self.pan_mean = torch.tensor([24.1487]).view(1, 1, 1, 1)
-        self.pan_std = torch.tensor([14.7485]).view(1, 1, 1, 1)
+        self.pan_mean = torch.tensor([23.2821]).view(1, 1, 1, 1)
+        self.pan_std = torch.tensor([12.0762]).view(1, 1, 1, 1)
 
         self.mslr_mean = torch.tensor(
-            [21.1784, 25.9739]).view(1, 2, 1, 1)
+            [23.1248, 27.3095]).view(1, 2, 1, 1)
         self.mslr_std = torch.tensor(
-            [14.3856, 15.3645]).view(1, 2, 1, 1)
+            [12.4016, 14.5950]).view(1, 2, 1, 1)
 
     def __len__(self):
         return len([name for name in os.listdir(self.dir/'LR')])
