@@ -32,9 +32,9 @@ data_pipeline:
 
   test:
     dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12/test/"
-    mslr_img_size: [64, 64]
-    pan_img_size: [192, 192]
+    path: "/home/ubuntu/project/Data/SEV2MOD_X12/test_32/"
+    mslr_img_size: [32, 32]
+    pan_img_size: [96, 96]
     preprocessing:
       shuffle: False
       cropping_on_the_fly: False
@@ -47,7 +47,7 @@ general_settings:
   name: "CBT_base_tiny_S2M"
   model_type: CBT
   continue_from_checkpoint: False
-  checkpoint_name: CBT_base_tiny_S2M_2023_08_22-22_15_51.pth.tar
+  checkpoint_name:
   report_interval: 50
   save_interval: 1000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
