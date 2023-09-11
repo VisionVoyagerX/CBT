@@ -1248,13 +1248,7 @@ class MBAG(nn.Module):
             mslr_forward = mslr_blk(
                 mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
-        #uncomment for ablation study
-        for pan_blk, mslr_blk in zip(self.pan_hab_blocks2, self.mslr_hab_blocks2):
-            pan_forward = pan_blk(pan_forward, x_size,
-                                  params['rpi_sa'], params['attn_mask'])
-            mslr_forward = mslr_blk(
-                mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
-
+        
         #comment for ablation study
         '''# Multiple SCBAB
         for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
