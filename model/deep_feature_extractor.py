@@ -1132,48 +1132,6 @@ class MBAG(nn.Module):
                 norm_layer=norm_layer) for i in range(depth)
         ])
 
-
-        #Uncomment for ablation study
-        # HAB blocks
-        self.pan_hab_blocks2 = nn.ModuleList([
-            HAB(
-                dim=dim,
-                input_resolution=input_resolution,
-                num_heads=num_heads,
-                window_size=window_size,
-                shift_size=0 if (i % 2 == 0) else window_size // 2,
-                compress_ratio=compress_ratio,
-                squeeze_factor=squeeze_factor,
-                conv_scale=conv_scale,
-                mlp_ratio=mlp_ratio,
-                qkv_bias=qkv_bias,
-                qk_scale=qk_scale,
-                drop=drop,
-                attn_drop=attn_drop,
-                drop_path=drop_path[i] if isinstance(
-                    drop_path, list) else drop_path,
-                norm_layer=norm_layer) for i in range(depth)
-        ])
-        self.mslr_hab_blocks2 = nn.ModuleList([
-            HAB(
-                dim=dim,
-                input_resolution=input_resolution,
-                num_heads=num_heads,
-                window_size=window_size,
-                shift_size=0 if (i % 2 == 0) else window_size // 2,
-                compress_ratio=compress_ratio,
-                squeeze_factor=squeeze_factor,
-                conv_scale=conv_scale,
-                mlp_ratio=mlp_ratio,
-                qkv_bias=qkv_bias,
-                qk_scale=qk_scale,
-                drop=drop,
-                attn_drop=attn_drop,
-                drop_path=drop_path[i] if isinstance(
-                    drop_path, list) else drop_path,
-                norm_layer=norm_layer) for i in range(depth)
-        ])
-
         #comment for ablation study
         # SCBAB blocks
         '''self.pan_scbab_blocks = nn.ModuleList([
