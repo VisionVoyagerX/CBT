@@ -1134,7 +1134,7 @@ class MBAG(nn.Module):
 
         #comment for ablation study
         # SCBAB blocks
-        '''self.pan_scbab_blocks = nn.ModuleList([
+        self.pan_scbab_blocks = nn.ModuleList([
             SCBAB(
                 dim=dim,
                 input_resolution=input_resolution,
@@ -1162,7 +1162,7 @@ class MBAG(nn.Module):
                 attn_drop=attn_drop,
                 norm_layer=norm_layer) for i in range(depth)
         ])
-'''
+
         # OCAB block
         self.pan_overlap_attn = OCAB(
             dim=dim,
@@ -1249,8 +1249,7 @@ class MBAG(nn.Module):
                 mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
         
-        #comment for ablation study
-        '''# Multiple SCBAB
+        # Multiple SCBAB
         for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
             pan_forward_temp = pan_blk(
                 pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
@@ -1258,7 +1257,7 @@ class MBAG(nn.Module):
                 mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
             pan_forward = pan_forward_temp
-            mslr_forward = mslr_forward_temp'''
+            mslr_forward = mslr_forward_temp
 
         # OCAB
         pan_forward = self.pan_overlap_attn(
