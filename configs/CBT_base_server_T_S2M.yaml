@@ -32,9 +32,9 @@ data_pipeline:
 
   test:
     dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12/test_64/"
-    mslr_img_size: [32, 32]
-    pan_img_size: [96, 96]
+    path: "/home/ubuntu/project/Data/SEV2MOD_X12/test_16/"
+    mslr_img_size: [16, 16]
+    pan_img_size: [48, 48]
     preprocessing:
       shuffle: False
       cropping_on_the_fly: False
