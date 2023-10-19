@@ -30,22 +30,22 @@ TODO citation
 # Datasets
 
 The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://github.com/liangjiandeng/PanCollection)
-The Sev2Mod dataset can be downloaded [here](https://zenodo.org/records/8360458)
+The Sev2Mod dataset can be download [here](https://zenodo.org/records/8360458)
 
 # Implementation of benchmark methods used in the study
 
  Implementation of benchmark methods with pretrained weights on GaoFen-2 and WorldView3 datasets.
  
-- [ArbRPN](https://github.com/nickdndndn/ArbRPN)
-- [PanFormer](https://github.com/nickdndndn/PanFormer)
-- [GPPNN](https://github.com/nickdndndn/GPPNN)
-- [MSDCNN](https://github.com/nickdndndn/MSDCNN)
-- [PanNet](https://github.com/nickdndndn/PanNet)
-- [PNN](https://github.com/nickdndndn/PNN)
+- [ArbRPN](https://github.com/VisionVoyagerX/ArbRPN)
+- [PanFormer](https://github.com/VisionVoyagerX/PanFormer)
+- [GPPNN](https://github.com/VisionVoyagerX/GPPNN)
+- [MSDCNN](https://github.com/VisionVoyagerX/MSDCNN)
+- [PanNet](https://github.com/VisionVoyagerX/PanNet)
+- [PNN](https://github.com/VisionVoyagerX/PNN)
 
 # Set Up
 
-After downloaded the dataset, you can run the bellow command to either train. validate or do inference of the trained models.
+After downloading the dataset, you can run the below command to either train. validate or do inference of the trained models.
 
 modify a config file to train your own model
 
