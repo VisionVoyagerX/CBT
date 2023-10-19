@@ -30,8 +30,7 @@ TODO citation
 # Datasets
 
 The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://github.com/liangjiandeng/PanCollection)
-
-# TODO add Sev2Mod dataset link
+The Sev2Mod dataset can be downloaded [here](https://zenodo.org/records/8360458)
 
 # Implementation of benchmark methods used in the study
 
