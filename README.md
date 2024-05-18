@@ -50,6 +50,13 @@ After downloading the dataset, you can run the below command to either train. va
 modify a config file to train your own model
 
 
+
+
+git clone https://github.com/VisionVoyagerX/CBT.git
+
+
+
+
 **Train**
 
 `
