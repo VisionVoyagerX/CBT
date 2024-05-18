@@ -47,34 +47,28 @@ The Sev2Mod dataset can be download [here](https://zenodo.org/records/8360458)
 
 This project requires downloading datasets for training and testing purposes. Follow the steps below to set up the project:
 
-## Step 1: Clone the Repository
+## Step 1: Clone the project repository to your local machine using the following command:
 
-Clone the project repository to your local machine using the following command:
+git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
 
-```bash
-git clone https://github.com/VisionVoyagerX/CBT.git
-```
+## Step 2: Download all datasets from the specified urls bellow, untar and store in the specified file strucure inside CBT root project file
+/GF2
+    /train
+    /val
+    /test
+/WV3
+    /train
+    /val
+    /test
 
-## Step 2: Download Datasets
+url links:
+gf2 train-val: https://drive.google.com/drive/folders/1gNV7BlGy06ee0BqgxBfFMNnfzGrPTA9K
+gf2 test: https://drive.google.com/drive/folders/1g4f2NElV7By2gWhCavrDaglzCxiDT6CP
 
-Run the provided script to download the test datasets for all three datasets (GF2, WV3, and [Dataset3]):
+wv3 train-test: https://drive.google.com/drive/folders/1CHs49xius3zH3PIrAxAkbNfKEy82_fMb
+wv3 test: https://drive.google.com/drive/folders/1EYjaAxTheNPvukvifKXMq8m_dJ-8qz8G
 
-```
-chmod +x download_datasets.sh  # (if necessary)
-./download_datasets.sh
-```
-
-To also download the training sets run the following command (Warning: this will require additional time and storage space)
-
-```
-./download_datasets.sh --all
-```
-
-
-
-
-
-
+sev2mod train-val-test: https://zenodo.org/records/8360458
 
 
 **Train**
