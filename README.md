@@ -50,7 +50,10 @@ This project requires downloading datasets for training and testing purposes. Fo
 ## Step 1: Clone Repository
 
 Clone the project repository to your local machine using the following command:
+
+```
 git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
+```
 
 ## Step 2: Download Datasets and Organize
 
