@@ -72,15 +72,16 @@ Download, untar, and store the datasets in the specified file structure and file
     - val
     - test
 
-url links:
-gf2 train-val: https://drive.google.com/drive/folders/1gNV7BlGy06ee0BqgxBfFMNnfzGrPTA9K
-gf2 test: https://drive.google.com/drive/folders/1g4f2NElV7By2gWhCavrDaglzCxiDT6CP
+Datasets and their respective URLs are listed below. Download, untar, and store them in the specified file structure within the CBT root project folder.
 
-wv3 train-test: https://drive.google.com/drive/folders/1CHs49xius3zH3PIrAxAkbNfKEy82_fMb
-wv3 test: https://drive.google.com/drive/folders/1EYjaAxTheNPvukvifKXMq8m_dJ-8qz8G
-
-sev2mod train-val-test: https://zenodo.org/records/8360458
-
+- GF2
+    - Train-Val: [GF2 Train-Val](https://drive.google.com/drive/folders/1gNV7BlGy06ee0BqgxBfFMNnfzGrPTA9K)
+    - Test: [GF2 Test](https://drive.google.com/drive/folders/1g4f2NElV7By2gWhCavrDaglzCxiDT6CP)
+- WV3
+    - Train-Test: [WV3 Train-Test](https://drive.google.com/drive/folders/1CHs49xius3zH3PIrAxAkbNfKEy82_fMb)
+    - Test: [WV3 Test](https://drive.google.com/drive/folders/1EYjaAxTheNPvukvifKXMq8m_dJ-8qz8G)
+- SEV2MOD
+    - Train-Val-Test: [SEV2MOD Train-Val-Test](https://zenodo.org/records/8360458)
 
 **Train**
 
