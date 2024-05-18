@@ -57,13 +57,17 @@ git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
 
 ## Step 2: Download Datasets and Organize
 
-Datasets and their respective URLs are listed below. Download, untar, and store them in the specified file structure within the CBT root project folder.
+Download, untar, and store the datasets in the specified file structure and file names within the CBT root project folder.
 
 - GF2
     - train
     - val
     - test
 - WV3
+    - train
+    - val
+    - test
+- SEV2MOD
     - train
     - val
     - test
