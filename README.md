@@ -43,16 +43,36 @@ The Sev2Mod dataset can be download [here](https://zenodo.org/records/8360458)
 - [PanNet](https://github.com/VisionVoyagerX/PanNet)
 - [PNN](https://github.com/VisionVoyagerX/PNN)
 
-# Set Up
+# Project Setup
 
-After downloading the dataset, you can run the below command to either train. validate or do inference of the trained models.
+This project requires downloading datasets for training and testing purposes. Follow the steps below to set up the project:
 
-modify a config file to train your own model
+## Step 1: Clone the Repository
 
+Clone the project repository to your local machine using the following command:
 
-
-
+```bash
 git clone https://github.com/VisionVoyagerX/CBT.git
+```
+
+## Step 2: Download Datasets
+
+Run the provided script to download the test datasets for all three datasets (GF2, WV3, and [Dataset3]):
+
+```
+chmod +x download_datasets.sh  # (if necessary)
+./download_datasets.sh
+```
+
+To also download the training sets run the following command (Warning: this will require additional time and storage space)
+
+```
+./download_datasets.sh --all
+```
+
+
+
+
 
 
 
