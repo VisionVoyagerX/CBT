@@ -88,19 +88,13 @@ Datasets and their respective URLs are listed below. Download, untar, and store 
 - SEV2MOD
     - Train-Val-Test: [SEV2MOD Train-Val-Test](https://zenodo.org/records/8360458)
 
-**Train**
+## Step 3: Train (optional)
 
 `
 python3 train.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
 `
 
-**Validate**
-
-`
-python3 evaluate.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
-`
-
-**Inference**
+## Step 4: Inference
 
 `
 python3 inference.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
