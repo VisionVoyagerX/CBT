@@ -1,2 +1,5 @@
 
 dataset/
+*.pyc
+*.png
+*.npz

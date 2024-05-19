@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: GaoFen2
-    path: "/home/ubuntu/project/Data/GaoFen-2/train/train_gf2-001.h5"
+    path: "../pansharpenning_dataset/GF2/train/train_gf2.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -21,7 +21,7 @@ data_pipeline:
 
   validation:
     dataset: GaoFen2
-    path: "/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5"
+    path: "../pansharpenning_dataset/GF2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: GaoFen2
-    path: "/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"
+    path: "../pansharpenning_dataset/GF2/test/test_gf2_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:

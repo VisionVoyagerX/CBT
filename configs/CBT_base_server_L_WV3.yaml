@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: WV3
-    path: "/home/ubuntu/project/Data/WorldView3/train/train_wv3-001.h5"
+    path: "../pansharpenning_dataset/WV3/train/train_wv3.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
 
@@ -21,7 +21,7 @@ data_pipeline:
 
   validation:
     dataset: WV3
-    path: "/home/ubuntu/project/Data/WorldView3/val/valid_wv3.h5"
+    path: "../pansharpenning_dataset/WV3/val/valid_wv3.h5"
     data_pipeline:
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: WV3
-    path: "/home/ubuntu/project/Data/WorldView3/drive-download-20230627T115841Z-001/test_wv3_multiExm1.h5"
+    path: "../pansharpenning_dataset/WV3/test/test_wv3_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:
