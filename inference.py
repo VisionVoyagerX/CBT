@@ -115,8 +115,8 @@ def main(args):
 '''
 
     # Prepare device
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = "cpu"
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #device = "cpu" # if not enough available memory
     print(device)
 
     # Initialize DataLoader
