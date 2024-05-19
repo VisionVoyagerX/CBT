@@ -11,17 +11,19 @@ TODO citation
 <img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=600>
 
 
-| Method      | GaoFen-2 PSNR| GaoFen-2 SSIM| WorldView-3 PSNR | WorldView-3 SSIM|
-|-------------|:-------------:|:-------------:|:----------------:|:----------------:|
-| PNN         | 36.3094       | 0.9350        | 31.2246          | 0.9042           |
-| PanNet      | 37.9091       | 0.9533        | 33.1460          | 0.9484           |
-| MSDCNN      | 38.1485       | 0.9563        | 33.5880          | 0.9552           |
-| GPPNN       | 36.1538       | 0.9371        | 34.6712          | 0.9615           |
-| **CBT**     | **42.5083**   | **0.9770**    | **36.6498**      | **0.9731**       |
-|             |               |               |                  |                  |
-| PanFormer   | 40.1886       | 0.9654        | 34.9565          | 0.9629          |
-| ArbRPN      | 43.9760       | 0.9827        | 37.5401          | 0.9775           |
-| **CBT_Large**| **44.8258**  | **0.9853**    | **37.7194**      | **0.9783**       |
+| Method         | GaoFen-2 PSNR | GaoFen-2 SSIM | GaoFen-2 ERGAS | GaoFen-2 SAM | GaoFen-2 Q2n | WorldView-3 PSNR | WorldView-3 SSIM | WorldView-3 ERGAS | WorldView-3 SAM | WorldView-3 Q2n |
+|----------------|:-------------:|:-------------:|:--------------:|:------------:|:------------:|:----------------:|:----------------:|:-----------------:|:--------------:|:---------------:|
+| PNN            | 36.309        | 0.9249        | 19.4911        | 0.0495       | 0.9909       | 31.225           | 0.9042           | 70.9026           | 0.1346         | 0.9604          |
+| PanNet         | 37.909        | 0.9475        | 16.2683        | 0.0412       | 0.9937       | 33.146           | 0.9440           | 56.8292           | 0.1072         | 0.9743          |
+| GPPNN          | 36.154        | 0.9371        | 19.8200        | 0.0490       | 0.9908       | 34.624           | 0.9610           | 47.4321           | 0.0870         | 0.9824          |
+| MDCUN          | 39.217        | 0.9561        | 13.9613        | 0.0354       | 0.9954       | 35.231           | 0.9604           | 44.1955           | 0.0823         | 0.9848          |
+| BiMPan         | 40.838        | 0.9691        | 11.6978        | 0.0295       | 0.9968       | 35.342           | 0.9648           | 43.7202           | 0.0801         | 0.9853          |
+| **CBT**        | **42.508**    | **0.9770**    | **9.6961**     | **0.0245**   | **0.9978**   | **36.650**       | **0.9731**       | **37.4723**       | **0.0701**     | **0.9890**      |
+|                |               |               |                |              |              |                  |                  |                   |                |                 |
+| PanFormer      | 40.189        | 0.9654        | 12.5479        | 0.0314       | 0.9963       | 34.956           | 0.9629           | 45.4887           | 0.0822         | 0.9844          |
+| ArbRPN         | 43.976        | 0.9827        | 8.1741         | 0.0206       | 0.9984       | 37.540           | 0.9775           | 33.5207           | 0.0633         | 0.9913          |
+| **CBT_Large**  | **44.826**    | **0.9853**    | **7.4158**     | **0.0186**   | **0.9987**   | **37.719**       | **0.9783**       | **32.8023**       | **0.0620**     | **0.9916**      |
+
 
 # Performance GaoFen-2 imagery
 
@@ -32,14 +34,15 @@ TODO citation
 The GaoFen-2 and WorldView-3 dataset download links can be found [here](https://github.com/liangjiandeng/PanCollection)
 The Sev2Mod dataset can be download [here](https://zenodo.org/records/8360458)
 
-# Implementation of benchmark methods used in the study
+# List of benchmark methods implemented in this study
 
  Implementation of benchmark methods with pretrained weights on GaoFen-2 and WorldView3 datasets.
  
 - [ArbRPN](https://github.com/VisionVoyagerX/ArbRPN)
 - [PanFormer](https://github.com/VisionVoyagerX/PanFormer)
+- [BiMPan](https://github.com/VisionVoyagerX/BiMPan)
 - [GPPNN](https://github.com/VisionVoyagerX/GPPNN)
-- [MSDCNN](https://github.com/VisionVoyagerX/MSDCNN)
+- [MSDCNN](https://github.com/VisionVoyagerX/MDCUN)
 - [PanNet](https://github.com/VisionVoyagerX/PanNet)
 - [PNN](https://github.com/VisionVoyagerX/PNN)
 
