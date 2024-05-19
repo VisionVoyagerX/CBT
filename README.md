@@ -11,8 +11,8 @@ TODO citation
 <img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=600>
 
 
-| Method         | GaoFen-2 | GaoFen-2  | GaoFen-2 | GaoFen-2 | GaoFen-2 | WorldView-3 | WorldView-3 | WorldView-3 | WorldView-3 | WorldView-3 |
-|                |   PSNR   | SSIM      | ERGAS    |  SAM     |  Q2n     |  PSNR       | SSIM        |  ERGAS      |  SAM        |  Q2n        |
+| Method         | GaoFen-2      | GaoFen-2      | GaoFen-2       | GaoFen-2     | GaoFen-2     | WorldView-3      | WorldView-3      | WorldView-3       | WorldView-3    | WorldView-3     |
+|                |   PSNR        | SSIM          | ERGAS          |  SAM         |  Q2n         |  PSNR            | SSIM             |  ERGAS            |  SAM           |  Q2n            |
 |----------------|:-------------:|:-------------:|:--------------:|:------------:|:------------:|:----------------:|:----------------:|:-----------------:|:--------------:|:---------------:|
 | PNN            | 36.309        | 0.9249        | 19.4911        | 0.0495       | 0.9909       | 31.225           | 0.9042           | 70.9026           | 0.1346         | 0.9604          |
 | PanNet         | 37.909        | 0.9475        | 16.2683        | 0.0412       | 0.9937       | 33.146           | 0.9440           | 56.8292           | 0.1072         | 0.9743          |
