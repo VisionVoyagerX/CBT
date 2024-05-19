@@ -11,8 +11,7 @@ TODO citation
 <img src="https://github.com/nickdndndn/CBT/blob/main/Images/comparison.png?raw=true" alt="alt text" width=600>
 
 
-| Method         | GaoFen-2      | GaoFen-2      | GaoFen-2       | GaoFen-2     | GaoFen-2     | WorldView-3      | WorldView-3      | WorldView-3       | WorldView-3    | WorldView-3     |
-|                | PSNR          | SSIM          | ERGAS          | SAM          | Q2n          | PSNR             | SSIM             | ERGAS             | SAM            | Q2n             |
+| Method         | GaoFen-2 PSNR | GaoFen-2 SSIM | GaoFen-2 ERGAS | GaoFen-2 SAM | GaoFen-2 Q2n | WorldView-3 PSNR | WorldView-3 SSIM | WorldView-3 ERGAS | WorldView-3 SAM | WorldView-3 Q2n |
 |----------------|:-------------:|:-------------:|:--------------:|:------------:|:------------:|:----------------:|:----------------:|:-----------------:|:--------------:|:---------------:|
 | PNN            | 36.309        | 0.9249        | 19.4911        | 0.0495       | 0.9909       | 31.225           | 0.9042           | 70.9026           | 0.1346         | 0.9604          |
 | PanNet         | 37.909        | 0.9475        | 16.2683        | 0.0412       | 0.9937       | 33.146           | 0.9440           | 56.8292           | 0.1072         | 0.9743          |
@@ -24,6 +23,7 @@ TODO citation
 | PanFormer      | 40.189        | 0.9654        | 12.5479        | 0.0314       | 0.9963       | 34.956           | 0.9629           | 45.4887           | 0.0822         | 0.9844          |
 | ArbRPN         | 43.976        | 0.9827        | 8.1741         | 0.0206       | 0.9984       | 37.540           | 0.9775           | 33.5207           | 0.0633         | 0.9913          |
 | **CBT_Large**  | **44.826**    | **0.9853**    | **7.4158**     | **0.0186**   | **0.9987**   | **37.719**       | **0.9783**       | **32.8023**       | **0.0620**     | **0.9916**      |
+
 
 
 
