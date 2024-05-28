@@ -174,6 +174,6 @@ if __name__ == "__main__":
 
     res = model(pan, mslr)
     print(res.shape)
-    # summary(model, [(1, 1, 96, 96), (1, 2, 32, 32)],
-    #        dtypes=[torch.float32, torch.float32])
+    summary(model, [(1, 1, 96, 96), (1, 2, 32, 32)],
+            dtypes=[torch.float32, torch.float32])
     print(1)

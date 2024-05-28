@@ -614,32 +614,33 @@ class HAB(nn.Module):
     def forward(self, x, x_size, rpi_sa, attn_mask):
         h, w = x_size
         b, _, c = x.shape
-        # assert seq_len == h * w, "input feature has wrong size"
+        assert _ == h * w, "input feature in HAB has wrong size"
 
-        shortcut = x
-        x = self.norm1(x)
-        x = x.view(b, h, w, c)
+        # Residual connection
+        shortcut = x # [b, h * w, c]
+        
+        # Layer Normalization
+        x = self.norm1(x) 
+        x = x.view(b, h, w, c) # [b, h, w, c]
 
-        # Conv_X
+        # CAB
         conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c)
+        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
 
-        # cyclic shift
+        # Optional cyclic shift
         if self.shift_size > 0:
             shifted_x = torch.roll(
                 x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2))
-            attn_mask = attn_mask
+            # attn_mask
         else:
             shifted_x = x
             attn_mask = None
 
-        # partition windows
-        # nw*b, window_size, window_size, c
-        x_windows = window_partition(shifted_x, self.window_size)
-        # nw*b, window_size*window_size, c
-        x_windows = x_windows.view(-1, self.window_size * self.window_size, c)
+        # Partitioning
+        x_windows = window_partition(shifted_x, self.window_size) 
+        x_windows = x_windows.view(-1, self.window_size * self.window_size, c) # [crops * b, win * win, c]
 
-        # W-MSA/SW-MSA
+        # (S)W-MSA
         attn_windows = self.attn(x_windows, rpi=rpi_sa, mask=attn_mask)
 
         # merge windows
@@ -656,8 +657,10 @@ class HAB(nn.Module):
             attn_x = shifted_x
         attn_x = attn_x.view(b, h * w, c)
 
-        # FFN
+        # Addition
         x = shortcut + self.drop_path(attn_x) + conv_x * self.conv_scale
+        
+        # LN and MLP
         x = x + self.drop_path(self.mlp(self.norm2(x)))
 
         return x
