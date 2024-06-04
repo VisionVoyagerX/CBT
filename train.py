@@ -114,6 +114,7 @@ def main(args):
 
     # Prepare device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #device = "cpu"
     print("Device: ", device)
 
     # Initialize DataLoader
@@ -133,13 +134,36 @@ def main(args):
         dataset=test_dataset, batch_size=batch_size, shuffle=False)  # , collate_fn=collate_fn
 
     # Initialize Model, optimizer, criterion and metrics
-    model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), pan_low_size_ratio=mslr_to_pan_scale, patch_size=patch_size, in_chans=in_chans,
-                       embed_dim=embed_dim, depths=depths, num_heads=num_heads, window_size=window_size, compress_ratio=compress_ratio,
-                       squeeze_factor=squeeze_factor, conv_scale=conv_scale, overlap_ratio=overlap_ratio, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
-                       qk_scale=qk_scale, drop_rate=drop_rate, attn_drop_rate=attn_drop_rate, drop_path_rate=drop_path_rate, norm_layer=norm_layer,
-                       ape=ape, patch_norm=patch_norm, upscale=upscale, img_range=img_range, upsampler=upsampler, resi_connection=resi_connection,
-                       mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
-                       pan_std=train_dataset.pan_std.to(device)).to(device)
+    model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), 
+                       pan_low_size_ratio=mslr_to_pan_scale, 
+                       patch_size=patch_size, 
+                       in_chans=in_chans,
+                       embed_dim=embed_dim, 
+                       depths=depths, 
+                       num_heads=num_heads, 
+                       window_size=window_size, 
+                       compress_ratio=compress_ratio,
+                       squeeze_factor=squeeze_factor, 
+                       conv_scale=conv_scale, 
+                       overlap_ratio=overlap_ratio, 
+                       mlp_ratio=mlp_ratio, 
+                       qkv_bias=qkv_bias,
+                       qk_scale=qk_scale, 
+                       drop_rate=drop_rate, 
+                       attn_drop_rate=attn_drop_rate, 
+                       drop_path_rate=drop_path_rate, 
+                       norm_layer=norm_layer,
+                       ape=ape, 
+                       patch_norm=patch_norm, 
+                       upscale=upscale, 
+                       img_range=img_range, 
+                       upsampler=upsampler, 
+                       resi_connection=resi_connection,
+                       mslr_mean=train_dataset.mslr_mean.to(device), 
+                       mslr_std=train_dataset.mslr_std.to(device), 
+                       pan_mean=train_dataset.pan_mean.to(device),
+                       pan_std=train_dataset.pan_std.to(device)
+                       ).to(device)
 
     optimizer = optimizer_type(
         model.parameters(), lr=learning_rate, betas=(betas[0], betas[1]))

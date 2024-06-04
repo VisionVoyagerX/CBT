@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 class CBT(nn.Module):
 
     def __init__(self,
-                 pan_img_size=64,
+                 pan_img_size=(64, 64),
                  pan_low_size_ratio=4,
                  patch_size=1,
                  in_chans=3,
