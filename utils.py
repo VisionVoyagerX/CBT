@@ -2,6 +2,7 @@ from pathlib import Path
 import torch
 import datetime
 import numpy as np
+from numpy.linalg import norm
 
 def get_checkpoint_path():
     """
@@ -67,6 +68,18 @@ def ergas_batch(reference_batch, synthesized_batch, scale_ratio):
     ergas_values = 100 * scale_ratio * np.sqrt(np.mean((rmse / mean_ref) ** 2, axis=1))
     return ergas_values
 
+def ergas(ms, ps, ratio=8):
+    ms = ms.astype(np.float32)
+    ps = ps.astype(np.float32)
+    err = ms - ps
+    ergas_index = 0
+    for i in range(err.shape[2]):
+        ergas_index += np.mean(np.square(err[:, :, i]))/np.square(np.mean(ms[:, :, i]))
+
+    ergas_index = (100/ratio) * np.sqrt(1/err.shape[2]) * ergas_index
+
+    return ergas_index
+
 
 def sam_batch(reference_batch, synthesized_batch):
     reference_batch = reference_batch.cpu().numpy()
@@ -80,15 +93,23 @@ def sam_batch(reference_batch, synthesized_batch):
     sam_values = np.mean(np.arccos(cos_theta), axis=(1, 2))
     return sam_values
 
-def q2n_batch(reference_batch, synthesized_batch):
-    reference_batch = reference_batch.cpu().numpy()
-    synthesized_batch = synthesized_batch.cpu().numpy()
+def sam(ms, ps):
+    assert ms.ndim == 3 and ms.shape == ps.shape
 
-    mean_ref = np.mean(reference_batch, axis=(1, 2, 3))
-    mean_syn = np.mean(synthesized_batch, axis=(1, 2, 3))
-    var_ref = np.var(reference_batch, axis=(1, 2, 3))
-    var_syn = np.var(synthesized_batch, axis=(1, 2, 3))
-    covariance = np.mean((reference_batch - mean_ref[:, None, None, None]) * (synthesized_batch - mean_syn[:, None, None, None]), axis=(1, 2, 3))
-    
-    q2n_values = (4 * covariance * mean_ref * mean_syn) / ((var_ref + var_syn) * (mean_ref**2 + mean_syn**2))
-    return q2n_values
+    ms = ms.astype(np.float32)
+    ps = ps.astype(np.float32)
+
+    dot_sum = np.sum(ms*ps, axis=2)
+    norm_true = norm(ms, axis=2)
+    norm_pred = norm(ps, axis=2)
+
+    res = np.arccos(dot_sum/norm_pred/norm_true)
+
+    is_nan = np.nonzero(np.isnan(res))
+
+    for (x, y) in zip(is_nan[0], is_nan[1]):
+        res[x, y] = 0
+
+    sam = np.mean(res)
+
+    return sam * 180 / np.pi

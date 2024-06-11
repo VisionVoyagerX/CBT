@@ -171,7 +171,6 @@ def main(args):
 
     ergas_score = 0
     sam_score = 0
-    q2n_score = 0
     psnr_score = 0
     ssim_score = 0
 
@@ -200,11 +199,10 @@ def main(args):
             test_metric = test_metric_collection.forward(mssr, mshr)
             test_report_loss += test_loss
 
-            ergas_score += ergas_batch(mshr, mssr, ergas_l)
-            sam_score += sam_batch(mshr, mssr)
-            q2n_score += q2n_batch(mshr, mssr)
+            ergas_score += ergas(mshr, mssr, ergas_l)
+            sam_score += sam(mshr, mssr)
 
-            figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
+            """figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
             axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
                             0, ...].numpy())).astype(np.float32)[..., :1], cmap='viridis')
             axis[0].set_title('(a) LR')
@@ -234,7 +232,7 @@ def main(args):
             gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
 
             np.savez(f'results/img_array_{choose_dataset}_{i}_{model_name}.npz', mslr=mslr,
-                     pan=pan, mssr=mssr, gt=gt)
+                     pan=pan, mssr=mssr, gt=gt)"""
             
 
         # compute metrics
@@ -245,7 +243,6 @@ def main(args):
         print(f"Final scores:\n"
                 f"ERGAS: {ergas_score / (i+1)}\n"
                 f"SAM: {sam_score / (i+1)}\n"
-                f"Q2n: {q2n_score / (i+1)}\n"
                 f"PSNR: {test_metric['psnr'].item()}\n"
                 f"SSIM: {test_metric['ssim'].item()}")
 
