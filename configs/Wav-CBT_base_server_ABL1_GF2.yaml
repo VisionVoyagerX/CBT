@@ -46,12 +46,12 @@ machine_settings:
 general_settings:
   name: "Wav-CBT_base_abl1_GF2"
   model_type: CBT
-  continue_from_checkpoint: False
-  checkpoint_name: #CBT_base_tiny_GF2_2023_08_03-07_13_43.pth.tar
+  continue_from_checkpoint: true
+  checkpoint_name: Wav-CBT_base_abl1_GF2_2024_06_05-08_07_27.pth.tar
   report_interval: 50
   save_interval: 5000
-  evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
-  test_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000]
+  evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 650000, 700000, 750000]
+  test_intervals: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 650000, 700000, 750000]
 
 task:
   upscale: 1
@@ -61,12 +61,12 @@ task:
 network:
   patch_size: 1
   in_chans: 4
-  embed_dim: 10
+  embed_dim: 30
   depths: [2]
   num_heads: [2]
-  window_size: 8
-  compress_ratio: 1
-  squeeze_factor: 1
+  window_size: 4
+  compress_ratio: 24
+  squeeze_factor: 24
   conv_scale: 0.01
   overlap_ratio: 0.5
   mlp_ratio: 2
@@ -82,16 +82,16 @@ network:
   upsampler: "pixelshuffle"
   resi_connection: "1conv"
 
-training_settings:
+training_settings: 
   steps: 600000
   batch_size: 8
   optimizer:
     type: Adam
-    learning_rate: !!float 4e-4
+    learning_rate: !!float 0.00000625 #4e-4
     betas: [0.9, 0.99]
   scheduler:
     type: StepLR
-    lr_decay_intervals: [150000, 250000, 400000, 500000, 550000, 575000]
+    lr_decay_intervals: [150000, 250000, 400000, 500000, 550000, 575000, 600000, 625000]
     gamma: 0.5
   loss:
     type: L1Loss

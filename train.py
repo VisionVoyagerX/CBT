@@ -131,7 +131,7 @@ def main(args):
     test_dataset = test_dataset(
         test_path)
     test_loader = DataLoader(
-        dataset=test_dataset, batch_size=batch_size, shuffle=False)  # , collate_fn=collate_fn
+        dataset=test_dataset, batch_size=1, shuffle=False)  # , collate_fn=collate_fn
 
     # Initialize Model, optimizer, criterion and metrics
     model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), 
@@ -197,7 +197,7 @@ def main(args):
 
     # Model summary
     summary(model, [(1, 1, test_pan_size[0], test_pan_size[1]), (1, in_chans, test_mslr_size[0], test_mslr_size[1])],
-            dtypes=[torch.float32, torch.float32])
+           dtypes=[torch.float32, torch.float32], depth=16)
 
     # load checkpoint
     if continue_from_checkpoint:
@@ -205,12 +205,14 @@ def main(args):
             checkpoint_path), model, optimizer, tr_metrics, val_metrics)
 
     print('==> Starting training ...')
+    total_steps = 750000 - 650000 + 1
+
     train_iter = iter(train_loader)
-    train_progress_bar = tqdm(iter(range(steps)), total=steps, desc="Training",
+    train_progress_bar = tqdm(iter(range(650000, 750000 + 1)), total=total_steps, desc="Training", #iter(range(steps), steps
                               leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
     for step in train_progress_bar:
         if step % save_interval == 0 and step != 0:
-            checkpoint = {'step': 600000, #step
+            checkpoint = {'step': step, #step
                           'state_dict': model.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'tr_metrics': tr_metrics,
