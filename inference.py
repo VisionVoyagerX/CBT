@@ -11,11 +11,26 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
 from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from torchinfo import summary
+# from fvcore.nn import FlopCountAnalysis
+import torchprofile
 
 from model.CBT import *
 from data_loader.DataLoader import GaoFen2, Sev2Mod, WV3
 from utils import *
 import numpy as np
+
+
+def convert_flops(flops):
+    if flops >= 1e15:
+        return f"{flops / 1e15:.2f} PFLOPs"
+    elif flops >= 1e12:
+        return f"{flops / 1e12:.2f} TFLOPs"
+    elif flops >= 1e9:
+        return f"{flops / 1e9:.2f} GFLOPs"
+    elif flops >= 1e6:
+        return f"{flops / 1e6:.2f} MFLOPs"
+    else:
+        return f"{flops} FLOPs"
 
 
 def main(args):
@@ -116,7 +131,7 @@ def main(args):
 
     # Prepare device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #device = "cpu" # if not enough available memory
+    # device = "cpu" # if not enough available memory
     print(device)
 
     # Initialize DataLoader
@@ -168,7 +183,6 @@ def main(args):
 
     ergas_l = 4
 
-
     ergas_score = 0
     sam_score = 0
     psnr_score = 0
@@ -180,14 +194,26 @@ def main(args):
 
     # load checkpoint
     if continue_from_checkpoint:
-        tr_metrics = load_checkpoint(torch.load( #, val_metrics
+        tr_metrics = load_checkpoint(torch.load(  # , val_metrics
             checkpoint_path), model, optimizer, tr_metrics, val_metrics)
 
     choose_dataset = str(config_data['data_pipeline']
                          ['train']['dataset'])
 
-    # evaluation mode
+    input_tensor1 = torch.randn(
+        1, 1, test_pan_size[0], test_pan_size[1]).to(device)  # Example input tensor 1
+    input_tensor2 = torch.randn(
+        1, in_chans, test_mslr_size[0], test_mslr_size[1]).to(device)  # Example input tensor 2
     model.eval()
+    flops = torchprofile.profile_macs(
+        model, (input_tensor1, input_tensor2))
+
+    print(f"Total FLOPs: {convert_flops(flops)}")
+
+    # Print the total number of FLOPs
+
+    # evaluation mode
+
     with torch.no_grad():
         test_iterator = iter(test_loader)
         for i, (pan, mslr, mshr) in enumerate(test_iterator):
@@ -199,7 +225,7 @@ def main(args):
             test_metric = test_metric_collection.forward(mssr, mshr)
             test_report_loss += test_loss
 
-            ergas_score += ergas(mshr, mssr, ergas_l)
+            ergas_score += ergas_batch(mshr, mssr, ergas_l)
             sam_score += sam(mshr, mssr)
 
             """figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
@@ -233,7 +259,6 @@ def main(args):
 
             np.savez(f'results/img_array_{choose_dataset}_{i}_{model_name}.npz', mslr=mslr,
                      pan=pan, mssr=mssr, gt=gt)"""
-            
 
         # compute metrics
         test_metric = test_metric_collection.compute()
@@ -241,10 +266,10 @@ def main(args):
 
         # Print final scores
         print(f"Final scores:\n"
-                f"ERGAS: {ergas_score / (i+1)}\n"
-                f"SAM: {sam_score / (i+1)}\n"
-                f"PSNR: {test_metric['psnr'].item()}\n"
-                f"SSIM: {test_metric['ssim'].item()}")
+              f"ERGAS: {ergas_score / (i+1)}\n"
+              f"SAM: {sam_score / (i+1)}\n"
+              f"PSNR: {test_metric['psnr'].item()}\n"
+              f"SSIM: {test_metric['ssim'].item()}")
 
 
 def scaleMinMax(x):

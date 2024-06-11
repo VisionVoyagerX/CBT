@@ -4,6 +4,7 @@ import datetime
 import numpy as np
 from numpy.linalg import norm
 
+
 def get_checkpoint_path():
     """
     Returns a Path object pointing to the "configs" directory.
@@ -54,29 +55,36 @@ def load_checkpoint(checkpoint, model, optimizer, tr_metrics, val_metrics):
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
     tr_metrics = checkpoint['tr_metrics']
-    #val_metrics = checkpoint['val_metrics']
+    # val_metrics = checkpoint['val_metrics']
 
-    return (tr_metrics) #val_metrics
+    return (tr_metrics)  # val_metrics
+
 
 def ergas_batch(reference_batch, synthesized_batch, scale_ratio):
     reference_batch = reference_batch.cpu().numpy()
     synthesized_batch = synthesized_batch.cpu().numpy()
 
     n, h, w, c = reference_batch.shape
-    rmse = np.sqrt(np.mean((reference_batch - synthesized_batch) ** 2, axis=(1, 2)))
+    rmse = np.sqrt(
+        np.mean((reference_batch - synthesized_batch) ** 2, axis=(1, 2)))
     mean_ref = np.mean(reference_batch, axis=(1, 2))
-    ergas_values = 100 * scale_ratio * np.sqrt(np.mean((rmse / mean_ref) ** 2, axis=1))
+    ergas_values = 100 * scale_ratio * \
+        np.sqrt(np.mean((rmse / mean_ref) ** 2, axis=1))
     return ergas_values
 
-def ergas(ms, ps, ratio=8):
+
+def ergas(ms, ps, ratio=4):  # FIXME change that for Sev2Mod
+    ms = ms.cpu().numpy()
+    ps = ps.cpu().numpy()
     ms = ms.astype(np.float32)
     ps = ps.astype(np.float32)
     err = ms - ps
     ergas_index = 0
-    for i in range(err.shape[2]):
-        ergas_index += np.mean(np.square(err[:, :, i]))/np.square(np.mean(ms[:, :, i]))
+    for i in range(err.shape[0]):
+        ergas_index += np.mean(np.square(err[i, :, :])) / \
+            np.square(np.mean(ms[i, :, :]))
 
-    ergas_index = (100/ratio) * np.sqrt(1/err.shape[2]) * ergas_index
+    ergas_index = (100/ratio) * np.sqrt(1/err.shape[0]) * ergas_index
 
     return ergas_index
 
@@ -89,11 +97,16 @@ def sam_batch(reference_batch, synthesized_batch):
     norm_ref = np.linalg.norm(reference_batch, axis=3)
     norm_syn = np.linalg.norm(synthesized_batch, axis=3)
     cos_theta = product / (norm_ref * norm_syn)
-    cos_theta = np.clip(cos_theta, -1, 1)  # Ensure the values are within [-1, 1]
+    # Ensure the values are within [-1, 1]
+    cos_theta = np.clip(cos_theta, -1, 1)
     sam_values = np.mean(np.arccos(cos_theta), axis=(1, 2))
     return sam_values
 
+
 def sam(ms, ps):
+    ms = ms[0].cpu().numpy()
+    ps = ps[0].cpu().numpy()
+
     assert ms.ndim == 3 and ms.shape == ps.shape
 
     ms = ms.astype(np.float32)

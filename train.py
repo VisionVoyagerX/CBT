@@ -114,7 +114,7 @@ def main(args):
 
     # Prepare device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #device = "cpu"
+    # device = "cpu"
     print("Device: ", device)
 
     # Initialize DataLoader
@@ -134,33 +134,33 @@ def main(args):
         dataset=test_dataset, batch_size=1, shuffle=False)  # , collate_fn=collate_fn
 
     # Initialize Model, optimizer, criterion and metrics
-    model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]), 
-                       pan_low_size_ratio=mslr_to_pan_scale, 
-                       patch_size=patch_size, 
+    model = model_type(pan_img_size=(tr_pan_size[0], tr_pan_size[1]),
+                       pan_low_size_ratio=mslr_to_pan_scale,
+                       patch_size=patch_size,
                        in_chans=in_chans,
-                       embed_dim=embed_dim, 
-                       depths=depths, 
-                       num_heads=num_heads, 
-                       window_size=window_size, 
+                       embed_dim=embed_dim,
+                       depths=depths,
+                       num_heads=num_heads,
+                       window_size=window_size,
                        compress_ratio=compress_ratio,
-                       squeeze_factor=squeeze_factor, 
-                       conv_scale=conv_scale, 
-                       overlap_ratio=overlap_ratio, 
-                       mlp_ratio=mlp_ratio, 
+                       squeeze_factor=squeeze_factor,
+                       conv_scale=conv_scale,
+                       overlap_ratio=overlap_ratio,
+                       mlp_ratio=mlp_ratio,
                        qkv_bias=qkv_bias,
-                       qk_scale=qk_scale, 
-                       drop_rate=drop_rate, 
-                       attn_drop_rate=attn_drop_rate, 
-                       drop_path_rate=drop_path_rate, 
+                       qk_scale=qk_scale,
+                       drop_rate=drop_rate,
+                       attn_drop_rate=attn_drop_rate,
+                       drop_path_rate=drop_path_rate,
                        norm_layer=norm_layer,
-                       ape=ape, 
-                       patch_norm=patch_norm, 
-                       upscale=upscale, 
-                       img_range=img_range, 
-                       upsampler=upsampler, 
+                       ape=ape,
+                       patch_norm=patch_norm,
+                       upscale=upscale,
+                       img_range=img_range,
+                       upsampler=upsampler,
                        resi_connection=resi_connection,
-                       mslr_mean=train_dataset.mslr_mean.to(device), 
-                       mslr_std=train_dataset.mslr_std.to(device), 
+                       mslr_mean=train_dataset.mslr_mean.to(device),
+                       mslr_std=train_dataset.mslr_std.to(device),
                        pan_mean=train_dataset.pan_mean.to(device),
                        pan_std=train_dataset.pan_std.to(device)
                        ).to(device)
@@ -197,7 +197,7 @@ def main(args):
 
     # Model summary
     summary(model, [(1, 1, test_pan_size[0], test_pan_size[1]), (1, in_chans, test_mslr_size[0], test_mslr_size[1])],
-           dtypes=[torch.float32, torch.float32], depth=16)
+            dtypes=[torch.float32, torch.float32], depth=16)
 
     # load checkpoint
     if continue_from_checkpoint:
@@ -205,14 +205,14 @@ def main(args):
             checkpoint_path), model, optimizer, tr_metrics, val_metrics)
 
     print('==> Starting training ...')
-    total_steps = 750000 - 650000 + 1
+    # total_steps = 750000 - 650000 + 1
 
     train_iter = iter(train_loader)
-    train_progress_bar = tqdm(iter(range(650000, 750000 + 1)), total=total_steps, desc="Training", #iter(range(steps), steps
+    train_progress_bar = tqdm(iter(range(steps)), total=steps, desc="Training",  # iter(range(steps), steps
                               leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
     for step in train_progress_bar:
         if step % save_interval == 0 and step != 0:
-            checkpoint = {'step': step, #step
+            checkpoint = {'step': step,  # step
                           'state_dict': model.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'tr_metrics': tr_metrics,

@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: GaoFen2
-    path: "../pansharpenning_dataset/GF2/train/train_gf2.h5"
+    path: "data/pansharpenning_dataset/GF2/train/train_gf2.h5"
     mslr_img_size: [16, 16]
     pan_img_size: [64, 64]
 
@@ -21,7 +21,7 @@ data_pipeline:
 
   validation:
     dataset: GaoFen2
-    path: "../pansharpenning_dataset/GF2/val/valid_gf2.h5"
+    path: "data/pansharpenning_dataset/GF2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [16, 16]
     pan_img_size: [64, 64]
@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: GaoFen2
-    path: "../pansharpenning_dataset/GF2/test/test_gf2_multiExm1.h5"
+    path: "data/pansharpenning_dataset/GF2/test/test_gf2_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:
@@ -40,14 +40,14 @@ data_pipeline:
       cropping_on_the_fly: False
 
 machine_settings:
-  num_gpu: 
+  num_gpu:
 
 # general settings
 general_settings:
   name: "Wav-CBT_base_abl1_GF2"
   model_type: CBT
   continue_from_checkpoint: true
-  checkpoint_name: Wav-CBT_base_abl1_GF2_2024_06_05-08_07_27.pth.tar
+  checkpoint_name: Wav-CBT_base_abl1_GF2_2024_06_11-13_15_11.pth.tar # _best_test
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 650000, 700000, 750000]
@@ -82,12 +82,12 @@ network:
   upsampler: "pixelshuffle"
   resi_connection: "1conv"
 
-training_settings: 
+training_settings:
   steps: 600000
   batch_size: 8
   optimizer:
     type: Adam
-    learning_rate: !!float 0.00000625 #4e-4
+    learning_rate: !!float 4e-4 # 0.00000625
     betas: [0.9, 0.99]
   scheduler:
     type: StepLR
