@@ -53,9 +53,9 @@ def load_checkpoint(checkpoint, model, optimizer, tr_metrics, val_metrics):
     model.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
     tr_metrics = checkpoint['tr_metrics']
-    val_metrics = checkpoint['val_metrics']
+    #val_metrics = checkpoint['val_metrics']
 
-    return (tr_metrics, val_metrics)
+    return (tr_metrics)
 
 def ergas_batch(reference_batch, synthesized_batch, scale_ratio):
     reference_batch = reference_batch.cpu().numpy()

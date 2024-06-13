@@ -6,6 +6,7 @@ from einops import rearrange
 
 import matplotlib.pyplot as plt
 
+import time
 
 class Deep_Feature_Extractor(nn.Module):
     def __init__(self,
@@ -431,6 +432,10 @@ class WindowAttention(nn.Module):
             x: input features with shape of (num_windows*b, n, c)
             mask: (0/-inf) mask with shape of (num_windows, Wh*Ww, Wh*Ww) or None
         """
+        # Start measuring time
+        #start_time = time.time()
+
+
         b_, n, c = x.shape
         qkv = self.qkv(x).reshape(b_, n, 3, self.num_heads, c //
                                   self.num_heads).permute(2, 0, 3, 1, 4)
@@ -459,6 +464,16 @@ class WindowAttention(nn.Module):
         x = (attn @ v).transpose(1, 2).reshape(b_, n, c)
         x = self.proj(x)
         x = self.proj_drop(x)
+
+
+        # End measuring time
+        #end_time = time.time()
+
+        # Calculate elapsed time
+        #elapsed_time = end_time - start_time
+
+        #print("Time taken:", elapsed_time, "seconds")
+        
         return x
 
 
