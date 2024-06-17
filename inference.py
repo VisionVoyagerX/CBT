@@ -10,9 +10,12 @@ from torch.nn import L1Loss
 from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
 from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
+from torchmetrics.image import SpectralAngleMapper, ErrorRelativeGlobalDimensionlessSynthesis
 from torchinfo import summary
 # from fvcore.nn import FlopCountAnalysis
 import torchprofile
+import time
+
 
 from model.CBT import *
 from data_loader.DataLoader import GaoFen2, Sev2Mod, WV3
@@ -20,17 +23,54 @@ from utils import *
 import numpy as np
 
 
-def convert_flops(flops):
-    if flops >= 1e15:
-        return f"{flops / 1e15:.2f} PFLOPs"
-    elif flops >= 1e12:
-        return f"{flops / 1e12:.2f} TFLOPs"
-    elif flops >= 1e9:
-        return f"{flops / 1e9:.2f} GFLOPs"
-    elif flops >= 1e6:
-        return f"{flops / 1e6:.2f} MFLOPs"
-    else:
-        return f"{flops} FLOPs"
+def measure_gpu_throughput(model, input1_, input2_):
+    input1 = input1_.to('cuda')
+    input2 = input2_.to('cuda')
+    model = model.to('cuda')
+
+    ave_forward_throughput = []
+
+    ave_start = time.time()
+    for t in range(300):
+        start = time.time()
+        x = model(input1, input2)
+        end = time.time()
+        fwd_throughput = 1/(end-start)
+        # print('forward_throughput is {:.4f}'.format(fwd_throughput))
+        ave_forward_throughput.append(fwd_throughput)
+
+    ave_fwd_throughput = np.mean(ave_forward_throughput[1:])
+
+    print('Mean throughput over 300 runs: {:.4f}'.format(ave_fwd_throughput))
+
+
+def measure_gpu_latency(model, input1_, input2_):
+    input1 = input1_.to('cuda')
+    input2 = input2_.to('cuda')
+    model = model.to('cuda')
+
+    repetitions = 300
+
+    # GPU-WARM-UP
+    for _ in range(20):  # Increase warm-up iterations to ensure GPU is fully warmed up
+        _ = model(input1, input2)
+        torch.cuda.synchronize()  # Ensure the warm-up operation completes
+
+    # Measure performance
+    timings = []
+    with torch.no_grad():
+        for _ in range(repetitions):
+            start = time.time()
+            _ = model(input1, input2)
+            torch.cuda.synchronize()  # Ensure the operation completes
+            end = time.time()
+            latency = end - start
+            timings.append(latency)
+
+    mean_latency = np.mean(timings)
+    print(
+        f"Mean time over {repetitions} runs: {mean_latency} seconds")
+    return mean_latency
 
 
 def main(args):
@@ -121,14 +161,6 @@ def main(args):
         lr_gamma = config_data['training_settings']['scheduler']['gamma']
         loss_type = eval(config_data['training_settings']['loss']['type'])
 
-    '''except FileNotFoundError:
-        print(f"Config file '{get_config_path() / config_file}' not found.")
-        return
-    except yaml.YAMLError as exc:
-        print(f"Error while parsing YAML in config file '{config_file}': {exc}")
-        return
-'''
-
     # Prepare device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = "cpu" # if not enough available memory
@@ -165,18 +197,20 @@ def main(args):
 
     val_metric_collection = MetricCollection({
         'psnr': PeakSignalNoiseRatio().to(device),
-        'ssim': StructuralSimilarityIndexMeasure().to(device)
+        'ssim': StructuralSimilarityIndexMeasure().to(device),
+        'sam': SpectralAngleMapper().to(device),
+        'ergas': ErrorRelativeGlobalDimensionlessSynthesis().to(device),
     })
 
     test_metric_collection = MetricCollection({
         'psnr': PeakSignalNoiseRatio().to(device),
-        'ssim': StructuralSimilarityIndexMeasure().to(device)
+        'ssim': StructuralSimilarityIndexMeasure().to(device),
+        'sam': SpectralAngleMapper().to(device),
+        'ergas': ErrorRelativeGlobalDimensionlessSynthesis().to(device),
     })
 
     val_report_loss = 0
     test_report_loss = 0
-    highest_psnr = 0
-    highest_ssim = 0
     tr_metrics = []
     val_metrics = []
     test_metrics = []
@@ -189,8 +223,8 @@ def main(args):
     ssim_score = 0
 
     # Model summary
-    summary(model, [(1, 1, test_pan_size[0], test_pan_size[1]), (1, in_chans, test_mslr_size[0], test_mslr_size[1])],
-            dtypes=[torch.float32, torch.float32], depth=12)
+    # summary(model, [(1, 1, test_pan_size[0], test_pan_size[1]), (1, in_chans, test_mslr_size[0], test_mslr_size[1])],
+    #        dtypes=[torch.float32, torch.float32], depth=12)
 
     # load checkpoint
     if continue_from_checkpoint:
@@ -200,19 +234,14 @@ def main(args):
     choose_dataset = str(config_data['data_pipeline']
                          ['train']['dataset'])
 
-    input_tensor1 = torch.randn(
+    """input_tensor1 = torch.randn(
         1, 1, test_pan_size[0], test_pan_size[1]).to(device)  # Example input tensor 1
     input_tensor2 = torch.randn(
         1, in_chans, test_mslr_size[0], test_mslr_size[1]).to(device)  # Example input tensor 2
     model.eval()
-    flops = torchprofile.profile_macs(
-        model, (input_tensor1, input_tensor2))
 
-    print(f"Total FLOPs: {convert_flops(flops)}")
-
-    # Print the total number of FLOPs
-
-    # evaluation mode
+    measure_gpu_throughput(model, input_tensor1, input_tensor2)
+    measure_gpu_latency(model, input_tensor1, input_tensor2)"""
 
     with torch.no_grad():
         test_iterator = iter(test_loader)
@@ -225,10 +254,7 @@ def main(args):
             test_metric = test_metric_collection.forward(mssr, mshr)
             test_report_loss += test_loss
 
-            ergas_score += ergas_batch(mshr, mssr, ergas_l)
-            sam_score += sam(mshr, mssr)
-
-            """figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
+            figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
             axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
                             0, ...].numpy())).astype(np.float32)[..., :1], cmap='viridis')
             axis[0].set_title('(a) LR')
@@ -258,7 +284,7 @@ def main(args):
             gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
 
             np.savez(f'results/img_array_{choose_dataset}_{i}_{model_name}.npz', mslr=mslr,
-                     pan=pan, mssr=mssr, gt=gt)"""
+                     pan=pan, mssr=mssr, gt=gt)
 
         # compute metrics
         test_metric = test_metric_collection.compute()
@@ -266,8 +292,8 @@ def main(args):
 
         # Print final scores
         print(f"Final scores:\n"
-              f"ERGAS: {ergas_score / (i+1)}\n"
-              f"SAM: {sam_score / (i+1)}\n"
+              f"ERGAS: {test_metric['ergas'].item()}\n"
+              f"SAM: {test_metric['sam'].item()}\n"
               f"PSNR: {test_metric['psnr'].item()}\n"
               f"SSIM: {test_metric['ssim'].item()}")
 
