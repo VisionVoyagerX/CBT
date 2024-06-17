@@ -46,8 +46,8 @@ machine_settings:
 general_settings:
   name: "Wav-CBT_base_abl2_GF2"
   model_type: CBT
-  continue_from_checkpoint: false
-  checkpoint_name: #Wav-CBT_base_abl1_GF2_2024_06_11-13_15_11.pth.tar # _best_test
+  continue_from_checkpoint: true
+  checkpoint_name: Wav-CBT_base_abl2_GF2_2024_06_12-11_14_53_best_test.pth.tar
   report_interval: 50
   save_interval: 5000
   evaluation_interval: [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000, 650000, 700000, 750000]
