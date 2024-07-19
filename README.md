@@ -13,7 +13,7 @@ Methods are classified into small-scale (top) and large-scale models (bottom), h
 
 | Method                        | PSNR↑    | SSIM↑    | ERGAS↓   | SAM↓     | PSNR↑    | SSIM↑    | ERGAS↓   | SAM↓     |
 |-------------------------------|----------|----------|----------|----------|----------|----------|----------|----------|
-|                               | \multicolumn{4}{c}{GaoFen-2}                       | \multicolumn{4}{c}{WorldView-3}                    |
+|                               |                 GaoFen-2                  |                WorldView-3                |
 | **Small-scale models**        |          |          |          |          |          |          |          |          |
 | PNN                           | 36.309   | 0.9249   | 1.3682   | 0.0241   | 31.225   | 0.9042   | 4.4628   | 0.0815   |
 | PanNet                        | 37.909   | 0.9475   | 1.1374   | 0.0197   | 33.146   | 0.9440   | 3.5800   | 0.0702   |
