@@ -2,7 +2,6 @@
 
 **A new Cross Band Transformer (CBT) architecture for pansharpening of satellite imagery**
 
-TODO citation
 
 
 # Performance on benchmark datasets
