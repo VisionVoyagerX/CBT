@@ -29,10 +29,6 @@ Methods are classified into small-scale (top) and large-scale models (bottom), h
 | **CBT$_{\mathrm{Large}}$ (ours)**  | **44.826** | **0.9853** | **0.5075** | **0.0099** | **37.719** | **0.9783** | **1.9977** | **0.0472** |
 | **Wav-CBT$_{\mathrm{Large}}$ (ours)** | **44.980** | **0.9857** | **0.4980** | **0.0098** | _37.033_ | _0.9757_ | _2.1620_ | _0.0485_ |
 
-      |
-
-
-
 
 # Performance GaoFen-2 imagery
 
@@ -47,13 +43,13 @@ The Sev2Mod dataset can be download [here](https://zenodo.org/records/8360458)
 
  Implementation of benchmark methods with pretrained weights on GaoFen-2 and WorldView3 datasets.
  
-- [ArbRPN](https://github.com/VisionVoyagerX/ArbRPN)
-- [PanFormer](https://github.com/VisionVoyagerX/PanFormer)
-- [BiMPan](https://github.com/VisionVoyagerX/BiMPan)
+- [PNN](https://github.com/VisionVoyagerX/PNN)
+- [PanNet](https://github.com/VisionVoyagerX/PanNet)
 - [GPPNN](https://github.com/VisionVoyagerX/GPPNN)
 - [MSDCNN](https://github.com/VisionVoyagerX/MDCUN)
-- [PanNet](https://github.com/VisionVoyagerX/PanNet)
-- [PNN](https://github.com/VisionVoyagerX/PNN)
+- [BiMPan](https://github.com/VisionVoyagerX/BiMPan)
+- [PanFormer](https://github.com/VisionVoyagerX/PanFormer)
+- [ArbRPN](https://github.com/VisionVoyagerX/ArbRPN)
 
 # Project Setup
 
