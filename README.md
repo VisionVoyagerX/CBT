@@ -1,14 +1,13 @@
 # CBT
 
-**A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery**
-
+A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery
 
 # Performance on benchmark datasets
 
+Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
-## Model performance in terms of PSNR (dB), SSIM, ERGAS, and SAM for CBT and various benchmark methods
-
-Methods are classified into small-scale (top) and large-scale models (bottom), highlighting the **best**, _second best_, and *third best* scores.
+Model performance in terms of PSNR (dB), SSIM, ERGAS, and SAM for CBT and various benchmark methods. Methods are classified into small-scale (top) and large-scale models (bottom), highlighting the **best**, _second best_, and *third best* scores.
 
 | Method                        | PSNR↑    | SSIM↑    | ERGAS↓   | SAM↓     | PSNR↑    | SSIM↑    | ERGAS↓   | SAM↓     |
 |-------------------------------|----------|----------|----------|----------|----------|----------|----------|----------|
@@ -27,11 +26,6 @@ Methods are classified into small-scale (top) and large-scale models (bottom), h
 | ArbRPN                        | _43.976_ | _0.9827_ | _0.5632_ | _0.0110_ | _37.540_ | _0.9775_ | _2.0356_ | _0.0481_ |
 | **CBT_Large (ours)**  | **44.826** | **0.9853** | **0.5075** | **0.0099** | **37.719** | **0.9783** | **1.9977** | **0.0472** |
 | **Wav-CBT_Large(ours)** | **44.980** | **0.9857** | **0.4980** | **0.0098** | _37.033_ | _0.9757_ | _2.1620_ | _0.0485_ |
-
-
-# Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
-
-![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
 # Datasets
 
@@ -62,7 +56,22 @@ Clone the project repository to your local machine:
 git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
 ```
 
-## Step 2: Download Datasets and Organize
+## Step 2: Choose Model (CBT/Wav-CBT)
+
+- To choose CBT:
+
+`
+git checkout main
+`
+
+- To choose Wav-CBT:
+
+`
+git checkout Wav_CBT
+`
+
+
+## Step 3: Download Datasets and Organize
 
 Download and extract the datasets, then organize them according to the specified file structure below. Ensure the file is placed in the root directory of the CBT project.
 
@@ -79,14 +88,16 @@ Download and extract the datasets, then organize them according to the specified
     - val
     - test
 
-## Step 3: Train (optional)
+## Step 4: Train (optional)
 
 `
 python3 train.py -c [choose config from /configs file].yaml
 `
 
-## Step 4: Inference
+## Step 5: Inference
 
 `
 python3 inference.py -c [choose config from /configs file].yaml
 `
+
+
