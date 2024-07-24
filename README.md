@@ -29,7 +29,7 @@ Methods are classified into small-scale (top) and large-scale models (bottom), h
 | **Wav-CBT_Large(ours)** | **44.980** | **0.9857** | **0.4980** | **0.0098** | _37.033_ | _0.9757_ | _2.1620_ | _0.0485_ |
 
 
-# Performance GaoFen-2 imagery
+# Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
 
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
@@ -40,7 +40,7 @@ The Sev2Mod dataset can be download [here](https://zenodo.org/records/8360458)
 
 # List of benchmark methods implemented in this study
 
- Implementation of benchmark methods with pretrained weights on GaoFen-2 and WorldView3 datasets.
+ Implementation and pretrained weights of benchmark methods on GaoFen-2 and WorldView3 datasets.
  
 - [PNN](https://github.com/VisionVoyagerX/PNN)
 - [PanNet](https://github.com/VisionVoyagerX/PanNet)
@@ -56,7 +56,7 @@ This project requires downloading datasets for training and testing purposes. Fo
 
 ## Step 1: Clone Repository
 
-Clone the project repository to your local machine using the following command:
+Clone the project repository to your local machine:
 
 ```
 git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
@@ -64,7 +64,7 @@ git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
 
 ## Step 2: Download Datasets and Organize
 
-Download and extract the datasets, then organize them according to the specified file structure below. Ensure the file is placed in the same directory as the CBT project.
+Download and extract the datasets, then organize them according to the specified file structure below. Ensure the file is placed in the root directory of the CBT project.
 
 - GF2
     - train
@@ -78,26 +78,15 @@ Download and extract the datasets, then organize them according to the specified
     - train
     - val
     - test
-
-Datasets and their respective URLs are listed below. Download, untar, and store them in the specified file structure within the CBT root project folder.
-
-- GF2
-    - Train-Val: [GF2 Train-Val](https://drive.google.com/drive/folders/1gNV7BlGy06ee0BqgxBfFMNnfzGrPTA9K)
-    - Test: [GF2 Test](https://drive.google.com/drive/folders/1g4f2NElV7By2gWhCavrDaglzCxiDT6CP)
-- WV3
-    - Train-Test: [WV3 Train-Test](https://drive.google.com/drive/folders/1CHs49xius3zH3PIrAxAkbNfKEy82_fMb)
-    - Test: [WV3 Test](https://drive.google.com/drive/folders/1EYjaAxTheNPvukvifKXMq8m_dJ-8qz8G)
-- SEV2MOD
-    - Train-Val-Test: [SEV2MOD Train-Val-Test](https://zenodo.org/records/8360458)
 
 ## Step 3: Train (optional)
 
 `
-python3 train.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
+python3 train.py -c [choose config from /configs file].yaml
 `
 
 ## Step 4: Inference
 
 `
-python3 inference.py -c [choose config from /configs file].yaml #example:CBT_base_server_L_GF2.yaml
+python3 inference.py -c [choose config from /configs file].yaml
 `
