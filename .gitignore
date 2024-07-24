@@ -1,7 +1,7 @@
-
 dataset/
 *.pyc
 *.png
 *.npz
 .vscode
 *.ipynb
+*.gitattributes
