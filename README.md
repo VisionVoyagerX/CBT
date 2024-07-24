@@ -2,6 +2,10 @@
 
 A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery
 
+# Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
+
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
+
 
 # Performance on benchmark datasets
 
@@ -25,13 +29,6 @@ Model performance in terms of PSNR (dB), SSIM, ERGAS, and SAM for CBT and variou
 | ArbRPN                        | _43.976_ | _0.9827_ | _0.5632_ | _0.0110_ | _37.540_ | _0.9775_ | _2.0356_ | _0.0481_ |
 | **CBT_Large (ours)**  | **44.826** | **0.9853** | **0.5075** | **0.0099** | **37.719** | **0.9783** | **1.9977** | **0.0472** |
 | **Wav-CBT_Large(ours)** | **44.980** | **0.9857** | **0.4980** | **0.0098** | _37.033_ | _0.9757_ | _2.1620_ | _0.0485_ |
-
-
-
-
-# Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
-
-![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
 # Datasets
 
