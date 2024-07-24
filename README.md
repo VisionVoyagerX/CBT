@@ -62,7 +62,22 @@ Clone the project repository to your local machine:
 git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
 ```
 
-## Step 2: Download Datasets and Organize
+## Step 2: Choose Model (CBT/Wav-CBT)
+
+- To choose CBT:
+
+`
+git checkout main
+`
+
+- To choose Wav-CBT:
+
+`
+git checkout Wav_CBT
+`
+
+
+## Step 3: Download Datasets and Organize
 
 Download and extract the datasets, then organize them according to the specified file structure below. Ensure the file is placed in the root directory of the CBT project.
 
@@ -79,14 +94,16 @@ Download and extract the datasets, then organize them according to the specified
     - val
     - test
 
-## Step 3: Train (optional)
+## Step 4: Train (optional)
 
 `
 python3 train.py -c [choose config from /configs file].yaml
 `
 
-## Step 4: Inference
+## Step 5: Inference
 
 `
 python3 inference.py -c [choose config from /configs file].yaml
 `
+
+
