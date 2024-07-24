@@ -6,9 +6,7 @@ A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT
 # Performance on benchmark datasets
 
 
-## Model performance in terms of PSNR (dB), SSIM, ERGAS, and SAM for CBT and various benchmark methods
-
-Methods are classified into small-scale (top) and large-scale models (bottom), highlighting the **best**, _second best_, and *third best* scores.
+- Model performance in terms of PSNR (dB), SSIM, ERGAS, and SAM for CBT and various benchmark methods
 
 | Method                        | PSNR↑    | SSIM↑    | ERGAS↓   | SAM↓     | PSNR↑    | SSIM↑    | ERGAS↓   | SAM↓     |
 |-------------------------------|----------|----------|----------|----------|----------|----------|----------|----------|
@@ -27,6 +25,8 @@ Methods are classified into small-scale (top) and large-scale models (bottom), h
 | ArbRPN                        | _43.976_ | _0.9827_ | _0.5632_ | _0.0110_ | _37.540_ | _0.9775_ | _2.0356_ | _0.0481_ |
 | **CBT_Large (ours)**  | **44.826** | **0.9853** | **0.5075** | **0.0099** | **37.719** | **0.9783** | **1.9977** | **0.0472** |
 | **Wav-CBT_Large(ours)** | **44.980** | **0.9857** | **0.4980** | **0.0098** | _37.033_ | _0.9757_ | _2.1620_ | _0.0485_ |
+
+Methods are classified into small-scale (top) and large-scale models (bottom), highlighting the **best**, _second best_, and *third best* scores.
 
 
 # Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
