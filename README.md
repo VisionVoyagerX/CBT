@@ -1,6 +1,6 @@
 # CBT
 
-**A new Cross Band Transformer (CBT) and Wavelet - Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery**
+**A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery**
 
 
 # Performance on benchmark datasets
