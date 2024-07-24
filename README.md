@@ -2,13 +2,10 @@
 
 A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery
 
-# Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
-
-![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
-
-
 # Performance on benchmark datasets
 
+Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
 Model performance in terms of PSNR (dB), SSIM, ERGAS, and SAM for CBT and various benchmark methods. Methods are classified into small-scale (top) and large-scale models (bottom), highlighting the **best**, _second best_, and *third best* scores.
 
