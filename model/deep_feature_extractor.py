@@ -412,6 +412,31 @@ class CAB(nn.Module):
         return self.cab(x)
 
 
+class eca_layer(nn.Module):
+    """Constructs a ECA module.
+
+    Args:
+        channel: Number of channels of the input feature map
+        k_size: Adaptive selection of kernel size
+    """
+    def __init__(self, channel, k_size=3):
+        super(eca_layer, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.conv = nn.Conv1d(1, 1, kernel_size=k_size, padding=(k_size - 1) // 2, bias=False) 
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        # feature descriptor on the global spatial information
+        y = self.avg_pool(x)
+
+        # Two different branches of ECA module
+        y = self.conv(y.squeeze(-1).transpose(-1, -2)).transpose(-1, -2).unsqueeze(-1)
+
+        # Multi-scale information fusion
+        y = self.sigmoid(y)
+
+        return x * y.expand_as(x)
+
 class Mlp(nn.Module):
 
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer: nn.Module = nn.GELU, drop=0.):
@@ -506,7 +531,7 @@ class WindowAttention(nn.Module):
         self.v = nn.Linear(dim * 4, dim * 4, bias=qkv_bias)
 
         self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim * 4, dim * 4) # FIXME if this increases computations, delete it.
+        self.proj = nn.Linear(dim * 4, dim * 4)
 
         self.proj_drop = nn.Dropout(proj_drop)
 
@@ -710,8 +735,9 @@ class HAB(nn.Module):
             proj_drop=drop)
 
         self.conv_scale = conv_scale
-        self.conv_block = CAB(
-            num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
+        #self.conv_block = CAB(
+        #    num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
+        self.conv_block = eca_layer(dim)
 
         self.drop_path = DropPath(
             drop_path) if drop_path > 0. else nn.Identity()
@@ -746,7 +772,7 @@ class HAB(nn.Module):
             attn_mask = None
 
         # DWT
-        x_dwt = self.dwt(shifted_x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1) # FIXME verify that dwt is correct after training
+        x_dwt = self.dwt(shifted_x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
         assert x_dwt.shape == (b, h // 2, w // 2, c * 4)
 
         # Partitioning
@@ -825,6 +851,8 @@ class SCBAB(nn.Module):
             self.window_size = min(self.input_resolution)
         assert 0 <= self.shift_size < self.window_size, 'shift_size must in 0-window_size'
 
+        self.conv_block = eca_layer(dim)
+
         self.norm1 = norm_layer(dim)
         self.norm_cross = norm_layer(dim)
 
@@ -848,7 +876,7 @@ class SCBAB(nn.Module):
     def forward(self, x, cross_x, x_size, rpi_sa, attn_mask):
         h, w = x_size
         b, _, c = x.shape
-        assert _ == h * w, "input feature in HAB has wrong size"
+        assert _ == h * w, "input feature in SCBAB has wrong size"
 
         # Residual connection
         shortcut = x # [b, h * w, c]
@@ -858,6 +886,11 @@ class SCBAB(nn.Module):
         x = x.view(b, h, w, c) # [b, h, w, c]
         cross_x = self.norm_cross(cross_x)
         cross_x = cross_x.view(b, h, w, c) # [b, h, w, c]
+
+        # 
+        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+
 
         # cyclic shift
         if self.shift_size > 0:
@@ -907,7 +940,7 @@ class SCBAB(nn.Module):
         attn_x = attn_x.view(b, h * w, c)
 
         # FFN
-        x = shortcut + attn_x
+        x = shortcut + attn_x + conv_x
         x = x + self.mlp(self.norm2(x))
         return x
 
@@ -984,6 +1017,7 @@ class OCAB(nn.Module):
         self.scale = qk_scale or head_dim**-0.5
         self.overlap_win_size = int(window_size * overlap_ratio) + window_size
 
+        self.conv_block = eca_layer(dim)
 
         self.norm1 = norm_layer(dim)
 
@@ -1021,6 +1055,10 @@ class OCAB(nn.Module):
         x = self.norm1(x)
         x = x.view(b, h, w, c)
     
+        # 
+        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+
         # DWT
         x_dwt = self.dwt(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
         assert x_dwt.shape == (b, h // 2, w // 2, c * 4)
@@ -1078,7 +1116,7 @@ class OCAB(nn.Module):
         
         x = x_idwt.view(b, h * w, self.dim)
 
-        x = self.proj(x) + shortcut
+        x = self.proj(x) + shortcut + conv_x
 
         x = x + self.mlp(self.norm2(x))
         return x
@@ -1119,6 +1157,8 @@ class OCBAB(nn.Module):
 
         self.norm1 = norm_layer(dim)
 
+        self.conv_block = eca_layer(dim)
+
         self.dwt = DWT_2D(wave='haar')
         self.idwt = IDWT_2D(wave='haar')
 
@@ -1156,6 +1196,11 @@ class OCBAB(nn.Module):
         x = x.view(b, h, w, c)
         cross_x = self.norm_cross(cross_x)
         cross_x = cross_x.view(b, h, w, c)
+
+        # 
+        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+
 
         # WT
         x_dwt = self.dwt(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
@@ -1220,7 +1265,7 @@ class OCBAB(nn.Module):
         
         x = x_idwt.view(b, h * w, self.dim)
 
-        x = self.proj(x) + shortcut
+        x = self.proj(x) + shortcut + conv_x
 
         x = x + self.mlp(self.norm2(x))
         return x
