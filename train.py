@@ -196,8 +196,8 @@ def main(args):
     current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
 
     # Model summary
-    # summary(model, [(1, 1, test_pan_size[0], test_pan_size[1]), (1, in_chans, test_mslr_size[0], test_mslr_size[1])],
-    #        dtypes=[torch.float32, torch.float32], depth=16)
+    summary(model, [(1, 1, test_pan_size[0], test_pan_size[1]), (1, in_chans, test_mslr_size[0], test_mslr_size[1])],
+           dtypes=[torch.float32, torch.float32], depth=16)
 
     # load checkpoint
     if continue_from_checkpoint:

@@ -152,28 +152,29 @@ class CBT(nn.Module):
 
 
 if __name__ == "__main__":
-    upscale = 3
+    device = 'cuda'
     window_size = 8
-    height = 32  # (95 // upscale // window_size + 1) * window_size
-    width = 32  # (95 // upscale // window_size + 1) * window_size
+    height = 256  # (95 // upscale // window_size + 1) * window_size
+    width = 256  # (95 // upscale // window_size + 1) * window_size
+    channels = 8
+
     # precomputed
-    pan_mean = torch.tensor([250.0172]).view(1, 1, 1, 1)
-    pan_std = torch.tensor([80.2501]).view(1, 1, 1, 1)
+    pan_mean = torch.tensor([250.0172]).view(1, 1, 1, 1).to(device)
+    pan_std = torch.tensor([80.2501]).view(1, 1, 1, 1).to(device)
 
     mslr_mean = torch.tensor(
-        [449.9449, 308.7544]).view(1, 2, 1, 1)
+        [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1]).view(1, channels, 1, 1).to(device)
     mslr_std = torch.tensor(
-        [70.8778, 63.7980]).view(1, 2, 1, 1)
+        [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1]).view(1, channels, 1, 1).to(device)
 
-    model = CBT(upscale=4, pan_img_size=(height, width), pan_low_size_ratio=3, in_chans=2,
+    model = CBT(upscale=4, pan_img_size=(height, width), pan_low_size_ratio=4, in_chans=channels,
                 window_size=window_size, depths=[2],
-                embed_dim=30, num_heads=[2], mlp_ratio=2, upsampler='pixelshuffle', pan_mean=pan_mean, pan_std=pan_std, mslr_mean=mslr_mean, mslr_std=mslr_std)
+                embed_dim=30, num_heads=[2], mlp_ratio=2, upsampler='pixelshuffle', pan_mean=pan_mean, pan_std=pan_std, mslr_mean=mslr_mean, mslr_std=mslr_std).to(device)
 
-    mslr = torch.rand((8, 2, height, width), dtype=torch.float32)
-    pan = torch.rand((8, 1, height * 3, width * 3), dtype=torch.float32)
+    pan = torch.rand((2, 1, height, width), dtype=torch.float32).to(device)
+    mslr = torch.rand((2, channels, height // 4, width // 4), dtype=torch.float32).to(device)
 
     res = model(pan, mslr)
     print(res.shape)
-    summary(model, [(1, 1, 96, 96), (1, 2, 32, 32)],
+    summary(model, [(1, 1, height, width), (1, channels, height // 4, width // 4)],
             dtypes=[torch.float32, torch.float32])
-    print(1)

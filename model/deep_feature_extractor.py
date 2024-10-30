@@ -47,19 +47,13 @@ class Deep_Feature_Extractor(nn.Module):
 
         # relative position index
         relative_position_index_SA = self.calculate_rpi_sa()
-        #relative_position_index_SA_wav = self.calculate_rpi_sa_wav()
         relative_position_index_OCA = self.calculate_rpi_oca()
-        #relative_position_index_OCA_wav = self.calculate_rpi_oca_wav()
 
         self.register_buffer('relative_position_index_SA',
                              relative_position_index_SA)
-        #self.register_buffer('relative_position_index_SA_wav',
-        #                     relative_position_index_SA_wav)
         
         self.register_buffer('relative_position_index_OCA',
                              relative_position_index_OCA)
-        #self.register_buffer('relative_position_index_OCA_wav',
-        #                    relative_position_index_OCA_wav)
                 
         # =======
         self.num_layers = len(depths)
@@ -146,8 +140,7 @@ class Deep_Feature_Extractor(nn.Module):
         # build the last conv layer in deep feature extraction
         if resi_connection == '1conv':
             self.pan_conv_after_body = nn.Conv2d(embed_dim, embed_dim, 3, 1, 1)
-            self.mslr_conv_after_body = nn.Conv2d(
-                embed_dim, embed_dim, 3, 1, 1)
+            self.mslr_conv_after_body = nn.Conv2d(embed_dim, embed_dim, 3, 1, 1)
         elif resi_connection == 'identity':
             self.pan_conv_after_body = nn.Identity()
             self.mslr_conv_after_body = nn.Identity()
@@ -156,8 +149,7 @@ class Deep_Feature_Extractor(nn.Module):
         # calculate relative position index for SA
         coords_h = torch.arange(self.window_size)
         coords_w = torch.arange(self.window_size)
-        coords = torch.stack(torch.meshgrid(
-            [coords_h, coords_w], indexing='ij'))  # 2, Wh, Ww
+        coords = torch.stack(torch.meshgrid([coords_h, coords_w], indexing='ij'))  # 2, Wh, Ww
         coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
         relative_coords = coords_flatten[:, :, None] - \
             coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
@@ -169,63 +161,12 @@ class Deep_Feature_Extractor(nn.Module):
         relative_coords[:, :, 0] *= 2 * self.window_size - 1
         relative_position_index = relative_coords.sum(-1)  # Wh*Ww, Wh*Ww
         return relative_position_index
-    
-    def calculate_rpi_sa_wav(self):
-        # calculate relative position index for SA
-        coords_h = torch.arange(self.window_size // 2)
-        coords_w = torch.arange(self.window_size // 2)
-        coords = torch.stack(torch.meshgrid(
-            [coords_h, coords_w], indexing='ij'))  # 2, Wh, Ww
-        coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
-        relative_coords = coords_flatten[:, :, None] - \
-            coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
-        relative_coords = relative_coords.permute(
-            1, 2, 0).contiguous()  # Wh*Ww, Wh*Ww, 2
-        relative_coords[:, :, 0] += self.window_size // 2 - \
-            1  # shift to start from 0
-        relative_coords[:, :, 1] += self.window_size // 2 - 1
-        relative_coords[:, :, 0] *= 2 * self.window_size // 2- 1
-        relative_position_index = relative_coords.sum(-1)  # Wh*Ww, Wh*Ww
-        return relative_position_index
 
     def calculate_rpi_oca(self):
         # calculate relative position index for OCA
         window_size_ori = self.window_size
         window_size_ext = self.window_size + \
             int(self.overlap_ratio * self.window_size)
-
-        coords_h = torch.arange(window_size_ori)
-        coords_w = torch.arange(window_size_ori)
-        coords_ori = torch.stack(torch.meshgrid(
-            [coords_h, coords_w], indexing='ij'))  # 2, ws, ws
-        coords_ori_flatten = torch.flatten(coords_ori, 1)  # 2, ws*ws
-
-        coords_h = torch.arange(window_size_ext)
-        coords_w = torch.arange(window_size_ext)
-        coords_ext = torch.stack(torch.meshgrid(
-            [coords_h, coords_w], indexing='ij'))  # 2, wse, wse
-        coords_ext_flatten = torch.flatten(coords_ext, 1)  # 2, wse*wse
-
-        # 2, ws*ws, wse*wse
-        relative_coords = coords_ext_flatten[:,
-                                             None, :] - coords_ori_flatten[:, :, None]
-
-        relative_coords = relative_coords.permute(
-            1, 2, 0).contiguous()  # ws*ws, wse*wse, 2
-        relative_coords[:, :, 0] += window_size_ori - \
-            window_size_ext + 1  # shift to start from 0
-        relative_coords[:, :, 1] += window_size_ori - window_size_ext + 1
-
-        relative_coords[:, :, 0] *= window_size_ori + window_size_ext - 1
-        relative_position_index = relative_coords.sum(-1)
-        return relative_position_index
-
-
-    def calculate_rpi_oca_wav(self):
-        # calculate relative position index for OCA
-        window_size_ori = self.window_size // 2
-        window_size_ext = self.window_size // 2 + \
-            int(self.overlap_ratio * self.window_size // 2)
 
         coords_h = torch.arange(window_size_ori)
         coords_w = torch.arange(window_size_ori)
@@ -305,17 +246,19 @@ class Deep_Feature_Extractor(nn.Module):
     @torch.jit.ignore
     def no_weight_decay_keywords(self):
         return {'relative_position_bias_table'}
-
+    
     def forward(self, pan, mslr):
         x_size = (pan.shape[2], pan.shape[3])
 
         # Calculate attention mask and relative position index in advance to speed up inference.
         # The original code is very time-cosuming for large window size.
-        attn_mask = self.calculate_mask_wav(x_size).to(pan.device)
+        attn_mask = self.calculate_mask(x_size).to(pan.device)
+        #attn_mask_wav = self.calculate_mask_wav(x_size).to(pan.device)
 
         params = {'attn_mask': attn_mask, 
-                  'rpi_sa': self.relative_position_index_SA,
-                  'rpi_oca': self.relative_position_index_OCA}
+                    # 'attn_mask_wav': attn_mask_wav, 
+                    'rpi_sa': self.relative_position_index_SA,
+                    'rpi_oca': self.relative_position_index_OCA}
 
         pan_forward = self.pan_patch_embed(pan)
         mslr_forward = self.mslr_patch_embed(mslr)
@@ -326,8 +269,7 @@ class Deep_Feature_Extractor(nn.Module):
         mslr_forward = self.pos_drop(mslr_forward)
 
         for layers in self.layers:
-            pan_forward, mslr_forward = layers(
-                pan_forward, mslr_forward, x_size, params)
+            pan_forward, mslr_forward = layers(pan_forward, mslr_forward, x_size, params)
 
         pan_forward = self.pan_norm(pan_forward)  # b seq_len c
         mslr_forward = self.pan_norm(mslr_forward)
@@ -338,7 +280,6 @@ class Deep_Feature_Extractor(nn.Module):
         pan_forward = self.pan_conv_after_body(pan_forward) + pan
         mslr_forward = self.mslr_conv_after_body(mslr_forward) + mslr
         return pan_forward, mslr_forward
-
 
 def drop_path(x, drop_prob: float = 0., training: bool = False):
     """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
@@ -356,7 +297,6 @@ def drop_path(x, drop_prob: float = 0., training: bool = False):
     output = x.div(keep_prob) * random_tensor
     return output
 
-
 class DropPath(nn.Module):
     def __init__(self, drop_prob=None):
         """Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
@@ -368,7 +308,7 @@ class DropPath(nn.Module):
 
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training)
-
+    
 
 class ChannelAttention(nn.Module):
     def __init__(self, num_feat, squeeze_factor=16):
@@ -410,33 +350,6 @@ class CAB(nn.Module):
 
     def forward(self, x):
         return self.cab(x)
-
-
-class eca_layer(nn.Module):
-    """Constructs a ECA module.
-
-    Args:
-        channel: Number of channels of the input feature map
-        k_size: Adaptive selection of kernel size
-    """
-    def __init__(self, channel, k_size=3):
-        super(eca_layer, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.conv = nn.Conv1d(1, 1, kernel_size=k_size, padding=(k_size - 1) // 2, bias=False) 
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        # feature descriptor on the global spatial information
-        y = self.avg_pool(x)
-
-        # Two different branches of ECA module
-        y = self.conv(y.squeeze(-1).transpose(-1, -2)).transpose(-1, -2).unsqueeze(-1)
-
-        # Multi-scale information fusion
-        y = self.sigmoid(y)
-
-        return x * y.expand_as(x)
-
 class Mlp(nn.Module):
 
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer: nn.Module = nn.GELU, drop=0.):
@@ -525,13 +438,11 @@ class WindowAttention(nn.Module):
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
-            torch.zeros((2 * window_size[0] - 1) * (2 * window_size[1]- 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
+            torch.zeros((2 * window_size[0] - 1) * (2 * window_size[1] - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
 
-        self.qk = nn.Linear(dim * 4, dim * 2, bias=qkv_bias)
-        self.v = nn.Linear(dim * 4, dim * 4, bias=qkv_bias)
-
+        self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim * 4, dim * 4)
+        self.proj = nn.Linear(dim, dim)
 
         self.proj_drop = nn.Dropout(proj_drop)
 
@@ -548,16 +459,13 @@ class WindowAttention(nn.Module):
         #start_time = time.time()
 
         b_, n, c = x.shape
-        qk = self.qk(x).reshape(b_, n, 2, self.num_heads, self.dim //
-                                self.num_heads).permute(2, 0, 3, 1, 4) # 1, b_, heads, n, c/heads
-        v = self.v(x).reshape(b_, n, 1, self.num_heads, self.dim * 4// 
-                               self.num_heads).permute(2, 0, 3, 1, 4) # 2, b_, heads, n, c/heads
-        q, k, v = qk[0], qk[1], v[0]
+        qkv = self.qkv(x).reshape(b_, n, 3, self.num_heads, c //
+                                  self.num_heads).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv[0], qkv[1], qkv[2]
 
         q = q * self.scale
         attn = (q @ k.transpose(-2, -1))
 
-        # Relative position bias
         relative_position_bias = self.relative_position_bias_table[rpi.view(-1)].view(
             self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1)  # Wh*Ww,Wh*Ww,nH
         relative_position_bias = relative_position_bias.permute(
@@ -578,14 +486,6 @@ class WindowAttention(nn.Module):
         x = (attn @ v).transpose(1, 2).reshape(b_, n, c)
         x = self.proj(x)
         x = self.proj_drop(x)
-
-        ## End measuring time
-        #end_time = time.time()
-
-        ## Calculate elapsed time
-        #elapsed_time = end_time - start_time#
-        #print("Time taken:", elapsed_time, "seconds")
-
         return x
 
 
@@ -613,12 +513,10 @@ class CrossBandWindowAttention(nn.Module):
         self.relative_position_bias_table = nn.Parameter(
             torch.zeros((2 * window_size[0] - 1) * (2 * window_size[1] - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
 
-        self.q = nn.Linear(dim * 4, dim, bias=qkv_bias)
-        self.k = nn.Linear(dim * 4, dim, bias=qkv_bias)
-        self.v = nn.Linear(dim * 4, dim * 4, bias=qkv_bias)
-
+        self.q = nn.Linear(dim, dim, bias=qkv_bias)
+        self.kv = nn.Linear(dim, dim * 2, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim * 4, dim * 4)
+        self.proj = nn.Linear(dim, dim)
 
         self.proj_drop = nn.Dropout(proj_drop)
 
@@ -632,15 +530,13 @@ class CrossBandWindowAttention(nn.Module):
             mask: (0/-inf) mask with shape of (num_windows, Wh*Ww, Wh*Ww) or None
         """
         b_, n, c = x.shape
-
-        #x = x.view(b_, n, 4, c // 4)
-        q = self.q(x).reshape(b_, n, 1, self.num_heads, self.dim //
+        q = self.q(x).reshape(b_, n, 1, self.num_heads, c //
                               self.num_heads).permute(2, 0, 3, 1, 4)
-        k = self.k(cross_x).reshape(b_, n, 1, self.num_heads, self.dim //
+
+        kv = self.kv(cross_x).reshape(b_, n, 2, self.num_heads, c //
                                       self.num_heads).permute(2, 0, 3, 1, 4)
-        v = self.v(cross_x).reshape(b_, n, 1, self.num_heads, c //
-                                      self.num_heads).permute(2, 0, 3, 1, 4)
-        q, k, v = q[0], k[0], v[0]
+        q = q[0]
+        k, v = kv[0], kv[1]
 
         q = q * self.scale
         attn = (q @ k.transpose(-2, -1))
@@ -648,7 +544,8 @@ class CrossBandWindowAttention(nn.Module):
         # Relative position bias
         relative_position_bias = self.relative_position_bias_table[rpi.view(-1)].view(
             self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1)  # Wh*Ww,Wh*Ww,nH
-        relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
+        relative_position_bias = relative_position_bias.permute(
+            2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
         attn = attn + relative_position_bias.unsqueeze(0)
 
         if mask is not None:
@@ -722,9 +619,6 @@ class HAB(nn.Module):
 
         self.norm1 = norm_layer(dim)
 
-        self.dwt = DWT_2D(wave='haar')
-        self.idwt = IDWT_2D(wave='haar')
-
         self.attn = WindowAttention(
             dim,
             window_size=retrieve_2d_tuple(self.window_size),
@@ -735,9 +629,8 @@ class HAB(nn.Module):
             proj_drop=drop)
 
         self.conv_scale = conv_scale
-        #self.conv_block = CAB(
-        #    num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
-        self.conv_block = eca_layer(dim)
+        self.conv_block = CAB(
+           num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
 
         self.drop_path = DropPath(
             drop_path) if drop_path > 0. else nn.Identity()
@@ -755,7 +648,7 @@ class HAB(nn.Module):
         shortcut = x # [b, h * w, c]
         
         # Layer Normalization
-        x = self.norm1(x) 
+        x = self.norm1(x)
         x = x.view(b, h, w, c) # [b, h, w, c]
 
         # CAB
@@ -771,31 +664,25 @@ class HAB(nn.Module):
             shifted_x = x
             attn_mask = None
 
-        # DWT
-        x_dwt = self.dwt(shifted_x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
-        assert x_dwt.shape == (b, h // 2, w // 2, c * 4)
-
         # Partitioning
-        x_windows = window_partition(x_dwt, self.window_size) 
-        x_windows = x_windows.view(-1, self.window_size * self.window_size, c * 4) # nw*b, w * w, c
+        x_windows = window_partition(shifted_x, self.window_size) 
+        x_windows = x_windows.view(-1, self.window_size * self.window_size, c) # nw*b, w * w, c
 
         # (S)W-MSA
         attn_windows = self.attn(x_windows, rpi=rpi_sa, mask=attn_mask)
 
         # merge windows
-        attn_windows = attn_windows.view(-1, self.window_size, self.window_size, c * 4)
+        attn_windows = attn_windows.view(-1,
+                                         self.window_size, self.window_size, c)
         shifted_x = window_reverse(
-            attn_windows, self.window_size, h // 2, w // 2).permute(0, 3, 1, 2)  # b, c, h, w
+            attn_windows, self.window_size, h, w)  # b, c, h, w
 
-        #IWT
-        x_idwt = self.idwt(shifted_x).permute(0, 2, 3, 1) # b, h, w, c
-        
         # reverse cyclic shift
         if self.shift_size > 0:
-            attn_x = torch.roll(x_idwt, shifts=(
+            attn_x = torch.roll(shifted_x, shifts=(
                 self.shift_size, self.shift_size), dims=(1, 2))
         else:
-            attn_x = x_idwt
+            attn_x = shifted_x
         attn_x = attn_x.view(b, h * w, c)
 
         # Addition
@@ -851,13 +738,8 @@ class SCBAB(nn.Module):
             self.window_size = min(self.input_resolution)
         assert 0 <= self.shift_size < self.window_size, 'shift_size must in 0-window_size'
 
-        self.conv_block = eca_layer(dim)
-
         self.norm1 = norm_layer(dim)
         self.norm_cross = norm_layer(dim)
-
-        self.dwt = DWT_2D(wave='haar')
-        self.idwt = IDWT_2D(wave='haar')
 
         self.cross_band_attn = CrossBandWindowAttention(
             dim,
@@ -883,14 +765,9 @@ class SCBAB(nn.Module):
 
         # Layer Normalization
         x = self.norm1(x)
-        x = x.view(b, h, w, c) # [b, h, w, c]
         cross_x = self.norm_cross(cross_x)
+        x = x.view(b, h, w, c) # [b, h, w, c]
         cross_x = cross_x.view(b, h, w, c) # [b, h, w, c]
-
-        # 
-        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
-
 
         # cyclic shift
         if self.shift_size > 0:
@@ -905,45 +782,35 @@ class SCBAB(nn.Module):
             shifted_cross_x = cross_x
             attn_mask = None
 
-
-        # DWT
-        x_dwt = self.dwt(shifted_x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
-        assert x_dwt.shape == (b, h // 2, w // 2, c * 4)
-        x_dwt_cross = self.dwt(shifted_cross_x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
-        assert x_dwt_cross.shape == (b, h // 2, w // 2, c * 4)
-
         # partition windows
-        x_windows = window_partition(x_dwt, self.window_size) 
-        x_windows = x_windows.view(-1, self.window_size * self.window_size, c * 4)
+        x_windows = window_partition(shifted_x, self.window_size) 
+        cross_x_windows = window_partition(shifted_cross_x, self.window_size)
         
-        cross_x_windows = window_partition(x_dwt_cross, self.window_size)
-        cross_x_windows = cross_x_windows.view(-1, self.window_size * self.window_size, c * 4)
+        x_windows = x_windows.view(-1, self.window_size * self.window_size, c)
+        cross_x_windows = cross_x_windows.view(-1, self.window_size * self.window_size, c)
 
         # (S)W-MCA
         attn_windows = self.cross_band_attn(
             x_windows, cross_x_windows, rpi=rpi_sa, mask=attn_mask)
 
         # merge windows
-        attn_windows = attn_windows.view(-1, self.window_size , self.window_size, c * 4)
-        x_rev = window_reverse(
-            attn_windows, self.window_size, h // 2, w // 2).permute(0, 3, 1, 2) # b, c, h, w
+        attn_windows = attn_windows.view(-1,
+                                         self.window_size, self.window_size, c)
+        shifted_x = window_reverse(
+            attn_windows, self.window_size, h, w) # b, c, h, w
 
-        #IWT
-        x_idwt = self.idwt(x_rev).permute(0, 2, 3, 1)
-        
         # reverse cyclic shift
         if self.shift_size > 0:
-            attn_x = torch.roll(x_idwt, shifts=(
+            attn_x = torch.roll(shifted_x, shifts=(
                 self.shift_size, self.shift_size), dims=(1, 2))
         else:
-            attn_x = x_idwt
+            attn_x = shifted_x
         attn_x = attn_x.view(b, h * w, c)
 
         # FFN
-        x = shortcut + attn_x + conv_x
+        x = shortcut + attn_x 
         x = x + self.mlp(self.norm2(x))
         return x
-
 
 class PatchMerging(nn.Module):
     def __init__(self, input_resolution: tuple, dim: int, norm_layer: nn.Module = nn.LayerNorm):
@@ -1017,22 +884,14 @@ class OCAB(nn.Module):
         self.scale = qk_scale or head_dim**-0.5
         self.overlap_win_size = int(window_size * overlap_ratio) + window_size
 
-        self.conv_block = eca_layer(dim)
-
         self.norm1 = norm_layer(dim)
-
-        self.dwt = DWT_2D(wave='haar')
-        self.idwt = IDWT_2D(wave='haar')
-        
-        self.qk = nn.Linear(dim * 4, dim * 2, bias=qkv_bias)
-        self.v = nn.Linear(dim * 4, dim * 4, bias=qkv_bias)
-
+        self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.unfold = nn.Unfold(kernel_size=(self.overlap_win_size, self.overlap_win_size),
-                                stride=window_size, padding=(self.overlap_win_size - window_size))
+                                stride=window_size, padding=(self.overlap_win_size - window_size) // 2)
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
-            torch.zeros(((window_size) + (self.overlap_win_size) - 1) * ((window_size) + (self.overlap_win_size) - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
+            torch.zeros((window_size + self.overlap_win_size - 1) * (window_size + self.overlap_win_size - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
 
         trunc_normal_(self.relative_position_bias_table, std=.02)
         self.softmax = nn.Softmax(dim=-1)
@@ -1054,44 +913,31 @@ class OCAB(nn.Module):
         # Normalization Layer
         x = self.norm1(x)
         x = x.view(b, h, w, c)
-    
-        # 
-        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
 
-        # DWT
-        x_dwt = self.dwt(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
-        assert x_dwt.shape == (b, h // 2, w // 2, c * 4)
-        _, h_, w_, c_ = x_dwt.shape
-
-        # Linear Mapping
-        qk = self.qk(x_dwt).reshape(b, h_, w_, 2, self.dim).permute(3, 0, 4, 1, 2) # 2, b, c, h, w
-        v = self.v(x_dwt).reshape(b, h_, w_, 1, c_).permute(3, 0, 4, 1, 2) # 1, b, c, h, w
-        
-        q = qk[0].permute(0, 2, 3, 1)  # b, h, w, c
-        k = qk[1]
-        v = v[0]
+        qkv = self.qkv(x).reshape(b, h, w, 3, c).permute(
+            3, 0, 4, 1, 2)  # 3, b, c, h, w
+        q = qkv[0].permute(0, 2, 3, 1)  # b, h, w, c
+        kv = torch.cat((qkv[1], qkv[2]), dim=1)  # b, 2*c, h, w
 
         # partition windows
-        q_windows = window_partition(q, self.window_size) # nw*b, window_size, window_size, c
-        q_windows = q_windows.view(-1, self.window_size * self.window_size, c) # nw*b, window_size*window_size, c
+        # nw*b, window_size, window_size, c
+        q_windows = window_partition(q, self.window_size)
+        # nw*b, window_size*window_size, c
+        q_windows = q_windows.view(-1, self.window_size * self.window_size, c)
 
-        k_windows = self.unfold(k)
-        k_windows = rearrange(k_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=1,
-                               ch=c, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous() 
-        v_windows = self.unfold(v)
-        v_windows = rearrange(v_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=1,
-                               ch=c_, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous()
-        
-        k_windows, v_windows = k_windows[0], v_windows[0]  # nw*b, ow*ow, c
+        kv_windows = self.unfold(kv)  # b, c*w*w, nw
+        kv_windows = rearrange(kv_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=2,
+                               ch=c, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous()  # 2, nw*b, ow*ow, c
+        k_windows, v_windows = kv_windows[0], kv_windows[1]  # nw*b, ow*ow, c
 
         b_, nq, _ = q_windows.shape
         _, n, _ = k_windows.shape
-        q = q_windows.reshape(b_, nq, self.num_heads, self.dim // self.num_heads).permute(
+        d = self.dim // self.num_heads
+        q = q_windows.reshape(b_, nq, self.num_heads, d).permute(
             0, 2, 1, 3)  # nw*b, nH, nq, d
-        k = k_windows.reshape(b_, n, self.num_heads, self.dim // self.num_heads).permute(
+        k = k_windows.reshape(b_, n, self.num_heads, d).permute(
             0, 2, 1, 3)  # nw*b, nH, n, d
-        v = v_windows.reshape(b_, n, self.num_heads, c_ // self.num_heads).permute(
+        v = v_windows.reshape(b_, n, self.num_heads, d).permute(
             0, 2, 1, 3)  # nw*b, nH, n, d
 
         q = q * self.scale
@@ -1104,19 +950,15 @@ class OCAB(nn.Module):
         attn = attn + relative_position_bias.unsqueeze(0)
 
         attn = self.softmax(attn)
-        attn_windows = (attn @ v).transpose(1, 2).reshape(b_, nq, c_)
+        attn_windows = (attn @ v).transpose(1, 2).reshape(b_, nq, self.dim)
 
         # merge windows
         attn_windows = attn_windows.view(-1,
-                                         self.window_size, self.window_size, c_)
-        x = window_reverse(attn_windows, self.window_size, h // 2, w // 2).permute(0, 3, 1, 2)
-        assert x.shape == (b,  c * 4, h // 2,  w // 2)
-        
-        x_idwt = self.idwt(x).permute(0, 2, 3, 1)
-        
-        x = x_idwt.view(b, h * w, self.dim)
+                                         self.window_size, self.window_size, self.dim)
+        x = window_reverse(attn_windows, self.window_size, h, w)  # b h w c
+        x = x.view(b, h * w, self.dim)
 
-        x = self.proj(x) + shortcut + conv_x
+        x = self.proj(x) + shortcut
 
         x = x + self.mlp(self.norm2(x))
         return x
@@ -1156,19 +998,11 @@ class OCBAB(nn.Module):
         self.overlap_win_size = int(window_size * overlap_ratio) + window_size
 
         self.norm1 = norm_layer(dim)
-
-        self.conv_block = eca_layer(dim)
-
-        self.dwt = DWT_2D(wave='haar')
-        self.idwt = IDWT_2D(wave='haar')
-
-
         self.norm_cross = norm_layer(dim)
-        self.q = nn.Linear(dim * 4, dim, bias=qkv_bias)
-        self.k = nn.Linear(dim * 4, dim, bias=qkv_bias)
-        self.v = nn.Linear(dim * 4, dim  * 4, bias=qkv_bias)
+        self.q = nn.Linear(dim, dim, bias=qkv_bias)
+        self.kv = nn.Linear(dim, dim * 2, bias=qkv_bias)
         self.unfold = nn.Unfold(kernel_size=(self.overlap_win_size, self.overlap_win_size),
-                                stride=window_size, padding=(self.overlap_win_size) - (window_size))
+                                stride=window_size, padding=(self.overlap_win_size - window_size) // 2)
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
@@ -1188,84 +1022,59 @@ class OCBAB(nn.Module):
         h, w = x_size
         b, _, c = x.shape
 
-        # Residual Connection
         shortcut = x
-
-        # Normalization Layer
         x = self.norm1(x)
-        x = x.view(b, h, w, c)
         cross_x = self.norm_cross(cross_x)
+        x = x.view(b, h, w, c)
         cross_x = cross_x.view(b, h, w, c)
 
-        # 
-        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
-
-
-        # WT
-        x_dwt = self.dwt(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
-        assert x_dwt.shape == (b, h // 2, w // 2, c * 4)
-        x_dwt_cross = self.dwt(cross_x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
-        assert x_dwt_cross.shape == (b, h // 2, w // 2, c * 4)
-        
-        # Linear Mapping
-        q = self.q(x_dwt).reshape(b, h // 2, w // 2, 1, c).permute(
+        q = self.q(x).reshape(b, h, w, 1, c).permute(
             3, 0, 4, 1, 2)  # 1, b, c, h, w
-        k = self.k(x_dwt).reshape(b, h // 2, w // 2, 1, c).permute(
-            3, 0, 4, 1, 2)  # 1, b, c, h, w
-        v = self.v(x_dwt).reshape(b, h // 2, w // 2, 1, c * 4).permute(
-            3, 0, 4, 1, 2)  # 1, b, c, h, w
-        
+        kv = self.kv(cross_x).reshape(b, h, w, 2, c).permute(
+            3, 0, 4, 1, 2)  # 2, b, c, h, w
         q = q.squeeze(0).permute(0, 2, 3, 1)  # b, h, w, c
-        k = k.squeeze(0)
-        v = v.squeeze(0)
+        kv = torch.cat((kv[0], kv[1]), dim=1)
 
-        # partition windows
+        q = q * self.scale  # partition windows
+        # nw*b, window_size, window_size, c
         q_windows = window_partition(q, self.window_size)
         # nw*b, window_size*window_size, c
-        q_windows = q_windows.view(-1, (self.window_size * self.window_size), c)
+        q_windows = q_windows.view(-1, self.window_size * self.window_size, c)
 
-        k_windows = self.unfold(k)
-        k_windows = rearrange(k_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=1,
-                               ch=c, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous() 
-        v_windows = self.unfold(v)
-        v_windows = rearrange(v_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=1,
-                               ch=c * 4, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous()
-        
-        k_windows, v_windows = k_windows[0], v_windows[0]  # nw*b, ow*ow, c
-
+        kv_windows = self.unfold(kv)  # b, c*w*w, nw
+        kv_windows = rearrange(kv_windows, 'b (nc ch owh oww) nw -> nc (b nw) (owh oww) ch', nc=2,
+                               ch=c, owh=self.overlap_win_size, oww=self.overlap_win_size).contiguous()  # 2, nw*b, ow*ow, c
+        k_windows, v_windows = kv_windows[0], kv_windows[1]  # nw*b, ow*ow, c
 
         b_, nq, _ = q_windows.shape
         _, n, _ = k_windows.shape
-        q = q_windows.reshape(b_, nq, self.num_heads, self.dim // self.num_heads).permute(
+        d = self.dim // self.num_heads
+        q = q_windows.reshape(b_, nq, self.num_heads, d).permute(
             0, 2, 1, 3)  # nw*b, nH, nq, d
-        k = k_windows.reshape(b_, n, self.num_heads, self.dim // self.num_heads).permute(
+        k = k_windows.reshape(b_, n, self.num_heads, d).permute(
             0, 2, 1, 3)  # nw*b, nH, n, d
-        v = v_windows.reshape(b_, n, self.num_heads, (self.dim * 4) // self.num_heads).permute(
+        v = v_windows.reshape(b_, n, self.num_heads, d).permute(
             0, 2, 1, 3)  # nw*b, nH, n, d
 
         q = q * self.scale
         attn = (q @ k.transpose(-2, -1))
 
         relative_position_bias = self.relative_position_bias_table[rpi.view(-1)].view(
-            (self.window_size) * (self.window_size), (self.overlap_win_size) * (self.overlap_win_size), -1)  # ws*ws, wse*wse, nH
-        relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, ws*ws, wse*wse
+            self.window_size * self.window_size, self.overlap_win_size * self.overlap_win_size, -1)  # ws*ws, wse*wse, nH
+        relative_position_bias = relative_position_bias.permute(
+            2, 0, 1).contiguous()  # nH, ws*ws, wse*wse
         attn = attn + relative_position_bias.unsqueeze(0)
 
         attn = self.softmax(attn)
-        attn_windows = (attn @ v).transpose(1, 2).reshape(b_, nq, self.dim * 4)
+        attn_windows = (attn @ v).transpose(1, 2).reshape(b_, nq, self.dim)
 
         # merge windows
         attn_windows = attn_windows.view(-1,
-                                         self.window_size, self.window_size, self.dim * 4)
-        x = window_reverse(attn_windows, self.window_size, h // 2, w // 2).permute(0, 3, 1, 2)  # b h w c
-        assert x.shape == (b,  c * 4, h // 2,  w // 2)
+                                         self.window_size, self.window_size, self.dim)
+        x = window_reverse(attn_windows, self.window_size, h, w)  # b h w c
+        x = x.view(b, h * w, self.dim)
 
-        x_idwt = self.idwt(x).permute(0, 2, 3, 1)     
-        
-        x = x_idwt.view(b, h * w, self.dim)
-
-        x = self.proj(x) + shortcut + conv_x
+        x = self.proj(x) + shortcut
 
         x = x + self.mlp(self.norm2(x))
         return x
@@ -1471,10 +1280,8 @@ class MBAG(nn.Module):
 
         # Multiple HAB
         for pan_blk, mslr_blk in zip(self.pan_hab_blocks, self.mslr_hab_blocks):
-            pan_forward = pan_blk(pan_forward, x_size,
-                                  params['rpi_sa'], params['attn_mask'])
-            mslr_forward = mslr_blk(mslr_forward, x_size, 
-                                    params['rpi_sa'], params['attn_mask'])
+            pan_forward = pan_blk(pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
+            mslr_forward = mslr_blk(mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
         
         # Multiple SCBAB
