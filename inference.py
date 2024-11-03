@@ -10,6 +10,8 @@ from torch.nn import L1Loss
 from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
 from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
+from torchmetrics.image import SpectralAngleMapper, ErrorRelativeGlobalDimensionlessSynthesis, RelativeAverageSpectralError, SpectralDistortionIndex
+from torchmetrics.regression import MeanSquaredError
 from torchinfo import summary
 
 from model.CBT import *
@@ -148,15 +150,35 @@ def main(args):
         model.parameters(), lr=learning_rate, betas=(betas[0], betas[1]))
     criterion = loss_type().to(device)
 
+    metric_collection = MetricCollection({
+        'psnr': PeakSignalNoiseRatio().to(device),
+        'ssim': StructuralSimilarityIndexMeasure().to(device),
+        'sam': SpectralAngleMapper().to(device),
+        'ergas': ErrorRelativeGlobalDimensionlessSynthesis().to(device),
+        'rase' : RelativeAverageSpectralError().to(device),
+        'mse' : MeanSquaredError().to(device),
+    })
+
     val_metric_collection = MetricCollection({
         'psnr': PeakSignalNoiseRatio().to(device),
-        'ssim': StructuralSimilarityIndexMeasure().to(device)
+        'ssim': StructuralSimilarityIndexMeasure().to(device),
+        'sam': SpectralAngleMapper().to(device),
+        'ergas': ErrorRelativeGlobalDimensionlessSynthesis().to(device),
+        'rase' : RelativeAverageSpectralError().to(device),
+        'mse' : MeanSquaredError().to(device),
     })
 
     test_metric_collection = MetricCollection({
         'psnr': PeakSignalNoiseRatio().to(device),
-        'ssim': StructuralSimilarityIndexMeasure().to(device)
+        'ssim': StructuralSimilarityIndexMeasure().to(device),
+        'sam': SpectralAngleMapper().to(device),
+        'ergas': ErrorRelativeGlobalDimensionlessSynthesis().to(device),
+        'rase' : RelativeAverageSpectralError().to(device),
+        'mse' : MeanSquaredError().to(device),
     })
+
+    sdi_metric = SpectralDistortionIndex().to(device)
+    sdi_results = []
 
     val_report_loss = 0
     test_report_loss = 0
@@ -200,9 +222,15 @@ def main(args):
             test_metric = test_metric_collection.forward(mssr, mshr)
             test_report_loss += test_loss
 
-            ergas_score += ergas_batch(mshr, mssr, ergas_l)
-            sam_score += sam_batch(mshr, mssr)
-            q2n_score += q2n_batch(mshr, mssr)
+            # Normalize preds and target for SDI
+            # print(mssr.max())
+            preds_normalized = mssr / mssr.max()
+            target_normalized = mshr / mshr.max()
+
+            # Calculate SDI on normalized predictions and targets
+            sdi_value = sdi_metric(preds_normalized, target_normalized)
+            # print(sdi_value)
+            sdi_results.append(sdi_value.item())
 
             figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
             axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
@@ -241,13 +269,18 @@ def main(args):
         test_metric = test_metric_collection.compute()
         test_metric_collection.reset()
 
+        # Compute the average SDI
+        average_sdi = sum(sdi_results) / len(sdi_results)
+
         # Print final scores
         print(f"Final scores:\n"
-                f"ERGAS: {ergas_score / (i+1)}\n"
-                f"SAM: {sam_score / (i+1)}\n"
-                f"Q2n: {q2n_score / (i+1)}\n"
-                f"PSNR: {test_metric['psnr'].item()}\n"
-                f"SSIM: {test_metric['ssim'].item()}")
+              f"ERGAS: {test_metric['ergas'].item()}\n"
+              f"SAM: {test_metric['sam'].item()}\n"
+              f"PSNR: {test_metric['psnr'].item()}\n"
+              f"SSIM: {test_metric['ssim'].item()}\n"
+              f"RASE: {test_metric['rase'].item()}\n"
+              f"MSE: {test_metric['mse'].item()}\n"
+              f"D_lambda: {average_sdi:.4f}")
 
 
 def scaleMinMax(x):
