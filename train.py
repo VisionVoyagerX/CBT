@@ -20,7 +20,7 @@ from utils import *
 
 def main(args):
     config_file = args.config
-    # try:
+    
     with open(get_config_path() / config_file, 'r') as file:
         config_data = yaml.safe_load(file)
 
@@ -98,6 +98,10 @@ def main(args):
         img_range = config_data['network']['img_range']
         upsampler = config_data['network']['upsampler']
         resi_connection = config_data['network']['resi_connection']
+        hab_wav = config_data['network']['hab_wav']
+        scbab_wav = config_data['network']['scbab_wav']
+        ocab_wav = config_data['network']['ocab_wav']
+        ocbab_wav = config_data['network']['ocbab_wav']
 
         # training_settings
         steps = config_data['training_settings']['steps']
@@ -138,6 +142,7 @@ def main(args):
                        squeeze_factor=squeeze_factor, conv_scale=conv_scale, overlap_ratio=overlap_ratio, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
                        qk_scale=qk_scale, drop_rate=drop_rate, attn_drop_rate=attn_drop_rate, drop_path_rate=drop_path_rate, norm_layer=norm_layer,
                        ape=ape, patch_norm=patch_norm, upscale=upscale, img_range=img_range, upsampler=upsampler, resi_connection=resi_connection,
+                       hab_wav = hab_wav, scbab_wav = scbab_wav, ocab_wav = ocab_wav, ocbab_wav = ocbab_wav,
                        mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
                        pan_std=train_dataset.pan_std.to(device)).to(device)
 
@@ -181,10 +186,9 @@ def main(args):
             checkpoint_path), model, optimizer, tr_metrics, val_metrics)
 
     print('==> Starting training ...')
-    total_steps = 600000 - 49999
 
     train_iter = iter(train_loader)
-    train_progress_bar = tqdm(iter(range(49999, total_steps)), total=total_steps, desc="Training",
+    train_progress_bar = tqdm(iter(range(49999, steps)), total=steps, desc="Training",
                               leave=False, bar_format='{desc:<8}{percentage:3.0f}%|{bar:15}{r_bar}')
     for step in train_progress_bar:
         if step % save_interval == 0 and step != 0:

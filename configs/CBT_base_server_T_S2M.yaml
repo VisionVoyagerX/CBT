@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12//train/"
+    path: "data/pansharpenning_dataset/SEV2MOD_X12//train/"
     mslr_img_size: [16, 16]
     pan_img_size: [48, 48]
 
@@ -21,7 +21,7 @@ data_pipeline:
 
   validation:
     dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12/val/"
+    path: "data/pansharpenning_dataset/SEV2MOD_X12/val/"
     data_pipeline:
     mslr_img_size: [16, 16]
     pan_img_size: [48, 48]
@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: Sev2Mod
-    path: "/home/ubuntu/project/Data/SEV2MOD_X12/test_16/"
+    path: "data/pansharpenning_dataset/SEV2MOD_X12/test_16/"
     mslr_img_size: [16, 16]
     pan_img_size: [48, 48]
     preprocessing:

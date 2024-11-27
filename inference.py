@@ -96,6 +96,10 @@ def main(args):
         img_range = config_data['network']['img_range']
         upsampler = config_data['network']['upsampler']
         resi_connection = config_data['network']['resi_connection']
+        hab_wav = config_data['network']['hab_wav']
+        scbab_wav = config_data['network']['scbab_wav']
+        ocab_wav = config_data['network']['ocab_wav']
+        ocbab_wav = config_data['network']['ocbab_wav']
 
         # training_settings
         batch_size = config_data['training_settings']['batch_size']
@@ -107,14 +111,6 @@ def main(args):
             config_data['training_settings']['scheduler']['type'])
         lr_gamma = config_data['training_settings']['scheduler']['gamma']
         loss_type = eval(config_data['training_settings']['loss']['type'])
-
-    '''except FileNotFoundError:
-        print(f"Config file '{get_config_path() / config_file}' not found.")
-        return
-    except yaml.YAMLError as exc:
-        print(f"Error while parsing YAML in config file '{config_file}': {exc}")
-        return
-'''
 
     # Prepare device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -143,6 +139,7 @@ def main(args):
                        squeeze_factor=squeeze_factor, conv_scale=conv_scale, overlap_ratio=overlap_ratio, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias,
                        qk_scale=qk_scale, drop_rate=drop_rate, attn_drop_rate=attn_drop_rate, drop_path_rate=drop_path_rate, norm_layer=norm_layer,
                        ape=ape, patch_norm=patch_norm, upscale=upscale, img_range=img_range, upsampler=upsampler, resi_connection=resi_connection,
+                       hab_wav = hab_wav, scbab_wav = scbab_wav, ocab_wav = ocab_wav, ocbab_wav = ocbab_wav,
                        mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
                        pan_std=train_dataset.pan_std.to(device)).to(device)
 

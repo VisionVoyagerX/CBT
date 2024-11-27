@@ -2,7 +2,7 @@
 data_pipeline:
   train:
     dataset: GaoFen2
-    path: "../pansharpenning_dataset/GF2/train/train_gf2.h5"
+    path: "data/pansharpenning_dataset/GF2/train/train_gf2.h5"
     mslr_img_size: [16, 16]
     pan_img_size: [64, 64]
 
@@ -21,7 +21,7 @@ data_pipeline:
 
   validation:
     dataset: GaoFen2
-    path: "../pansharpenning_dataset/GF2/val/valid_gf2.h5"
+    path: "data/pansharpenning_dataset/GF2/val/valid_gf2.h5"
     data_pipeline:
     mslr_img_size: [16, 16]
     pan_img_size: [64, 64]
@@ -32,7 +32,7 @@ data_pipeline:
 
   test:
     dataset: GaoFen2
-    path: "../pansharpenning_dataset/GF2/test/test_gf2_multiExm1.h5"
+    path: "data/pansharpenning_dataset/GF2/test/test_gf2_multiExm1.h5"
     mslr_img_size: [64, 64]
     pan_img_size: [256, 256]
     preprocessing:
@@ -46,7 +46,7 @@ machine_settings:
 general_settings:
   name: "CBT_base_tiny_GF2"
   model_type: CBT
-  continue_from_checkpoint: True
+  continue_from_checkpoint: False
   checkpoint_name: CBT_base_tiny_GF2_2023_08_03-07_13_43.pth.tar
   report_interval: 50
   save_interval: 5000
@@ -81,6 +81,10 @@ network:
   img_range: 1.
   upsampler: "pixelshuffle"
   resi_connection: "1conv"
+  hab_wav: True
+  scbab_wav: True
+  ocab_wav: True
+  ocbab_wav: True
 
 training_settings:
   steps: 600000
