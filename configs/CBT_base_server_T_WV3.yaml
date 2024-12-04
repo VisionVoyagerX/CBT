@@ -60,7 +60,7 @@ task:
 # network structures
 network:
   patch_size: 1
-  in_chans: 8
+  in_chans: 2 # XXX
   embed_dim: 30
   depths: [2]
   num_heads: [2]

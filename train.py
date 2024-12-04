@@ -14,7 +14,7 @@ from torchmetrics.image import PeakSignalNoiseRatio, StructuralSimilarityIndexMe
 from torchinfo import summary
 
 from model.CBT import *
-from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3
+from data_loader.DataLoader import GaoFen2, Sev2Mod, WV3
 from utils import *
 
 

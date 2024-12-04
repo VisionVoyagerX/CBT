@@ -13,56 +13,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 
-
-class DIV2K(Dataset):
-    def __init__(self, dir, transforms: list = None) -> None:
-        self.dir = dir
-        self.transforms = transforms
-
-        # TODO add mean and stf for all other datasets
-
-    def __len__(self):
-        return len([name for name in os.listdir(self.dir/'LR')])
-
-    def __getitem__(self, index):
-        lr = torch.tensor(
-            cv2.imread(str(self.dir/'LR'/f'{index + 1:04d}x3.png')), dtype=torch.float32).permute(2, 0, 1)
-        hr = torch.tensor(
-            cv2.imread(str(self.dir/'HR'/f'{index + 1:04d}.png')), dtype=torch.float32).permute(2, 0, 1)
-
-        if self.transforms:
-            mslr = self.transforms[0](mslr)
-            hr = self.transforms[1](hr)
-
-        return (mslr, hr)
-
-
-'''if __name__ == "__main__":
-    batch_size = 8
-    shuffle = True
-
-    dir_tr = Path(f'F:/Data/DIV2K/train')
-    dir_val = Path(f'F:/Data/DIV2K/val')
-
-    tr_dataset = DIV2K(
-        dir_tr, transforms=(Resize((512, 512)), RandomHorizontalFlip(p=1.)))
-    train_loader = DataLoader(
-        dataset=tr_dataset, shuffle=shuffle)
-    
-    val_dataset = DIV2K(
-        dir_tr, transforms=(Resize((512, 512)), RandomHorizontalFlip(p=1.)))
-    validation_loader = DataLoader(
-        dataset=val_dataset, shuffle=shuffle)
-
-    # train shapes
-    mslr, hr = next(iter(train_loader))
-    print(mslr.shape, hr.shape)
-
-    # validation shapes
-    mslr, hr = next(iter(validation_loader))
-    print(mslr.shape, hr.shape)'''
-
-
 class GaoFen2(Dataset):
     def __init__(self, dir, transforms=None) -> None:
         f = h5py.File(str(dir), 'r+')
@@ -282,21 +232,17 @@ if __name__ == "__main__":
 class WV3(Dataset):
     def __init__(self, dir, transforms=None) -> None:
         f = h5py.File(str(dir), 'r+')
-        self.hr = torch.tensor(f['gt'][()], dtype=torch.float32)
-        self.mslr = torch.tensor(f['ms'][()], dtype=torch.float32)
-        self.pan = torch.tensor(f['pan'][()], dtype=torch.float32)
+        self.hr = torch.tensor(f['gt'][()][:,:8, :, :], dtype=torch.float32)
+        self.mslr = torch.tensor(f['ms'][()][:,:8, :, :], dtype=torch.float32)
+        self.pan = torch.tensor(f['pan'][()][:,:, :, :], dtype=torch.float32)
         self.transforms = transforms
 
         # precomputed
         self.pan_mean = torch.tensor([400.1155]).view(1, 1, 1, 1)
         self.pan_std = torch.tensor([231.4912]).view(1, 1, 1, 1)
 
-        self.mslr_mean = torch.tensor(
-            [274.7202, 321.7943, 407.2370, 350.4585, 286.0128, 335.0426, 433.5523,
-             317.5977]).view(1, 8, 1, 1)
-        self.mslr_std = torch.tensor(
-            [76.1222, 125.6397, 205.9311, 221.6230, 210.6218, 182.3110, 224.2404,
-             163.7575]).view(1, 8, 1, 1)
+        self.mslr_mean = torch.tensor([274.7202, 321.7943, 407.2370, 350.4585, 286.0128, 335.0426, 433.5523, 317.5977]).view(1, 8, 1, 1) 
+        self.mslr_std = torch.tensor([76.1222, 125.6397, 205.9311, 221.6230, 210.6218, 182.3110, 224.2404, 163.7575]).view(1, 8, 1, 1) 
 
     def __len__(self):
         return self.mslr.shape[0]

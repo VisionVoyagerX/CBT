@@ -264,12 +264,11 @@ class Deep_Feature_Extractor(nn.Module):
         # Calculate attention mask and relative position index in advance to speed up inference.
         # The original code is very time-cosuming for large window size.
 
-        if self.hab_wav:
-            attn_mask = self.calculate_mask_wav(x_size).to(pan.device)
-        else:
-            attn_mask = self.calculate_mask(x_size).to(pan.device)
+        attn_mask_wav = self.calculate_mask_wav(x_size).to(pan.device)
+        attn_mask = self.calculate_mask(x_size).to(pan.device)
+        
 
-        params = {'attn_mask': attn_mask, 'rpi_sa': self.relative_position_index_SA,
+        params = {'attn_mask_wav': attn_mask_wav, 'attn_mask': attn_mask, 'rpi_sa': self.relative_position_index_SA,
                   'rpi_oca': self.relative_position_index_OCA}
 
         pan_forward = self.pan_patch_embed(pan)
@@ -810,17 +809,17 @@ class HAB(nn.Module):
         assert 0 <= self.shift_size < self.window_size, 'shift_size must in 0-window_size'
 
         self.norm1 = norm_layer(dim)
-
+        # self.conv_scale = conv_scale
+        # self.conv_block = CAB(
+        #     num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
+            
         self.wav = wav
         if self.wav:
             self.dwt = DWT_2D(wave='haar')
             self.idwt = IDWT_2D(wave='haar')
 
         if self.wav:
-            self.conv_scale = conv_scale
-            self.conv_block = CAB(
-                num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
-            
+           
             self.attn = WindowAttentionWav(
                 dim,
                 window_size=retrieve_2d_tuple(self.window_size),
@@ -860,9 +859,9 @@ class HAB(nn.Module):
         x = self.norm1(x) 
         x = x.view(b, h, w, c) # [b, h, w, c]
 
-        # CAB
-        conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-        conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+        # # CAB
+        # conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+        # conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
 
         # Optional cyclic shift
         if self.shift_size > 0:
@@ -908,7 +907,7 @@ class HAB(nn.Module):
         attn_x = attn_x.view(b, h * w, c)
 
         # Addition
-        x = shortcut + self.drop_path(attn_x) + conv_x * self.conv_scale
+        x = shortcut + self.drop_path(attn_x) #+ conv_x * self.conv_scale
         
         # LN and MLP
         x = x + self.drop_path(self.mlp(self.norm2(x)))
@@ -973,8 +972,8 @@ class SCBAB(nn.Module):
 
         if self.wav:
             self.conv_scale = conv_scale
-            self.conv_block = CAB(
-                num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
+            # self.conv_block = CAB(
+            #     num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
             
             self.dwt = DWT_2D(wave='haar')
             self.idwt = IDWT_2D(wave='haar')
@@ -1015,10 +1014,10 @@ class SCBAB(nn.Module):
         x = x.view(b, h, w, c)
         cross_x = cross_x.view(b, h, w, c)
 
-        if self.wav:
+        #if self.wav:
             # CAB
-            conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-            conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+            # conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+            # conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
 
         # cyclic shift
         if self.shift_size > 0:
@@ -1080,7 +1079,7 @@ class SCBAB(nn.Module):
 
         # FFN
         if self.wav:
-            x = shortcut + attn_x + conv_x * self.conv_scale
+            x = shortcut + attn_x #+ conv_x * self.conv_scale
             x = x + self.mlp(self.norm2(x))
             return x
         else:
@@ -1171,8 +1170,8 @@ class OCAB(nn.Module):
         self.wav = wav
         if self.wav:
             self.conv_scale = conv_scale
-            self.conv_block = CAB(
-                num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
+            # self.conv_block = CAB(
+            #     num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
             
 
             self.dwt = DWT_2D(wave='haar')
@@ -1212,8 +1211,8 @@ class OCAB(nn.Module):
 
         if self.wav:
             # CAB
-            conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-            conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+            #conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+            #conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
 
             # DWT
             x_dwt = self.dwt(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
@@ -1272,7 +1271,7 @@ class OCAB(nn.Module):
             
             x = x_idwt.view(b, h * w, self.dim)
 
-            x = self.proj(x) + shortcut + conv_x * self.conv_scale
+            x = self.proj(x) + shortcut #+ conv_x * self.conv_scale
             x = x + self.mlp(self.norm2(x))
             return x
         else:
@@ -1370,8 +1369,8 @@ class OCBAB(nn.Module):
         self.wav = wav
         if self.wav:
             self.conv_scale = conv_scale
-            self.conv_block = CAB(
-                num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
+            # self.conv_block = CAB(
+            #     num_feat=dim, compress_ratio=compress_ratio, squeeze_factor=squeeze_factor)
             
             self.dwt = DWT_2D(wave='haar')
             self.idwt = IDWT_2D(wave='haar')
@@ -1414,8 +1413,8 @@ class OCBAB(nn.Module):
 
         if self.wav:
             # CAB
-            conv_x = self.conv_block(x.permute(0, 3, 1, 2))
-            conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
+            # conv_x = self.conv_block(x.permute(0, 3, 1, 2))
+            # conv_x = conv_x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c) # [b, h * w, c]
 
             # WT
             x_dwt = self.dwt(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)
@@ -1481,7 +1480,7 @@ class OCBAB(nn.Module):
             x = x_idwt.view(b, h * w, self.dim)
 
             if self.wav:
-                x = self.proj(x) + shortcut + conv_x * self.conv_scale
+                x = self.proj(x) + shortcut #+ conv_x * self.conv_scale
                 x = x + self.mlp(self.norm2(x))
                 return x
             else:
@@ -1595,6 +1594,9 @@ class MBAG(nn.Module):
         self.dim = dim
         self.input_resolution = input_resolution
         self.depth = depth
+
+        self.hab_wav = hab_wav
+        self.scbab_wav = scbab_wav
 
         # HAB blocks
         self.pan_hab_blocks = nn.ModuleList([
@@ -1773,23 +1775,29 @@ class MBAG(nn.Module):
         pan_forward = pan
         mslr_forward = mslr
 
-        # Multiple HAB
-        for pan_blk, mslr_blk in zip(self.pan_hab_blocks, self.mslr_hab_blocks):
-            pan_forward = pan_blk(pan_forward, x_size,
-                                  params['rpi_sa'], params['attn_mask'])
-            mslr_forward = mslr_blk(
-                mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
-
+        if self.hab_wav:
+            # Multiple HAB
+            for pan_blk, mslr_blk in zip(self.pan_hab_blocks, self.mslr_hab_blocks):
+                pan_forward = pan_blk(pan_forward, x_size, params['rpi_sa'], params['attn_mask_wav'])
+                mslr_forward = mslr_blk( mslr_forward, x_size, params['rpi_sa'], params['attn_mask_wav'])
+        else:
+            # Multiple HAB
+            for pan_blk, mslr_blk in zip(self.pan_hab_blocks, self.mslr_hab_blocks):
+                pan_forward = pan_blk(pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
+                mslr_forward = mslr_blk( mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
         
+        if self.scbab_wav:
         # Multiple SCBAB
-        for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
-            pan_forward_temp = pan_blk(
-                pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
-            mslr_forward_temp = mslr_blk(
-                mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
+            for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
+                pan_forward_temp = pan_blk(pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask_wav'])
+                mslr_forward_temp = mslr_blk(mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask_wav'])
+        else:
+            for pan_blk, mslr_blk in zip(self.pan_scbab_blocks, self.mslr_scbab_blocks):
+                pan_forward_temp = pan_blk(pan_forward, mslr_forward, x_size, params['rpi_sa'], params['attn_mask'])
+                mslr_forward_temp = mslr_blk(mslr_forward, pan_forward, x_size, params['rpi_sa'], params['attn_mask'])
 
-            pan_forward = pan_forward_temp
-            mslr_forward = mslr_forward_temp
+        pan_forward = pan_forward_temp
+        mslr_forward = mslr_forward_temp
 
         # OCAB
         pan_forward = self.pan_overlap_attn(
