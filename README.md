@@ -4,7 +4,6 @@ A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT
 
 # Performance on benchmark datasets
 
-Performance of CBT, Wav-CBT, and other benchmark methods on GaoFen-2 imagery
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
 
 # Datasets
