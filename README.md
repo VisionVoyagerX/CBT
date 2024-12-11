@@ -4,7 +4,7 @@ A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT
 
 # Performance on benchmark datasets
 
-![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/visualization.png?raw=true)
+![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/qualitative.png?raw=true)
 
 # Datasets
 
