@@ -2,7 +2,7 @@
 
 A new Cross Band Transformer (CBT) and a Wavelet Cross Band Transformer (Wav-CBT) architecture for pansharpening of satellite imagery
 
-# Performance on benchmark datasets
+# Performance on GaoFen-2
 
 ![alt text](https://github.com/nickdndndn/CBT/blob/main/Images/qualitative.png?raw=true)
 
@@ -35,22 +35,7 @@ Clone the project repository to your local machine:
 git clone https://github.com/VisionVoyagerX/CBT.git && cd CBT
 ```
 
-## Step 2: Choose Model (CBT/Wav-CBT)
-
-- To choose CBT:
-
-`
-git checkout main
-`
-
-- To choose Wav-CBT:
-
-`
-git checkout Wav_CBT
-`
-
-
-## Step 3: Download Datasets and Organize
+## Step 2: Download Datasets and Organize
 
 Download and extract the datasets, then organize them according to the specified file structure below. Ensure the file is placed in the root directory of the CBT project.
 
@@ -67,13 +52,13 @@ Download and extract the datasets, then organize them according to the specified
     - val
     - test
 
-## Step 4: Train (optional)
+## Step 3: Train (optional)
 
 `
 python3 train.py -c [choose config from /configs file].yaml
 `
 
-## Step 5: Inference
+## Step 4: Inference
 
 `
 python3 inference.py -c [choose config from /configs file].yaml
