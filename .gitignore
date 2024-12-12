@@ -2,5 +2,5 @@
 dataset/
 *.pyc
 *.png
-*.npz
+
 .vscode
